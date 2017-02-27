@@ -1,11 +1,13 @@
 [Unit]
 Description=PowerVR consumer services
+Before=weston.service
 
 [Service]
-ExecStart=/etc/init.d/rc.pvr start
-ExecStop=/etc/init.d/rc.pvr stop
+ExecStart=/usr/lib/locale/bin/rc.pvr start
+ExecStop=/usr/lib/locale/bin/rc.pvr stop
 Type=oneshot
 RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
+RequiredBy=weston.service

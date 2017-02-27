@@ -74,6 +74,9 @@ do_install() {
 
     # Install systemd service
     if [ ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)} ]; then
+        # if we do not move rc.pvr, it will be remove by "rm_systemd_unitdir"
+        install -d ${D}${localedir}/bin/
+        mv ${D}/etc/init.d/rc.pvr ${D}${localedir}/bin/
         install -d ${D}/${systemd_system_unitdir}/
         install -m 644 ${WORKDIR}/rc.pvr.service ${D}/${systemd_system_unitdir}/
     fi
@@ -89,6 +92,7 @@ FILES_${PN} = " \
     ${libdir}/* \
     /lib/firmware/rgx.fw \
     /usr/local/bin/* \
+    ${localedir}/bin/* \
 "
 
 FILES_${PN}-dev = " \
