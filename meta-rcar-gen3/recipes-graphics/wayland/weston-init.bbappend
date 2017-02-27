@@ -15,9 +15,7 @@ do_install_append() {
     sed -i 's,@LOCALSTATEDIR@,${localstatedir},g' ${D}${bindir}/weston-start
 
     if [ "X${USE_GLES}" = "X1" ]; then
-        sed -e "/RequiresMountsFor=\/run/a Wants=rc.pvr.service" \
-            -e "/RequiresMountsFor=\/run/a After=rc.pvr.service" \
-            -e "s/\$OPTARGS/--idle-time=0 \$OPTARGS/" \
+        sed -e "s/\$OPTARGS/--idle-time=0 \$OPTARGS/" \
             -i ${D}/${systemd_system_unitdir}/weston.service
     fi
 
