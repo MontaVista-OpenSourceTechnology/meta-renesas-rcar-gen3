@@ -1,9 +1,5 @@
-SRC_URI = "git://github.com/renesas-rcar/gst-plugins-good.git;branch=RCAR-GEN3/1.6.3"
-
-# patches come from poky
-SRC_URI += " \
-    file://0001-gstrtpmp4gpay-set-dafault-value-for-MPEG4-without-co.patch \
-"
+SRC_URI_remove = "http://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugins-good-${PV}.tar.xz"
+SRC_URI_append = " git://github.com/renesas-rcar/gst-plugins-good.git;branch=RCAR-GEN3/1.6.3"
 
 SRCREV = "ef4a8e903673cd0415ac7485b700b022c2e4410a"
 
