@@ -86,13 +86,14 @@ do_install() {
 PACKAGES = "\
     ${PN} \
     ${PN}-dev \
+    ${PN}-debug \
 "
 
 FILES_${PN} = " \
     ${sysconfdir}/* \
     ${libdir}/* \
     /lib/firmware/rgx.fw* \
-    /usr/local/bin/* \
+    ${localedir}/bin/* \
     ${exec_prefix}/bin/* \
 "
 
@@ -102,6 +103,10 @@ FILES_${PN}-dev = " \
 "
 
 PROVIDES = "virtual/libgles2"
+FILES_${PN}-debug = " \
+    ${exec_prefix}/local/bin/dlcsrv_REL \
+"
+
 RPROVIDES_${PN} += " \
     ${GLES}-user-module \
     libgles2-mesa \
