@@ -88,19 +88,23 @@ do_install() {
 PACKAGES = "\
     ${PN} \
     ${PN}-dev \
+    ${PN}-debug \
 "
 
 FILES_${PN} = " \
     ${sysconfdir}/* \
     ${libdir}/* \
     /lib/firmware/rgx.fw \
-    /usr/local/bin/* \
     ${localedir}/bin/* \
 "
 
 FILES_${PN}-dev = " \
     ${includedir}/* \
     ${libdir}/pkgconfig/* \
+"
+
+FILES_${PN}-debug = " \
+    ${exec_prefix}/local/bin/dlcsrv_REL \
 "
 
 PROVIDES = "virtual/libgles2  virtual/egl"
