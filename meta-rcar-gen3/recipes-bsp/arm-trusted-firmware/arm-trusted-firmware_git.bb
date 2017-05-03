@@ -24,6 +24,10 @@ ATFW_OPT_r8a7796 = "LSI=M3 RCAR_DRAM_SPLIT=2 ${ATFW_OPT_LOSSY}"
 ATFW_OPT_r8a77965 = "LSI=M3N ${ATFW_OPT_LOSSY}"
 ATFW_OPT_append_ulcb = " RCAR_GEN3_ULCB=1 PMIC_LEVEL_MODE=0"
 
+SRC_URI_append = " \
+    file://0001-Boot-Normal-World-in-EL2.patch \
+"
+
 # requires CROSS_COMPILE set by hand as there is no configure script
 export CROSS_COMPILE="${TARGET_PREFIX}"
 
