@@ -1,4 +1,5 @@
 require include/gles-control.inc
+require include/rcar-gen3-path-common.inc
 
 DESCRIPTION = "PowerVR GPU user module"
 LICENSE = "CLOSED"
@@ -55,8 +56,8 @@ do_install() {
     # Install pre-builded binaries
     install -d ${D}/${libdir}
     install -m 755 ${S}/${libdir}/*.so ${D}/${libdir}/
-    install -d ${D}/${exec_prefix}/local/bin
-    install -m 755 ${S}/${exec_prefix}/local/bin/dlcsrv_REL ${D}/${exec_prefix}/local/bin/dlcsrv_REL
+    install -d ${D}/${RENESAS_DATADIR}/bin
+    install -m 755 ${S}/usr/local/bin/dlcsrv_REL ${D}/${RENESAS_DATADIR}/bin/dlcsrv_REL
     install -d ${D}/lib/firmware
     install -m 644 ${S}/lib/firmware/* ${D}/lib/firmware/
 
@@ -89,14 +90,18 @@ do_install() {
 PACKAGES = "\
     ${PN} \
     ${PN}-dev \
+    ${PN}-debug \
+"
+
+FILES_${PN}-debug = " \
+    ${RENESAS_DATADIR}/bin/dlcsrv_REL \
 "
 
 FILES_${PN} = " \
     ${sysconfdir}/* \
     ${libdir}/* \
     /lib/firmware/rgx.fw* \
-    /usr/local/bin/* \
-    ${exec_prefix}/bin/* \
+    ${RENESAS_DATADIR}/bin/pvrinit \
 "
 
 FILES_${PN}-dev = " \
@@ -104,7 +109,8 @@ FILES_${PN}-dev = " \
     ${libdir}/pkgconfig/* \
 "
 
-PROVIDES = "virtual/libgles2  virtual/egl"
+PROVIDES = "virtual/libgles2"
+
 RPROVIDES_${PN} += " \
     ${GLES}-user-module \
     libgles2-mesa \
@@ -116,6 +122,10 @@ RPROVIDES_${PN} += " \
 RDEPENDS_${PN} = " \
     kernel-module-gles \
     ${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'libgbm wayland-kms', '', d)} \
+"
+
+RDEPENDS_${PN}-debug = " \
+    libdrm \
 "
 
 INSANE_SKIP_${PN} = "ldflags build-deps file-rdeps"
