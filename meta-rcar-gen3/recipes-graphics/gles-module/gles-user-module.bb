@@ -98,7 +98,7 @@ FILES_${PN}-dev = " \
     ${libdir}/pkgconfig/* \
 "
 
-PROVIDES = "virtual/libgles2  virtual/egl"
+PROVIDES = "virtual/libgles2"
 RPROVIDES_${PN} += " \
     ${GLES}-user-module \
     libgles2-mesa \
