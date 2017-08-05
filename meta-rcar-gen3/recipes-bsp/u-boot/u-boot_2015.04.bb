@@ -5,10 +5,12 @@ DEPENDS += "dtc-native"
 UBOOT_URL = "git://github.com/renesas-rcar/u-boot.git"
 BRANCH = "v2015.04/rcar-3.5.3"
 
+LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://Licenses/README;md5=c7383a594871c03da76b3707929d2919"
 
 SRC_URI = "${UBOOT_URL};branch=${BRANCH}"
 SRCREV = "058edfcb95d8d1b58403bbe81e0507924b4b2fb8"
+S = "${WORKDIR}/git"
 
 PV = "v2015.04+git${SRCPV}"
 
