@@ -3,7 +3,7 @@ SRC_URI_append = " git://github.com/renesas-rcar/gst-plugins-bad.git;branch=RCAR
 
 SRCREV = "e336b2dacf29a155dc8f6896ee0f3a89d87d805e"
 
-DEPENDS += "weston"
+DEPENDS += "weston wayland-native"
 
 S = "${WORKDIR}/git"
 
