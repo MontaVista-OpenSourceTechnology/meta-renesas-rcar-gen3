@@ -7,6 +7,9 @@ DEPENDS += "dtc-native"
 UBOOT_URL = "git://github.com/renesas-rcar/u-boot.git"
 BRANCH = "v2015.04/rcar-3.6.2"
 
+LICENSE = "GPLv2+"
+LIC_FILES_CHKSUM = "file://Licenses/README;md5=c7383a594871c03da76b3707929d2919"
+
 SRC_URI = "${UBOOT_URL};branch=${BRANCH}"
 SRCREV = "fb858758470b6ca8e829c9ad455ecac3dbb9774c"
 
