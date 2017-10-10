@@ -1,5 +1,5 @@
 [gerrit]
-defaultbranch=pyro_bsp_2.23
+defaultbranch=master
 host=gerrit.automotivelinux.org
 port=29418
 project=AGL/meta-renesas-rcar-gen3
