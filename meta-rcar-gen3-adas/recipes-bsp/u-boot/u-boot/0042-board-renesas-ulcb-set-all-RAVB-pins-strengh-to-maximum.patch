@@ -1,0 +1,55 @@
+From b247dea7b49d7e66e1848da71e28ff5fe9acf5e1 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Thu, 16 Jun 2016 11:41:43 +0300
+Subject: [PATCH] board: renesas: ulcb: set all RAVB pins strengh to maximum
+
+This is only for H3ULCB.HAD with custom TTTeck ethernet switch
+parameters
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ board/renesas/ulcb/ulcb.c | 21 +++++++++++++++++++++
+ 2 files changed, 21 insertions(+), 5 deletions(-)
+
+diff --git a/board/renesas/ulcb/ulcb.c b/board/renesas/ulcb/ulcb.c
+index 5652014..f77f946 100644
+--- a/board/renesas/ulcb/ulcb.c
++++ b/board/renesas/ulcb/ulcb.c
+@@ -72,6 +72,22 @@ int board_early_init_f(void)
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
++#define PFC_PMMR	0xE6060000
++#define PFC_DRVCTRL1	0xE6060304
++#define PFC_DRVCTRL2	0xE6060308
++#define PFC_DRVCTRL3	0xE606030C
++
++static void write_drvctrl(u32 value, u32 modify_bit, void *reg)
++{
++	u32 val;
++
++	val = readl(reg);
++	val &= ~modify_bit;
++	val |= value;
++	writel(~val, PFC_PMMR);
++	writel(val, reg);
++}
++
+ int board_init(void)
+ {
+ 	u32 val;
+@@ -86,6 +102,11 @@ int board_init(void)
+ 	val = readl(PFC_PUEN6) | PUEN_USB1_OVC | PUEN_USB1_PWEN;
+ 	writel(val, PFC_PUEN6);
+ 
++	/* EtherAVB pin strength */
++	write_drvctrl(0x00000007, 0x00000007, (void *)PFC_DRVCTRL1);
++	write_drvctrl(0x77777777, 0x77777777, (void *)PFC_DRVCTRL2);
++	write_drvctrl(0x77700000, 0x77700000, (void *)PFC_DRVCTRL3);
++
+ #ifdef CONFIG_RAVB
+ #if defined(CONFIG_R8A7795)
+ 	if (rcar_is_legacy()) {
+-- 
+1.9.1
+

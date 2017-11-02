@@ -1,0 +1,87 @@
+From 8d5de721b2e037ce77f886a4307ea5668df9417f Mon Sep 17 00:00:00 2001
+From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Date: Fri, 7 Jul 2017 16:25:06 +0300
+Subject: [PATCH] arm64: dts: renesas: r8a779x: add mlp nodes
+
+Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi | 13 +++++++++++++
+ arch/arm64/boot/dts/renesas/r8a7795.dtsi     | 13 +++++++++++++
+ arch/arm64/boot/dts/renesas/r8a7796.dtsi     | 13 +++++++++++++
+ 3 files changed, 39 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
+index 89c70bb7738b..44a290b32899 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
+@@ -2072,6 +2072,19 @@
+ 			status = "disabled";
+ 		};
+ 
++		mlp: mlp@ec520000 {
++			compatible = "rcar,medialb-dim2";
++			reg = <0 0xec520000 0 0x800>;
++			interrupts = <GIC_SPI 385 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 386 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 384 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 387 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 388 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 802>;
++			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
++			status = "disabled";
++		};
++
+ 		msiof0: spi@e6e90000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+index 89c70bb7738b..44a290b32899 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+@@ -2072,6 +2072,19 @@
+ 			status = "disabled";
+ 		};
+ 
++		mlp: mlp@ec520000 {
++			compatible = "rcar,medialb-dim2";
++			reg = <0 0xec520000 0 0x800>;
++			interrupts = <GIC_SPI 385 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 386 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 384 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 387 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 388 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 802>;
++			power-domains = <&sysc R8A7795_PD_ALWAYS_ON>;
++			status = "disabled";
++		};
++
+ 		msiof0: spi@e6e90000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
+index f430df9df961..565d6e7de4cc 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
+@@ -1955,6 +1955,19 @@
+ 			status = "disabled";
+ 		};
+ 
++		mlp: mlp@ec520000 {
++			compatible = "rcar,medialb-dim2";
++			reg = <0 0xec520000 0 0x800>;
++			interrupts = <GIC_SPI 385 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 386 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 384 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 387 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 388 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 802>;
++			power-domains = <&sysc R8A7796_PD_ALWAYS_ON>;
++			status = "disabled";
++		};
++
+ 		msiof1: spi@e6ea0000 {
+ 			compatible = "renesas,msiof-r8a7796";
+ 			reg = <0 0xe6ea0000 0 0x0064>;
+-- 
+2.13.0
+

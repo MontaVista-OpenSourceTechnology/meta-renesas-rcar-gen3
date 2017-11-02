@@ -1,0 +1,54 @@
+From 8f65b4710c1f51d01032db201543d0a8269a715f Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Fri, 20 May 2016 01:18:44 +0300
+Subject: [PATCH] board: renesas/ ulcb: support fixed-PHY
+
+Add support for fixed-PHY on ULCB board
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ board/renesas/ulcb/ulcb.c     |  5 +++++
+ include/configs/h3ulcb.h      |  3 +++
+ 2 files changed, 8 insertions(+), 0 deletion(-)
+
+diff --git a/board/renesas/ulcb/ulcb.c b/board/renesas/ulcb/ulcb.c
+index 32a63c9..dcca4f8 100644
+--- a/board/renesas/ulcb/ulcb.c
++++ b/board/renesas/ulcb/ulcb.c
+@@ -26,6 +26,7 @@
+ #include <asm/arch/sh_sdhi.h>
+ #include <i2c.h>
+ #include <mmc.h>
++#include <phy.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -193,6 +193,10 @@ int board_eth_init(bd_t *bis)
+ /* ULCB has KSZ9031RNX */
+ int board_phy_config(struct phy_device *phydev)
+ {
++#ifdef CONFIG_PHY_FIXED
++	if (!strncmp(phydev->drv->name, "fixed-PHY", 9) && phydev->drv->config)
++		return phydev->drv->config(phydev);
++#endif
+ 	return 0;
+ }
+ 
+diff --git a/include/configs/h3ulcb.h b/include/configs/h3ulcb.h
+index 8582b64..b9be845 100644
+--- a/include/configs/h3ulcb.h
++++ b/include/configs/h3ulcb.h
+@@ -40,7 +40,9 @@
+ #define CONFIG_RAVB_PHY_MODE	PHY_INTERFACE_MODE_RGMII_ID
+ #define CONFIG_NET_MULTI
+ #define CONFIG_PHYLIB
+-#define CONFIG_PHY_MICREL
++#define CONFIG_PHY_FIXED
++#define CONFIG_PHY_FIXED_SPEED	SPEED_1000
++#define CONFIG_PHY_FIXED_DUPLEX	DUPLEX_FULL
+ #define CONFIG_BITBANGMII
+ #define CONFIG_BITBANGMII_MULTI
+ #define CONFIG_SH_ETHER_BITBANG
+-- 
+1.9.1
+

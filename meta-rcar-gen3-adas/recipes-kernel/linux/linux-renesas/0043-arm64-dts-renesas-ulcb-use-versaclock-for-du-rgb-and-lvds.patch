@@ -1,0 +1,143 @@
+From 29bcecbb93b009e650dfdf9e6a1ff6efadc871bc Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Thu, 10 Aug 2017 08:41:53 +0300
+Subject: [PATCH] arm64: dts: renesas: ulcb: use versaclock for DU RGB and LVDS
+
+This allows to chgange preprogrammed clock in Versa5 clock
+generator.
+DU has PLL that is not too accurate, hence use prescaled value by VC5.
+
+[200~Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb.dts | 24 ++++++++++++++++++++++
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb.dts     | 24 ++++++++++++++++++++++
+ arch/arm64/boot/dts/renesas/r8a7796-m3ulcb.dts     | 22 ++++++++++++++++++++
+ 3 files changed, 70 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb.dts
+index 677bf88..6fe4416 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb.dts
+@@ -229,6 +229,15 @@
+ &du {
+ 	status = "okay";
+ 
++	/* update <du_dotclkin0/3> to <programable_clk0/1> */
++	clocks = <&cpg CPG_MOD 724>,
++		 <&cpg CPG_MOD 723>,
++		 <&cpg CPG_MOD 722>,
++		 <&cpg CPG_MOD 721>,
++		 <&cpg CPG_MOD 727>,
++		 <&programmable_clk0>, <&du_dotclkin1>, <&du_dotclkin2>,
++		 <&programmable_clk1>;
++
+ 	ports {
+ 		port@1 {
+ 			endpoint {
+@@ -390,6 +399,21 @@
+ 	status = "okay";
+ 
+ 	clock-frequency = <400000>;
++
++	clk_5p49v5925: programmable_clk@6a {
++		compatible = "idt,5p49v5925";
++		reg = <0x6a>;
++
++		programmable_clk0: 5p49x_clk1@6a {
++			#clock-cells = <0>;
++			clocks = <&du_dotclkin0>;
++		};
++
++		programmable_clk1: 5p49x_clk2@6a {
++			#clock-cells = <0>;
++			clocks = <&du_dotclkin3>;
++		};
++	};
+ };
+ 
+ &rcar_sound {
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb.dts
+index 7406534..e018f21 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb.dts
+@@ -229,6 +229,15 @@
+ &du {
+ 	status = "okay";
+ 
++	/* update <du_dotclkin0/3> to <programable_clk0/1> */
++	clocks = <&cpg CPG_MOD 724>,
++		 <&cpg CPG_MOD 723>,
++		 <&cpg CPG_MOD 722>,
++		 <&cpg CPG_MOD 721>,
++		 <&cpg CPG_MOD 727>,
++		 <&programmable_clk0>, <&du_dotclkin1>, <&du_dotclkin2>,
++		 <&programmable_clk1>;
++
+ 	ports {
+ 		port@1 {
+ 			endpoint {
+@@ -390,6 +399,21 @@
+ 	status = "okay";
+ 
+ 	clock-frequency = <400000>;
++
++	clk_5p49v5925: programmable_clk@6a {
++		compatible = "idt,5p49v5925";
++		reg = <0x6a>;
++
++		programmable_clk0: 5p49x_clk1@6a {
++			#clock-cells = <0>;
++			clocks = <&du_dotclkin0>;
++		};
++
++		programmable_clk1: 5p49x_clk2@6a {
++			#clock-cells = <0>;
++			clocks = <&du_dotclkin3>;
++		};
++	};
+ };
+ 
+ &rcar_sound {
+diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb.dts
+index 9aa4292..130c068 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb.dts
+@@ -312,6 +312,13 @@
+ &du {
+ 	status = "okay";
+ 
++	/* update <du_dotclkin0/2> to <programable_clk0/1> */
++	clocks = <&cpg CPG_MOD 724>,
++		 <&cpg CPG_MOD 723>,
++		 <&cpg CPG_MOD 722>,
++		 <&cpg CPG_MOD 727>,
++		 <&programmable_clk0>, <&du_dotclkin1>, <&programmable_clk1>;
++
+ 	ports {
+ 		port@1 {
+ 			endpoint {
+@@ -422,6 +429,21 @@
+ &i2c4 {
+ 	status = "okay";
+ 	clock-frequency = <400000>;
++
++	clk_5p49v5925: programmable_clk@6a {
++		compatible = "idt,5p49v5925";
++		reg = <0x6a>;
++
++		programmable_clk0: 5p49x_clk1@6a {
++			#clock-cells = <0>;
++			clocks = <&du_dotclkin0>;
++		};
++
++		programmable_clk1: 5p49x_clk2@6a {
++			#clock-cells = <0>;
++			clocks = <&du_dotclkin2>;
++		};
++	};
+ };
+ 
+ &rcar_sound {
+-- 
+1.9.1
+
