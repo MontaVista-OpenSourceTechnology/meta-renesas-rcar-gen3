@@ -17,6 +17,9 @@ PV = "${LINUX_VERSION}+git${SRCPV}"
 PR = "r1"
 
 SRC_URI_append = " \
+    file://0001-dmaengine-rcar-dmac-ensure-CHCR-DE-bit-is-actually-0.patch \
+    file://0002-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-for-resi.patch \
+    file://0003-ASoC-rcar-revert-IOMMU-support-so-far.patch \
     file://defconfig \
     file://touch.cfg \
     ${@base_conditional("USE_AVB", "1", " file://usb-video-class.cfg", "", d)} \
