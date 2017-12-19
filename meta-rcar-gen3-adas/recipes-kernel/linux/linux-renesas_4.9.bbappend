@@ -6,6 +6,9 @@ COMPATIBLE_MACHINE_v3msk = "v3msk"
 BRANCH = "v4.9/rcar-3.5.9"
 SRCREV = "2c20c9881d53f1b5c7a3ebf55bb83ec15902d0d0"
 
+KERNEL_MODULE_PROBECONF += "btwilink"
+module_conf_btwilink = "blacklist btwilink"
+
 SRC_URI_remove = " \
     file://0001-dmaengine-rcar-dmac-ensure-CHCR-DE-bit-is-actually-0.patch \
     file://0002-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-for-resi.patch \
@@ -81,6 +84,7 @@ SRC_URI_append = " \
     file://0080-dmaengine-rcar-dmac-ensure-CHCR-DE-bit-is-actually-0.patch \
     file://0081-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-for-resi.patch \
     file://0001-arm64-dts-renesas-preserve-drm-HDMI-connector-naming.patch \
+    file://0001-arm64-dts-renesas-disable-r8a7796-hscif0-dma.patch \
 "
 
 SRC_URI_append_r8a7797 = " \
