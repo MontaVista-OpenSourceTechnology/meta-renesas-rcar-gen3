@@ -1,0 +1,59 @@
+From 9075957822c829026acfb5e8982a77f895a7a640 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Mon, 27 Nov 2017 16:53:06 +0300
+Subject: [PATCH] clk: r8a779x: add IMP clock
+
+This adds IMP clock sources for Gen3 SoCs
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/clk/renesas/r8a7795-cpg-mssr.c | 1 +
+ drivers/clk/renesas/r8a7796-cpg-mssr.c | 1 +
+ drivers/clk/renesas/r8a7797-cpg-mssr.c | 7 +++++++
+ 3 files changed, 9 insertions(+)
+
+diff --git a/drivers/clk/renesas/r8a7795-cpg-mssr.c b/drivers/clk/renesas/r8a7795-cpg-mssr.c
+index bc10df3..9061f7f 100644
+--- a/drivers/clk/renesas/r8a7795-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a7795-cpg-mssr.c
+@@ -234,6 +234,7 @@ enum clk_ids {
+ 	DEF_MOD("imr2",			 821,	R8A7795_CLK_S2D1),
+ 	DEF_MOD("imr1",			 822,	R8A7795_CLK_S2D1),
+ 	DEF_MOD("imr0",			 823,	R8A7795_CLK_S2D1),
++	DEF_MOD("imp",			 824,	R8A7795_CLK_S1D1),
+ 	DEF_MOD("gpio7",		 905,	R8A7795_CLK_S3D4),
+ 	DEF_MOD("gpio6",		 906,	R8A7795_CLK_S3D4),
+ 	DEF_MOD("gpio5",		 907,	R8A7795_CLK_S3D4),
+diff --git a/drivers/clk/renesas/r8a7796-cpg-mssr.c b/drivers/clk/renesas/r8a7796-cpg-mssr.c
+index 819d3c6..e886d8a 100644
+--- a/drivers/clk/renesas/r8a7796-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a7796-cpg-mssr.c
+@@ -204,6 +204,7 @@ enum clk_ids {
+ 	DEF_MOD("vin1",			 810,	R8A7796_CLK_S0D2),
+ 	DEF_MOD("vin0",			 811,	R8A7796_CLK_S0D2),
+ 	DEF_MOD("etheravb",		 812,	R8A7796_CLK_S0D6),
++	DEF_MOD("imp",			 824,	R8A7796_CLK_S1D1),
+ 	DEF_MOD("gpio7",		 905,	R8A7796_CLK_S3D4),
+ 	DEF_MOD("gpio6",		 906,	R8A7796_CLK_S3D4),
+ 	DEF_MOD("gpio5",		 907,	R8A7796_CLK_S3D4),
+diff --git a/drivers/clk/renesas/r8a7797-cpg-mssr.c b/drivers/clk/renesas/r8a7797-cpg-mssr.c
+index 29dfe4a..6655592 100644
+--- a/drivers/clk/renesas/r8a7797-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a7797-cpg-mssr.c
+@@ -129,6 +129,13 @@ enum clk_ids {
+ 	DEF_MOD("imr2",			 821,	R8A7797_CLK_S2D1),
+ 	DEF_MOD("imr1",			 822,	R8A7797_CLK_S2D1),
+ 	DEF_MOD("imr0",			 823,	R8A7797_CLK_S2D1),
++	DEF_MOD("imp3",			 824,	R8A7797_CLK_S1D1),
++	DEF_MOD("imp2",			 825,	R8A7797_CLK_S1D1),
++	DEF_MOD("imp1",			 826,	R8A7797_CLK_S1D1),
++	DEF_MOD("imp0",			 827,	R8A7797_CLK_S1D1),
++	DEF_MOD("imp-ocv1",		 828,	R8A7797_CLK_S1D1),
++	DEF_MOD("imp-ocv0",		 829,	R8A7797_CLK_S1D1),
++	DEF_MOD("impram",		 830,	R8A7797_CLK_S1D1),
+ 	DEF_MOD("gpio5",		 907,	R8A7797_CLK_CP),
+ 	DEF_MOD("gpio4",		 908,	R8A7797_CLK_CP),
+ 	DEF_MOD("gpio3",		 909,	R8A7797_CLK_CP),
+-- 
+1.9.1
+

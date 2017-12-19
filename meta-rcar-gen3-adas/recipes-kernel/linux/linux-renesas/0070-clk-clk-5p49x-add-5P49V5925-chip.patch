@@ -1,0 +1,49 @@
+From d9e198a198e8892ac7e1e2636f55207757ee505a Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Thu, 10 Aug 2017 08:46:54 +0300
+Subject: [PATCH] clk: clk-5p49x: add 5P49V5925 chip
+
+Add 5P49V5925 chip
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/clk/clk-5p49x.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/clk/clk-5p49x.c b/drivers/clk/clk-5p49x.c
+index 928bacb..8070154 100644
+--- a/drivers/clk/clk-5p49x.c
++++ b/drivers/clk/clk-5p49x.c
+@@ -60,6 +60,10 @@ struct clk_5p49_priv {
+ 	.xtal_fre = 25000000,
+ };
+ 
++static const struct clk_5p49_info clk_5p49v5925 = {
++	.xtal_fre = 25000000,
++};
++
+ static const struct clk_5p49_info clk_5p49v6901a = {
+ 	.xtal_fre = 50000000,
+ };
+@@ -70,6 +74,10 @@ struct clk_5p49_priv {
+ 		.data = &clk_5p49v5923a,
+ 	},
+ 	{
++		.compatible = "idt,5p49v5925",
++		.data = &clk_5p49v5925,
++	},
++	{
+ 		.compatible = "idt,5p49v6901a",
+ 		.data = &clk_5p49v6901a,
+ 	},
+@@ -79,6 +87,7 @@ struct clk_5p49_priv {
+ 
+ static const struct i2c_device_id clk_5p49_id[] = {
+ 	{ "5p49v5923a",},
++	{ "5p49v5925",},
+ 	{ "5p49v6901a",},
+ 	{}
+ };
+-- 
+1.9.1
+

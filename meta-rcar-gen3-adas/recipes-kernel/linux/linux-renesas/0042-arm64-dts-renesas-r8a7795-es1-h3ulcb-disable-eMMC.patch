@@ -1,0 +1,28 @@
+From 7440eb1bd8d9fdd197664086d67c540495832620 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Sat, 15 Jul 2017 00:44:12 +0300
+Subject: [PATCH] arm64: dts: renesas: r8a7795-es1-h3ulcb: disable eMMC
+
+Disable eMMC due to ES1.x silicon bug
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb.dts
+index 9d83c6c..677bf88 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb.dts
+@@ -458,7 +458,7 @@
+ 	mmc-hs200-1_8v;
+ 	bus-width = <8>;
+ 	non-removable;
+-	status = "okay";
++	status = "disabled";
+ };
+ 
+ &ssi1 {
+-- 
+1.9.1
+

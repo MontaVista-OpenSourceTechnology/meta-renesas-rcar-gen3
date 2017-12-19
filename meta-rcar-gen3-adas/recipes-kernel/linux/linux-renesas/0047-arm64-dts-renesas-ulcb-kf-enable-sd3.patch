@@ -1,0 +1,28 @@
+From a5eed343caa82837c72a2c0e3d53f4db0c5944e4 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Fri, 27 Oct 2017 20:54:47 +0300
+Subject: [PATCH] arm64: dts: renesas: ulcb-kf: enable sd3
+
+This enables SD3 on CN47 instead wifi
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
+index 8ffafb2..ea6cb1b 100644
+--- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
++++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
+@@ -1527,3 +1527,8 @@
+ 
+ 
+ 
++/* enable CN47: SD on SDHI3 */
++#include "ulcb-kf-sd3.dtsi"
++
++
++
+-- 
+1.9.1
+

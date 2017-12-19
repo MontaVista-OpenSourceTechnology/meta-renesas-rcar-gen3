@@ -1,0 +1,29 @@
+From b3026b3a8ddcd9801583aa5e653ef432fbe60bf0 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Mon, 4 Dec 2017 17:49:47 +0300
+Subject: [PATCH] Revert "dmaengine: rcar-dmac: use TCRB instead of TCR for
+ residue"
+
+The patch breaks SCIF DMA support
+
+This reverts commit 936abcc1d0b13ff4a112b153e56c0e60bbdc0f5f.
+---
+ drivers/dma/sh/rcar-dmac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/dma/sh/rcar-dmac.c b/drivers/dma/sh/rcar-dmac.c
+index 9120ff4..0ae7131 100644
+--- a/drivers/dma/sh/rcar-dmac.c
++++ b/drivers/dma/sh/rcar-dmac.c
+@@ -1298,7 +1298,7 @@ static unsigned int rcar_dmac_chan_get_residue(struct rcar_dmac_chan *chan,
+ 	}
+ 
+ 	/* Add the residue for the current chunk. */
+-	residue += rcar_dmac_chan_read(chan, RCAR_DMATCRB) << desc->xfer_shift;
++	residue += rcar_dmac_chan_read(chan, RCAR_DMATCR) << desc->xfer_shift;
+ 
+ 	return residue;
+ }
+-- 
+1.9.1
+

@@ -1,0 +1,154 @@
+From 7f797fef45307ed6c5960cc116ce8de65d192269 Mon Sep 17 00:00:00 2001
+From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Date: Fri, 7 Jul 2017 16:22:40 +0300
+Subject: [PATCH] pinctrl: r8a779x: add mlb pinmux
+
+Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/pinctrl/sh-pfc/pfc-r8a7795-es1.c | 14 ++++++++++++++
+ drivers/pinctrl/sh-pfc/pfc-r8a7795.c     | 14 ++++++++++++++
+ drivers/pinctrl/sh-pfc/pfc-r8a7796.c     | 14 ++++++++++++++
+ 3 files changed, 42 insertions(+)
+
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a7795-es1.c b/drivers/pinctrl/sh-pfc/pfc-r8a7795-es1.c
+index 378065d..f544546 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a7795-es1.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a7795-es1.c
+@@ -2403,6 +2403,14 @@ enum {
+ 	IRQ5_MARK,
+ };
+ 
++/* - MLB+ ------------------------------------------------------------------- */
++static const unsigned int mlb_3pin_pins[] = {
++	RCAR_GP_PIN(5, 23), RCAR_GP_PIN(5, 24), RCAR_GP_PIN(5, 25),
++};
++static const unsigned int mlb_3pin_mux[] = {
++	MLB_CLK_MARK, MLB_SIG_MARK, MLB_DAT_MARK,
++};
++
+ /* - MSIOF0 ----------------------------------------------------------------- */
+ static const unsigned int msiof0_clk_pins[] = {
+ 	/* SCK */
+@@ -4266,6 +4274,7 @@ enum {
+ 	SH_PFC_PIN_GROUP(intc_ex_irq3),
+ 	SH_PFC_PIN_GROUP(intc_ex_irq4),
+ 	SH_PFC_PIN_GROUP(intc_ex_irq5),
++	SH_PFC_PIN_GROUP(mlb_3pin),
+ 	SH_PFC_PIN_GROUP(msiof0_clk),
+ 	SH_PFC_PIN_GROUP(msiof0_sync),
+ 	SH_PFC_PIN_GROUP(msiof0_ss1),
+@@ -4682,6 +4691,10 @@ enum {
+ 	"intc_ex_irq5",
+ };
+ 
++static const char * const mlb_3pin_groups[] = {
++	"mlb_3pin",
++};
++
+ static const char * const msiof0_groups[] = {
+ 	"msiof0_clk",
+ 	"msiof0_sync",
+@@ -5032,6 +5045,7 @@ enum {
+ 	SH_PFC_FUNCTION(i2c5),
+ 	SH_PFC_FUNCTION(i2c6),
+ 	SH_PFC_FUNCTION(intc_ex),
++	SH_PFC_FUNCTION(mlb_3pin),
+ 	SH_PFC_FUNCTION(msiof0),
+ 	SH_PFC_FUNCTION(msiof1),
+ 	SH_PFC_FUNCTION(msiof2),
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a7795.c b/drivers/pinctrl/sh-pfc/pfc-r8a7795.c
+index 1198998..928bbbc 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a7795.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a7795.c
+@@ -2466,6 +2466,14 @@ enum {
+ 	IRQ5_MARK,
+ };
+ 
++/* - MLB+ ------------------------------------------------------------------- */
++static const unsigned int mlb_3pin_pins[] = {
++	RCAR_GP_PIN(5, 23), RCAR_GP_PIN(5, 24), RCAR_GP_PIN(5, 25),
++};
++static const unsigned int mlb_3pin_mux[] = {
++	MLB_CLK_MARK, MLB_SIG_MARK, MLB_DAT_MARK,
++};
++
+ /* - MSIOF0 ----------------------------------------------------------------- */
+ static const unsigned int msiof0_clk_pins[] = {
+ 	/* SCK */
+@@ -4387,6 +4395,7 @@ enum {
+ 	SH_PFC_PIN_GROUP(intc_ex_irq3),
+ 	SH_PFC_PIN_GROUP(intc_ex_irq4),
+ 	SH_PFC_PIN_GROUP(intc_ex_irq5),
++	SH_PFC_PIN_GROUP(mlb_3pin),
+ 	SH_PFC_PIN_GROUP(msiof0_clk),
+ 	SH_PFC_PIN_GROUP(msiof0_sync),
+ 	SH_PFC_PIN_GROUP(msiof0_ss1),
+@@ -4811,6 +4820,10 @@ enum {
+ 	"intc_ex_irq5",
+ };
+ 
++static const char * const mlb_3pin_groups[] = {
++	"mlb_3pin",
++};
++
+ static const char * const msiof0_groups[] = {
+ 	"msiof0_clk",
+ 	"msiof0_sync",
+@@ -5169,6 +5182,7 @@ enum {
+ 	SH_PFC_FUNCTION(i2c5),
+ 	SH_PFC_FUNCTION(i2c6),
+ 	SH_PFC_FUNCTION(intc_ex),
++	SH_PFC_FUNCTION(mlb_3pin),
+ 	SH_PFC_FUNCTION(msiof0),
+ 	SH_PFC_FUNCTION(msiof1),
+ 	SH_PFC_FUNCTION(msiof2),
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a7796.c b/drivers/pinctrl/sh-pfc/pfc-r8a7796.c
+index 1cef61b..26a69dc 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a7796.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a7796.c
+@@ -2468,6 +2468,14 @@ enum {
+ 	IRQ5_MARK,
+ };
+ 
++/* - MLB+ ------------------------------------------------------------------- */
++static const unsigned int mlb_3pin_pins[] = {
++	RCAR_GP_PIN(5, 23), RCAR_GP_PIN(5, 24), RCAR_GP_PIN(5, 25),
++};
++static const unsigned int mlb_3pin_mux[] = {
++	MLB_CLK_MARK, MLB_SIG_MARK, MLB_DAT_MARK,
++};
++
+ /* - MSIOF0 ----------------------------------------------------------------- */
+ static const unsigned int msiof0_clk_pins[] = {
+ 	/* SCK */
+@@ -4310,6 +4318,7 @@ enum {
+ 	SH_PFC_PIN_GROUP(intc_ex_irq3),
+ 	SH_PFC_PIN_GROUP(intc_ex_irq4),
+ 	SH_PFC_PIN_GROUP(intc_ex_irq5),
++	SH_PFC_PIN_GROUP(mlb_3pin),
+ 	SH_PFC_PIN_GROUP(msiof0_clk),
+ 	SH_PFC_PIN_GROUP(msiof0_sync),
+ 	SH_PFC_PIN_GROUP(msiof0_ss1),
+@@ -4722,6 +4731,10 @@ enum {
+ 	"intc_ex_irq5",
+ };
+ 
++static const char * const mlb_3pin_groups[] = {
++	"mlb_3pin",
++};
++
+ static const char * const msiof0_groups[] = {
+ 	"msiof0_clk",
+ 	"msiof0_sync",
+@@ -5054,6 +5067,7 @@ enum {
+ 	SH_PFC_FUNCTION(i2c5),
+ 	SH_PFC_FUNCTION(i2c6),
+ 	SH_PFC_FUNCTION(intc_ex),
++	SH_PFC_FUNCTION(mlb_3pin),
+ 	SH_PFC_FUNCTION(msiof0),
+ 	SH_PFC_FUNCTION(msiof1),
+ 	SH_PFC_FUNCTION(msiof2),
+-- 
+1.9.1
+

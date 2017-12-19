@@ -1,0 +1,31 @@
+From 5b50bdd074c162d927bfd3711546928ac93d4a13 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Wed, 15 Nov 2017 00:03:43 +0300
+Subject: [PATCH] mmngr: Add V3MSK board
+
+This adds V3MSK board support
+
+Signed-off-by: Konstantin Kozhevnikov <Konstantin.Kozhevnikov@cogentembedded.com>
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ mmngr_drv/mmngr/mmngr-module/files/mmngr/include/mmngr_private.h | 5 ++
+ 1 file changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/mmngr_drv/mmngr/mmngr-module/files/mmngr/include/mmngr_private.h b/mmngr_drv/mmngr/mmngr-module/files/mmngr/include/mmngr_private.h
+index e593380..8282d42 100644
+--- a/mmngr_drv/mmngr/mmngr-module/files/mmngr/include/mmngr_private.h
++++ b/mmngr_drv/mmngr/mmngr-module/files/mmngr/include/mmngr_private.h
+@@ -211,6 +211,11 @@ static int validate_memory_map(void);
+ #define MM_OMXBUF_SIZE		(256 * 1024 * 1024)
+ #endif /* MMNGR_SALVATORX */
+ 
++#ifdef MMNGR_V3MSK
++#define MM_OMXBUF_ADDR		(0x7F000000UL)
++#define MM_OMXBUF_SIZE		(16 * 1024 * 1024)
++#endif /* MMNGR_V3MSK */
++
+ #define	MM_CO_ORDER		(12)
+ 
+ #ifdef MMNGR_SSP_ENABLE
+-- 
+1.9.1
