@@ -1,0 +1,44 @@
+From 1fd2e6ce6a443d20e6a103261860816fa5600591 Mon Sep 17 00:00:00 2001
+From: Tom Rini <trini@konsulko.com>
+Date: Wed, 20 Dec 2017 09:58:47 -0500
+Subject: [PATCH 1/1] utest/utest-common.c: Check return value of write()
+
+Signed-off-by: Tom Rini <trini@konsulko.com>
+---
+ utest/utest-common.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/utest/utest-common.c b/utest/utest-common.c
+index 38bd4714bccc..922b4bdc40a9 100644
+--- a/utest/utest-common.c
++++ b/utest/utest-common.c
+@@ -66,7 +66,7 @@ int intern_trace(const char *format, ...)
+     struct timespec     ts;
+     static char         buffer[4096];
+     char               *p = buffer;
+-    int                 n = sizeof(buffer), k;
++    int                 n = sizeof(buffer), k, ret;
+     
+     /* ...retrieve value of monotonic clock */
+     clock_gettime(CLOCK_MONOTONIC, &ts);
+@@ -88,12 +88,15 @@ int intern_trace(const char *format, ...)
+     /* ...output string terminator */
+     (n > 0 ? *p++ = '\n' : 0);
+ 
+-    write(intern_trace_fd, buffer, p - buffer);
++    ret = write(intern_trace_fd, buffer, p - buffer);
+     
+     /* ...release tracing lock */
+     pthread_mutex_unlock(&intern_trace_mutex);
+ 
+-    return 0;
++    if (ret != -1)
++        return 0;
++    else
++        return -1;
+ }
+ 
+ /* ...tracing facility initialization */
+-- 
+2.7.4
+

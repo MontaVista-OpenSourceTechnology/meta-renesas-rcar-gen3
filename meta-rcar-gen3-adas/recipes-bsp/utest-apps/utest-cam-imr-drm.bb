@@ -7,6 +7,7 @@ S = "${WORKDIR}/utest-cam-imr-drm"
 
 SRC_URI = " \
     file://utest-cam-imr-drm.tar.gz \
+    file://0001-utest-utest-common.c-Check-return-value-of-write.patch \
 "
 
 DEPENDS = " \
