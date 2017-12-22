@@ -8,6 +8,7 @@ PV = "0.2"
 
 SRC_URI = " \
     file://si-tools.tar.gz \
+    file://si-tools-fm-improvements.patch \
 "
 
 S = "${WORKDIR}/si-tools"
