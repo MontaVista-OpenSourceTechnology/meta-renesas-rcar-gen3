@@ -18,45 +18,51 @@ Kingfisher board on R8A7797 SoC
 Videobox board on R8A7795 ES1.x SoC
 Videobox board on R8A7795 SoC
 Eagle board on R8A7797 SoC
+Eagle Function board on R8A7797 SoC
 V3MSK board on R8A7797 SoC
 V3MSK.View board on R8A7797 SoC
 Videobox Mini board on R8A7795 ES1.x SoC
 Videobox Mini board on R8A7795 SoC
 Videobox Mini board on R8A7797 SoC
+Videobox2 board on R8A7795 ES1.x SoC
+Videobox2 board on R8A7795 SoC
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/Makefile               |   19 +
+ arch/arm64/boot/dts/renesas/Makefile               |   20 +
  arch/arm64/boot/dts/renesas/legacy/Makefile        |    8 +
  .../renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts    | 1710 +++++++++++++++++++
  .../renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts    |  441 +++++
  .../dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts    | 1724 +++++++++++++++++++
- .../dts/renesas/legacy/r8a7795-h3ulcb-kf-v1.dts    |  465 ++++++
- .../dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts    | 1214 ++++++++++++++
- .../dts/renesas/legacy/r8a7796-m3ulcb-kf-v1.dts    |  465 ++++++
+ .../dts/renesas/legacy/r8a7795-h3ulcb-kf-v1.dts    |  465 +++++
+ .../dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts    | 1214 +++++++++++++
+ .../dts/renesas/legacy/r8a7796-m3ulcb-kf-v1.dts    |  465 +++++
  .../dts/renesas/legacy/r8a7797-v3msk-kf-v0.dts     |   82 +
  .../boot/dts/renesas/legacy/ulcb-kf-cmos.dtsi      |   75 +
  .../arm64/boot/dts/renesas/legacy/ulcb-kf-rpi.dtsi |   77 +
  .../dts/renesas/r8a7795-es1-h3ulcb-had-alfa.dts    |   22 +
  .../dts/renesas/r8a7795-es1-h3ulcb-had-beta.dts    |   23 +
- .../boot/dts/renesas/r8a7795-es1-h3ulcb-had.dtsi   |  225 +++
+ .../boot/dts/renesas/r8a7795-es1-h3ulcb-had.dtsi   |  221 +++
  .../boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts     |   39 +
  .../boot/dts/renesas/r8a7795-es1-h3ulcb-vb.dts     |   69 +
+ .../boot/dts/renesas/r8a7795-es1-h3ulcb-vb2.dts    |   77 +
  .../boot/dts/renesas/r8a7795-es1-h3ulcb-vbm.dts    |   26 +
- .../boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts   |  546 +++++++
- .../dts/renesas/r8a7795-es1-salvator-x-view.dts    |  552 +++++++
+ .../boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts   |  546 ++++++
+ .../dts/renesas/r8a7795-es1-salvator-x-view.dts    |  552 ++++++
  .../boot/dts/renesas/r8a7795-h3ulcb-had-alfa.dts   |   22 +
  .../boot/dts/renesas/r8a7795-h3ulcb-had-beta.dts   |   23 +
- .../arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi |  219 +++
+ .../arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi |  215 +++
  arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts  |   39 +
  arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vb.dts  |   68 +
+ arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vb2.dts |   68 +
  arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vbm.dts |   26 +
- .../arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts |  546 +++++++
- .../boot/dts/renesas/r8a7795-salvator-x-view.dts   |  552 +++++++
+ .../arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts |  546 ++++++
+ .../boot/dts/renesas/r8a7795-salvator-x-view.dts   |  552 ++++++
  arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts  |   40 +
  .../arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts |  287 ++++
  .../boot/dts/renesas/r8a7796-salvator-x-view.dts   |  318 ++++
- arch/arm64/boot/dts/renesas/r8a7797-eagle.dts      |  560 +++++++
+ .../boot/dts/renesas/r8a7797-eagle-function.dts    |   62 +
+ arch/arm64/boot/dts/renesas/r8a7797-eagle.dts      |  575 +++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts   |  578 +++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts  |  518 ++++++
  arch/arm64/boot/dts/renesas/r8a7797-v3msk-view.dts |  298 ++++
@@ -64,11 +70,12 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi      |  545 ++++++
  arch/arm64/boot/dts/renesas/ulcb-kf-most.dtsi      |   30 +
  arch/arm64/boot/dts/renesas/ulcb-kf-sd3.dtsi       |   46 +
- arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1541 +++++++++++++++++
+ arch/arm64/boot/dts/renesas/ulcb-kf.dtsi           | 1542 +++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi      |  515 ++++++
- arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1726 ++++++++++++++++++++
+ arch/arm64/boot/dts/renesas/ulcb-vb.dtsi           | 1726 +++++++++++++++++++
+ arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi          | 1792 ++++++++++++++++++++
  arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi          |  578 +++++++
- 42 files changed, 17171 insertions(+)
+ 46 files changed, 19179 insertions(+)
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/Makefile
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
  create mode 100644 arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v1.dts
@@ -84,6 +91,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-kf.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-vb.dts
+ create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-vb2.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-vbm.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-es1-salvator-x-view.dts
@@ -92,12 +100,14 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-kf.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vb.dts
+ create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vb2.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vbm.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-kf.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts
+ create mode 100644 arch/arm64/boot/dts/renesas/r8a7797-eagle-function.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
@@ -109,13 +119,14 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-vb.dtsi
+ create mode 100644 arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
  create mode 100644 arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi
 
 diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
-index f9c71df..af88350 100644
+index f9c71df..1c63893 100644
 --- a/arch/arm64/boot/dts/renesas/Makefile
 +++ b/arch/arm64/boot/dts/renesas/Makefile
-@@ -6,5 +6,24 @@ dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-xs.dtb
+@@ -6,5 +6,25 @@ dtb-$(CONFIG_ARCH_R8A7796) += r8a7796-salvator-xs.dtb
  dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-salvator-x.dtb
  dtb-$(CONFIG_ARCH_R8A77965) += r8a77965-salvator-xs.dtb
  
@@ -128,8 +139,9 @@ index f9c71df..af88350 100644
 +dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-h3ulcb-had-alfa.dtb r8a7795-h3ulcb-had-beta.dtb r8a7795-es1-h3ulcb-had-alfa.dtb r8a7795-es1-h3ulcb-had-beta.dtb
 +dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-h3ulcb-kf.dtb r8a7795-es1-h3ulcb-kf.dtb
 +dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-h3ulcb-vb.dtb r8a7795-es1-h3ulcb-vb.dtb
++dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-h3ulcb-vb2.dtb r8a7795-es1-h3ulcb-vb2.dtb
 +dtb-$(CONFIG_ARCH_R8A7795) += r8a7795-h3ulcb-vbm.dtb r8a7795-es1-h3ulcb-vbm.dtb
-+dtb-$(CONFIG_ARCH_R8A7797) += r8a7797-eagle.dtb
++dtb-$(CONFIG_ARCH_R8A7797) += r8a7797-eagle.dtb r8a7797-eagle-function.dtb
 +dtb-$(CONFIG_ARCH_R8A7797) += r8a7797-v3msk.dtb
 +dtb-$(CONFIG_ARCH_R8A7797) += r8a7797-v3msk-view.dtb
 +dtb-$(CONFIG_ARCH_R8A7797) += r8a7797-v3msk-kf.dtb
@@ -156,7 +168,7 @@ index 0000000..7f25079
 +clean-files	:= *.dtb
 diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
 new file mode 100644
-index 0000000..2fee788
+index 0000000..fe07e22
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/r8a7795-es1-h3ulcb-kf-v0.dts
 @@ -0,0 +1,1710 @@
@@ -895,8 +907,8 @@ index 0000000..2fee788
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -1104,8 +1116,8 @@ index 0000000..2fee788
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@1 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@1 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -2319,7 +2331,7 @@ index 0000000..ac6a12b
 +};
 diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts
 new file mode 100644
-index 0000000..78c766b
+index 0000000..c19bc58
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/r8a7795-h3ulcb-kf-v0.dts
 @@ -0,0 +1,1724 @@
@@ -3058,8 +3070,8 @@ index 0000000..78c766b
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -3267,8 +3279,8 @@ index 0000000..78c766b
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@1 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@1 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -4520,7 +4532,7 @@ index 0000000..14b6f52
 +};
 diff --git a/arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts b/arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts
 new file mode 100644
-index 0000000..ffa1879
+index 0000000..8e7de0f
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/legacy/r8a7796-m3ulcb-kf-v0.dts
 @@ -0,0 +1,1214 @@
@@ -5259,8 +5271,8 @@ index 0000000..ffa1879
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -6520,10 +6532,10 @@ index 0000000..2f8b274
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had.dtsi
 new file mode 100644
-index 0000000..d50ff7a
+index 0000000..dd399f4
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-had.dtsi
-@@ -0,0 +1,225 @@
+@@ -0,0 +1,221 @@
 +/*
 + * Device Tree Source for the H3ULCB.HAD board on r8a7795 ES1.x
 + *
@@ -6546,13 +6558,9 @@ index 0000000..d50ff7a
 +	model = "Renesas H3ULCB.HAD board based on r8a7795";
 +
 +	aliases {
-+		serial1 = &scif1;
++		serial0 = &scif1;
 +		spi1 = &spi0_gpio;
 +		spi2 = &spi1_gpio;
-+	};
-+
-+	chosen {
-+		stdout-path = "serial1:115200n8";
 +	};
 +
 +	spi0_gpio: spi_gpio@0 {
@@ -6869,6 +6877,89 @@ index 0000000..549a717
 +&hsusb {
 +	status = "okay";
 +};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-vb2.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-vb2.dts
+new file mode 100644
+index 0000000..1a8db57
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-vb2.dts
+@@ -0,0 +1,77 @@
++/*
++ * Device Tree Source for the H3ULCB Videobox board V2 on r8a7795
++ *
++ * Copyright (C) 2018 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++#include "r8a7795-es1-h3ulcb.dts"
++#include "ulcb-vb2.dtsi"
++
++/ {
++	model = "Renesas H3ULCB Videobox board based on r8a7795";
++
++	hdmi1-out {
++		compatible = "hdmi-connector";
++		type = "a";
++
++		port {
++			hdmi1_con: endpoint {
++				remote-endpoint = <&rcar_dw_hdmi1_out>;
++			};
++		};
++	};
++};
++
++&pfc {
++	usb31_pins: usb31 {
++		groups = "usb31";
++		function = "usb31";
++	};
++};
++
++&du {
++	ports {
++		port@2 {
++			endpoint {
++				remote-endpoint = <&rcar_dw_hdmi1_in>;
++			};
++		};
++		port@3 {
++			endpoint {
++				remote-endpoint = <&lvds_enc_in>;
++			};
++		};
++	};
++};
++
++&hdmi1 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			reg = <0>;
++			rcar_dw_hdmi1_in: endpoint {
++				remote-endpoint = <&du_out_hdmi1>;
++			};
++		};
++		port@1 {
++			reg = <1>;
++			rcar_dw_hdmi1_out: endpoint {
++				remote-endpoint = <&hdmi1_con>;
++			};
++		};
++	};
++};
++
++&xhci1 {
++	status = "okay";
++	pinctrl-0 = <&usb31_pins>;
++	pinctrl-names = "default";
++};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-vbm.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-vbm.dts
 new file mode 100644
 index 0000000..323722c
@@ -6903,7 +6994,7 @@ index 0000000..323722c
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts
 new file mode 100644
-index 0000000..de56fa4
+index 0000000..6eb7cac
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-h3ulcb-view.dts
 @@ -0,0 +1,546 @@
@@ -7069,8 +7160,8 @@ index 0000000..de56fa4
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x4c>;
 +		gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
 +		maxim,sensor_delay = <0>;
@@ -7111,8 +7202,8 @@ index 0000000..de56fa4
 +		};
 +	};
 +
-+	max9286-max9271@1 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@1 {
++		compatible = "maxim,max9286";
 +		reg = <0x6c>;
 +		gpios = <&gpio5 25 GPIO_ACTIVE_HIGH>;
 +		maxim,sensor_delay = <0>;
@@ -7455,7 +7546,7 @@ index 0000000..de56fa4
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1-salvator-x-view.dts b/arch/arm64/boot/dts/renesas/r8a7795-es1-salvator-x-view.dts
 new file mode 100644
-index 0000000..3f3d66a
+index 0000000..d4caf46
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1-salvator-x-view.dts
 @@ -0,0 +1,552 @@
@@ -7636,8 +7727,8 @@ index 0000000..3f3d66a
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x4c>;
 +		gpios = <&gpio6 30 GPIO_ACTIVE_LOW>;
 +		maxim,sensor_delay = <0>;
@@ -7678,8 +7769,8 @@ index 0000000..3f3d66a
 +		};
 +	};
 +
-+	max9286-max9271@1 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@1 {
++		compatible = "maxim,max9286";
 +		reg = <0x6c>;
 +		maxim,sensor_delay = <0>;
 +		maxim,links = <4>;
@@ -8070,10 +8161,10 @@ index 0000000..805067e
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
 new file mode 100644
-index 0000000..4a00426
+index 0000000..d1bbea4
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-had.dtsi
-@@ -0,0 +1,219 @@
+@@ -0,0 +1,215 @@
 +/*
 + * Device Tree Source for the H3ULCB.HAD board on r8a7795
 + *
@@ -8096,13 +8187,9 @@ index 0000000..4a00426
 +	model = "Renesas H3ULCB.HAD board based on r8a7795";
 +
 +	aliases {
-+		serial1 = &scif1;
++		serial0 = &scif1;
 +		spi1 = &spi0_gpio;
 +		spi2 = &spi1_gpio;
-+	};
-+
-+	chosen {
-+		stdout-path = "serial1:115200n8";
 +	};
 +
 +	spi0_gpio: spi_gpio@0 {
@@ -8412,6 +8499,80 @@ index 0000000..330bba2
 +&hsusb0 {
 +	status = "okay";
 +};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vb2.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vb2.dts
+new file mode 100644
+index 0000000..e862d3e
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vb2.dts
+@@ -0,0 +1,68 @@
++/*
++ * Device Tree Source for the H3ULCB Videobox board V2 on r8a7795
++ *
++ * Copyright (C) 2018 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++#include "r8a7795-h3ulcb.dts"
++#include "ulcb-vb2.dtsi"
++
++/ {
++	model = "Renesas H3ULCB Videobox board based on r8a7795";
++
++	hdmi1-out {
++		compatible = "hdmi-connector";
++		type = "a";
++
++		port {
++			hdmi1_con: endpoint {
++				remote-endpoint = <&rcar_dw_hdmi1_out>;
++			};
++		};
++	};
++};
++
++&du {
++	ports {
++		port@2 {
++			endpoint {
++				remote-endpoint = <&rcar_dw_hdmi1_in>;
++			};
++		};
++		port@3 {
++			endpoint {
++				remote-endpoint = <&lvds_enc_in>;
++			};
++		};
++	};
++};
++
++&hdmi1 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			reg = <0>;
++			rcar_dw_hdmi1_in: endpoint {
++				remote-endpoint = <&du_out_hdmi1>;
++			};
++		};
++		port@1 {
++			reg = <1>;
++			rcar_dw_hdmi1_out: endpoint {
++				remote-endpoint = <&hdmi1_con>;
++			};
++		};
++	};
++};
++
++&hsusb0 {
++	status = "okay";
++};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vbm.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-vbm.dts
 new file mode 100644
 index 0000000..87f1889
@@ -8446,7 +8607,7 @@ index 0000000..87f1889
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts
 new file mode 100644
-index 0000000..2c24b85
+index 0000000..8541518
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-h3ulcb-view.dts
 @@ -0,0 +1,546 @@
@@ -8612,8 +8773,8 @@ index 0000000..2c24b85
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x4c>;
 +		gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
 +		maxim,sensor_delay = <0>;
@@ -8654,8 +8815,8 @@ index 0000000..2c24b85
 +		};
 +	};
 +
-+	max9286-max9271@1 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@1 {
++		compatible = "maxim,max9286";
 +		reg = <0x6c>;
 +		gpios = <&gpio5 25 GPIO_ACTIVE_HIGH>;
 +		maxim,sensor_delay = <0>;
@@ -8998,7 +9159,7 @@ index 0000000..2c24b85
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts b/arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts
 new file mode 100644
-index 0000000..fb12a39f3
+index 0000000..14539ea
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-salvator-x-view.dts
 @@ -0,0 +1,552 @@
@@ -9179,8 +9340,8 @@ index 0000000..fb12a39f3
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x4c>;
 +		gpios = <&gpio6 30 GPIO_ACTIVE_LOW>;
 +		maxim,sensor_delay = <0>;
@@ -9221,8 +9382,8 @@ index 0000000..fb12a39f3
 +		};
 +	};
 +
-+	max9286-max9271@1 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@1 {
++		compatible = "maxim,max9286";
 +		reg = <0x6c>;
 +		maxim,sensor_delay = <0>;
 +		maxim,links = <4>;
@@ -9602,7 +9763,7 @@ index 0000000..a409402
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts
 new file mode 100644
-index 0000000..1ac0041
+index 0000000..ea7f378
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-m3ulcb-view.dts
 @@ -0,0 +1,287 @@
@@ -9696,8 +9857,8 @@ index 0000000..1ac0041
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x4c>;
 +		gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
 +		maxim,sensor_delay = <0>;
@@ -9895,7 +10056,7 @@ index 0000000..1ac0041
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts b/arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts
 new file mode 100644
-index 0000000..cc6866c
+index 0000000..319120f
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7796-salvator-x-view.dts
 @@ -0,0 +1,318 @@
@@ -10004,8 +10165,8 @@ index 0000000..cc6866c
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x4c>;
 +		gpios = <&gpio6 30 GPIO_ACTIVE_LOW>;
 +		maxim,sensor_delay = <0>;
@@ -10217,12 +10378,80 @@ index 0000000..cc6866c
 +	pinctrl-names = "default";
 +	status = "okay";
 +};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7797-eagle-function.dts b/arch/arm64/boot/dts/renesas/r8a7797-eagle-function.dts
+new file mode 100644
+index 0000000..82d6513
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/r8a7797-eagle-function.dts
+@@ -0,0 +1,62 @@
++/*
++ * Device Tree Source for the Eagle Function board on r8a7797
++ *
++ * Copyright (C) 2017 Renesas Electronics Corp.
++ * Copyright (C) 2017 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++#include "r8a7797-eagle.dts"
++
++/ {
++	model = "Renesas Eagle Function board based on r8a7797";
++
++	vcc_3v3: regulator0 {
++		compatible = "regulator-fixed";
++		regulator-name = "fixed-VCC3V3";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++
++	vcc_vddq_vin0: regulator1 {
++		compatible = "regulator-fixed";
++		regulator-name = "VCC-VDDQ-VIN0";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++};
++
++&pfc {
++	sdhi2_pins_1v8: sdhi2_1v8 {
++		groups = "mmc_data8", "mmc_ctrl";
++		function = "mmc";
++		power-source = <1800>;
++	};
++
++	sdhi2_pins_3v3: sdhi2_3v3 {
++		groups = "mmc_data8", "mmc_ctrl";
++		function = "mmc";
++		power-source = <3300>;
++	};
++};
++
++&sdhi2 {
++	/* used for on-board eMMC */
++	pinctrl-0 = <&sdhi2_pins_3v3>;
++	pinctrl-1 = <&sdhi2_pins_1v8>;
++	pinctrl-names = "default", "state_uhs";
++
++	vmmc-supply = <&vcc_3v3>;
++	vqmmc-supply = <&vcc_vddq_vin0>;
++	mmc-hs200-1_8v;
++	bus-width = <8>;
++	non-removable;
++	status = "okay";
++};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
 new file mode 100644
-index 0000000..3fb3bf1
+index 0000000..ce7a88e
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-eagle.dts
-@@ -0,0 +1,560 @@
+@@ -0,0 +1,575 @@
 +/*
 + * Device Tree Source for the Eagle board
 + *
@@ -10394,6 +10623,11 @@ index 0000000..3fb3bf1
 +	pinctrl-0 = <&scif_clk_pins>;
 +	pinctrl-names = "default";
 +
++	canfd0_pins: canfd0 {
++		groups = "canfd0_data_a";
++		function = "canfd0";
++	};
++
 +	scif0_pins: scif0 {
 +		groups = "scif0_data";
 +		function = "scif0";
@@ -10563,8 +10797,8 @@ index 0000000..3fb3bf1
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x48>;
 +		gpios = <&gpio_ext 0 GPIO_ACTIVE_LOW>; /* CSI0 DE_PDn */
 +		maxim,gpio0 = <0>;
@@ -10750,6 +10984,16 @@ index 0000000..3fb3bf1
 +	};
 +};
 +
++&canfd {
++	pinctrl-0 = <&canfd0_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	channel0 {
++		status = "okay";
++	};
++};
++
 +&csi2_40 {
 +	status = "okay";
 +
@@ -10785,7 +11029,7 @@ index 0000000..3fb3bf1
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts
 new file mode 100644
-index 0000000..979cebe
+index 0000000..b92fe83
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-kf.dts
 @@ -0,0 +1,578 @@
@@ -11041,8 +11285,8 @@ index 0000000..979cebe
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -11369,7 +11613,7 @@ index 0000000..979cebe
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
 new file mode 100644
-index 0000000..4292b7b
+index 0000000..26f8c70
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-vbm.dts
 @@ -0,0 +1,518 @@
@@ -11580,8 +11824,8 @@ index 0000000..4292b7b
 +				};
 +			};
 +
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -11661,7 +11905,7 @@ index 0000000..4292b7b
 +				};
 +				port@1 {
 +					ti964_csi0ep0: endpoint {
-+						csi-rate = <1450>;
++						csi-rate = <700>;
 +						remote-endpoint = <&csi2_40_ep>;
 +					};
 +				};
@@ -11893,7 +12137,7 @@ index 0000000..4292b7b
 +};
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797-v3msk-view.dts b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-view.dts
 new file mode 100644
-index 0000000..573e2bc
+index 0000000..6f82385
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797-v3msk-view.dts
 @@ -0,0 +1,298 @@
@@ -12026,8 +12270,8 @@ index 0000000..573e2bc
 +		};
 +	};
 +
-+	max9286-max9271@0 {
-+		compatible = "maxim,max9286-max9271";
++	max9286@0 {
++		compatible = "maxim,max9286";
 +		reg = <0x6c>;
 +		gpios = <&gpio0 9 GPIO_ACTIVE_HIGH>;
 +		maxim,sensor_delay = <0>;
@@ -12517,7 +12761,7 @@ index 0000000..91d10c5
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
 new file mode 100644
-index 0000000..589a774
+index 0000000..b469ca6
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf-cn11.dtsi
 @@ -0,0 +1,545 @@
@@ -12747,8 +12991,8 @@ index 0000000..589a774
 +		};
 +
 +		/* MAX9286 @ 0x2c */
-+		max9286-max9271@1 {
-+			compatible = "maxim,max9286-max9271";
++		max9286@1 {
++			compatible = "maxim,max9286";
 +			reg = <0x2c>;
 +			maxim,sensor_delay = <350>;
 +			maxim,links = <4>;
@@ -12756,10 +13000,10 @@ index 0000000..589a774
 +			maxim,resetb-gpio = <1>;
 +			maxim,fsync-mode = "automatic";
 +			maxim,timeout = <100>;
-+			POC0-supply = <&pwr0B>;
-+			POC1-supply = <&pwr1B>;
-+			POC2-supply = <&pwr2B>;
-+			POC3-supply = <&pwr3B>;
++			POC0-supply = <&pwr1B>;
++			POC1-supply = <&pwr0B>;
++			POC2-supply = <&pwr3B>;
++			POC3-supply = <&pwr2B>;
 +
 +			port@0 {
 +				max9286_des1ep0: endpoint@0 {
@@ -13156,10 +13400,10 @@ index 0000000..b854216
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
 new file mode 100644
-index 0000000..5958450
+index 0000000..d7ffd79
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -0,0 +1,1541 @@
+@@ -0,0 +1,1542 @@
 +/*
 + * Device Tree Source for the ULCB Kingfisher board
 + *
@@ -14130,19 +14374,20 @@ index 0000000..5958450
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
 +				maxim,lanes = <4>;
 +				maxim,resetb-gpio = <1>;
 +				maxim,fsync-mode = "automatic";
++
 +				maxim,timeout = <100>;
-+				POC0-supply = <&pwr0A>;
-+				POC1-supply = <&pwr1A>;
-+				POC2-supply = <&pwr2A>;
-+				POC3-supply = <&pwr3A>;
++				POC0-supply = <&pwr1A>;
++				POC1-supply = <&pwr0A>;
++				POC2-supply = <&pwr3A>;
++				POC3-supply = <&pwr2A>;
 +
 +				port@0 {
 +					max9286_des0ep0: endpoint@0 {
@@ -14703,7 +14948,7 @@ index 0000000..5958450
 +
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi
 new file mode 100644
-index 0000000..92ed4a4
+index 0000000..d5c4f46
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-vb-cn12.dtsi
 @@ -0,0 +1,515 @@
@@ -14888,8 +15133,8 @@ index 0000000..92ed4a4
 +		};
 +
 +		/* MAX9286 @ 0x2c */
-+		max9286-max9271@2 {
-+			compatible = "maxim,max9286-max9271";
++		max9286@2 {
++			compatible = "maxim,max9286";
 +			reg = <0x2c>;
 +			maxim,sensor_delay = <350>;
 +			maxim,links = <4>;
@@ -15224,7 +15469,7 @@ index 0000000..92ed4a4
 +};
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb.dtsi
 new file mode 100644
-index 0000000..193153e
+index 0000000..4fcb320
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-vb.dtsi
 @@ -0,0 +1,1726 @@
@@ -15831,8 +16076,8 @@ index 0000000..193153e
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -16040,8 +16285,8 @@ index 0000000..193153e
 +			};
 +
 +			/* MAX9286 @ 0x2c */
-+			max9286-max9271@1 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@1 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;
@@ -16954,9 +17199,1807 @@ index 0000000..193153e
 +
 +/* uncomment to enable CN12 on VIN4-7 */
 +//#include "ulcb-vb-cn12.dtsi"
+diff --git a/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
+new file mode 100644
+index 0000000..67b6085
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/ulcb-vb2.dtsi
+@@ -0,0 +1,1792 @@
++/*
++ * Device Tree Source for the ULCB Videobox V2 board
++ *
++ * Copyright (C) 2018 Cogent Embedded, Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++/ {
++	leds {
++		compatible = "gpio-leds";
++
++		led5 {
++			gpios = <&gpio6 12 GPIO_ACTIVE_HIGH>;
++		};
++		led6 {
++			gpios = <&gpio6 13 GPIO_ACTIVE_HIGH>;
++		};
++		/* D13 - status 0 */
++		led_ext00 {
++			gpios = <&gpio_ext_led 0 GPIO_ACTIVE_LOW>;
++			/* linux,default-trigger = "heartbeat"; */
++		};
++		/* D14 - status 1 */
++		led_ext01 {
++			gpios = <&gpio_ext_led 1 GPIO_ACTIVE_LOW>;
++			/* linux,default-trigger = "mmc1"; */
++		};
++		/* D16 - HDMI0 */
++		led_ext02 {
++			gpios = <&gpio_ext_led 2 GPIO_ACTIVE_LOW>;
++		};
++		/* D18 - HDMI1 */
++		led_ext03 {
++			gpios = <&gpio_ext_led 3 GPIO_ACTIVE_LOW>;
++		};
++	};
++
++	snd_clk: snd_clk {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <24576000>;
++		clock-output-names = "scki";
++	};
++
++	vcc_sdhi3: regulator-vcc-sdhi3 {
++		compatible = "regulator-fixed";
++
++		regulator-name = "SDHI3 Vcc";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++
++		gpio = <&gpio4 17 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
++	vccq_sdhi3: regulator-vccq-sdhi3 {
++		compatible = "regulator-fixed";
++
++		regulator-name = "SDHI3 VccQ";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++	};
++
++	fpdlink_switch: regulator@8 {
++		compatible = "regulator-fixed";
++		regulator-name = "fpdlink_on";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		gpio = <&gpio1 20 0>;
++		enable-active-high;
++		regulator-always-on;
++	};
++
++	hub_reset: regulator@9 {
++		compatible = "regulator-fixed";
++		regulator-name = "hub_reset";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		gpio = <&gpio5 5 0>;
++		enable-active-high;
++		regulator-always-on;
++	};
++
++	hub_power: regulator@10 {
++		compatible = "regulator-fixed";
++		regulator-name = "hub_power";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		gpio = <&gpio6 28 0>;
++		enable-active-high;
++		regulator-always-on;
++	};
++
++	/delete-node/sound;
++
++	rsnd_ak4613: sound@0 {
++		pinctrl-0 = <&sound_0_pins>;
++		pinctrl-names = "default";
++		compatible = "simple-audio-card";
++
++		simple-audio-card,format = "left_j";
++		simple-audio-card,name = "ak4613";
++
++		simple-audio-card,bitclock-master = <&sndcpu>;
++		simple-audio-card,frame-master = <&sndcpu>;
++
++		sndcpu: simple-audio-card,cpu@1 {
++			sound-dai = <&rcar_sound>;
++		};
++
++		sndcodec: simple-audio-card,codec@1 {
++			sound-dai = <&ak4613>;
++		};
++	};
++
++	lvds-encoder {
++		compatible = "thine,thc63lvdm83d";
++
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			port@0 {
++				reg = <0>;
++				lvds_enc_in: endpoint {
++					remote-endpoint = <&du_out_lvds0>;
++				};
++			};
++			port@1 {
++				reg = <1>;
++				lvds_enc_out: endpoint {
++					remote-endpoint = <&lvds_in>;
++				};
++			};
++		};
++	};
++
++	lvds {
++		compatible = "lvds-connector";
++
++		width-mm = <210>;
++		height-mm = <158>;
++
++		panel-timing {
++			/* 1280x800 @60Hz */
++			clock-frequency = <65000000>;
++			hactive = <1280>;
++			vactive = <800>;
++			hsync-len = <40>;
++			hfront-porch = <80>;
++			hback-porch = <40>;
++			vfront-porch = <14>;
++			vback-porch = <14>;
++			vsync-len = <4>;
++		};
++
++		port {
++			lvds_in: endpoint {
++				remote-endpoint = <&lvds_enc_out>;
++			};
++		};
++	};
++
++	excan_ref_clk: excan-ref-clock {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <16000000>;
++	};
++
++	spi_gpio_sw {
++		compatible = "spi-gpio";
++		#address-cells = <0x1>;
++		#size-cells = <0x0>;
++		gpio-sck = <&gpio0 8 GPIO_ACTIVE_HIGH>;
++		gpio-miso = <&gpio0 10 GPIO_ACTIVE_HIGH>;
++		gpio-mosi = <&gpio0 11 GPIO_ACTIVE_HIGH>;
++		cs-gpios = <&gpio0 9 GPIO_ACTIVE_HIGH>;
++		num-chipselects = <1>;
++
++		spidev: spidev@0 {
++			compatible = "spidev", "spi-gpio";
++			reg = <0>;
++			spi-max-frequency = <25000000>;
++			spi-cpha;
++			spi-cpol;
++		};
++	};
++
++	spi_gpio_can {
++		compatible = "spi-gpio";
++		#address-cells = <0x1>;
++		#size-cells = <0x0>;
++		gpio-sck = <&gpio1 2 GPIO_ACTIVE_HIGH>;
++		gpio-miso = <&gpio1 3 GPIO_ACTIVE_HIGH>;
++		gpio-mosi = <&gpio1 1 GPIO_ACTIVE_HIGH>;
++		cs-gpios = <&gpio1 0 GPIO_ACTIVE_HIGH
++			    &gpio1 4 GPIO_ACTIVE_HIGH>;
++		num-chipselects = <2>;
++
++		spican0: spidev@0 {
++			compatible = "microchip,mcp2515";
++			reg = <0>;
++			clocks = <&excan_ref_clk>;
++			interrupt-parent = <&gpio0>;
++			interrupts = <15 GPIO_ACTIVE_LOW>;
++			spi-max-frequency = <10000000>;
++		};
++		spican1: spidev@1 {
++			compatible = "microchip,mcp2515";
++			reg = <1>;
++			clocks = <&excan_ref_clk>;
++			interrupt-parent = <&gpio1>;
++			interrupts = <5 GPIO_ACTIVE_LOW>;
++			spi-max-frequency = <10000000>;
++		};
++	};
++};
++
++&pfc {
++	hscif4_pins: hscif4 {
++		groups = "hscif4_data_a", "hscif4_ctrl";
++		function = "hscif4";
++	};
++
++	/delete-node/sound;
++
++	sound_0_pins: sound1 {
++		groups = "ssi01239_ctrl", "ssi0_data", "ssi1_data_a";
++		function = "ssi";
++	};
++
++	usb0_pins: usb0 {
++		groups = "usb0";
++		function = "usb0";
++	};
++
++	usb2_pins: usb2 {
++		groups = "usb2";
++		function = "usb2";
++	};
++
++	can0_pins: can0 {
++		groups = "can0_data_a";
++		function = "can0";
++	};
++
++	can1_pins: can1 {
++		groups = "can1_data";
++		function = "can1";
++	};
++
++	canfd0_pins: canfd0 {
++		groups = "canfd0_data_a";
++		function = "canfd0";
++	};
++
++	canfd1_pins: canfd1 {
++		groups = "canfd1_data";
++		function = "canfd1";
++	};
++
++	sdhi3_pins: sd3 {
++		groups = "sdhi3_data4", "sdhi3_ctrl";
++		function = "sdhi3";
++		power-source = <3300>;
++	};
++
++	sdhi3_pins_uhs: sd3_uhs {
++		groups = "sdhi3_data4", "sdhi3_ctrl";
++		function = "sdhi3";
++		power-source = <1800>;
++	};
++};
++
++&gpio0 {
++	video_a_irq {
++		gpio-hog;
++		gpios = <12 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "Video-A irq";
++	};
++
++	video_b_irq {
++		gpio-hog;
++		gpios = <13 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "Video-B irq";
++	};
++
++	video_c_irq {
++		gpio-hog;
++		gpios = <14 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "Video-C irq";
++	};
++};
++
++&gpio1 {
++	gpioext_4_22_irq {
++		gpio-hog;
++		gpios = <25 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "0x22@i2c4 irq";
++	};
++	m2_0_sleep {
++		gpio-hog;
++		gpios = <6 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "M2 0 SLEEP#";
++	};
++	m2_1_sleep {
++		gpio-hog;
++		gpios = <7 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "M2 1 SLEEP#";
++	};
++	m2_0_pcie_det {
++		gpio-hog;
++		gpios = <18 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "M.2 0 PCIe/SATA";
++	};
++	m2_1_pcie_det {
++		gpio-hog;
++		gpios = <19 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "M.2 1 PCIe/SATA";
++	};
++	m2_1_rst {
++		gpio-hog;
++		gpios = <11 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "M.2 1 RST#";
++	};
++	switch_ext_phy_reset {
++		gpio-hog;
++		gpios = <16 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "BR ext phy reset";
++	};
++	switch_sw_reset {
++		gpio-hog;
++		gpios = <17 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "BR switch reset";
++	};
++	switch_1v2_en {
++		gpio-hog;
++		gpios = <27 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "BR 1.2V en";
++	};
++};
++
++&gpio2 {
++	m2_0_wake {
++		gpio-hog;
++		gpios = <1 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "M.2 0 WAKE#";
++	};
++	m2_0_clkreq {
++		gpio-hog;
++		gpios = <5 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "M.2 0 CLKREQ#";
++	};
++	switch_3v3_en {
++		gpio-hog;
++		gpios = <4 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "BR 3.3V en";
++	};
++};
++
++&gpio3 {
++	switch_int_phy_reset {
++		gpio-hog;
++		gpios = <15 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "BR int phy reset";
++	};
++};
++
++&gpio5 {
++	switch_2v5_en {
++		gpio-hog;
++		gpios = <7 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "BR 2.5V en";
++	};
++	switch_25mhz_en {
++		gpio-hog;
++		gpios = <8 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "BR 25MHz clk en";
++	};
++};
++
++&gpio6 {
++	m2_1_wake {
++		gpio-hog;
++		gpios = <4 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "M.2 1 WAKE#";
++	};
++	m2_1_clkreq {
++		gpio-hog;
++		gpios = <10 GPIO_ACTIVE_HIGH>;
++		input;
++		line-name = "M.2 1 CLKREQ#";
++	};
++
++	m2_0_rst {
++		gpio-hog;
++		gpios = <7 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "M.2 0 RST#";
++	};
++};
++
++&i2c2 {
++	clock-frequency = <400000>;
++
++	i2cswitch2: pca9548@74 {
++		compatible = "nxp,pca9548";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0x74>;
++		reset-gpios = <&gpio6 5 GPIO_ACTIVE_LOW>;
++
++		i2c@4 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <4>;
++			/* USB3.0 HUB node(s) */
++			/* addr of TUSB8041 is 100.0100 = 0x44 */
++		};
++
++		i2c@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++			/* Slot A (CN10) */
++
++			ov106xx@0 {
++				compatible = "ovti,ov106xx";
++				reg = <0x60>;
++
++				port@0 {
++					ov106xx_in0: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2 3 4>;
++						remote-endpoint = <&vin0ep0>;
++					};
++				};
++				port@1 {
++					ov106xx_max9286_des0ep0: endpoint@0 {
++						remote-endpoint = <&max9286_des0ep0>;
++					};
++					ov106xx_ti964_des0ep0: endpoint@1 {
++						remote-endpoint = <&ti964_des0ep0>;
++					};
++					ov106xx_ti954_des0ep0: endpoint@2 {
++						remote-endpoint = <&ti954_des0ep0>;
++					};
++				};
++			};
++
++			ov106xx@1 {
++				compatible = "ovti,ov106xx";
++				reg = <0x61>;
++
++				port@0 {
++					ov106xx_in1: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2 3 4>;
++						remote-endpoint = <&vin1ep0>;
++					};
++				};
++				port@1 {
++					ov106xx_max9286_des0ep1: endpoint@0 {
++						remote-endpoint = <&max9286_des0ep1>;
++					};
++					ov106xx_ti964_des0ep1: endpoint@1 {
++						remote-endpoint = <&ti964_des0ep1>;
++					};
++					ov106xx_ti954_des0ep1: endpoint@2 {
++						remote-endpoint = <&ti954_des0ep1>;
++					};
++				};
++			};
++
++			ov106xx@2 {
++				compatible = "ovti,ov106xx";
++				reg = <0x62>;
++
++				port@0 {
++					ov106xx_in2: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2 3 4>;
++						remote-endpoint = <&vin2ep0>;
++					};
++				};
++				port@1 {
++					ov106xx_max9286_des0ep2: endpoint@0 {
++						remote-endpoint = <&max9286_des0ep2>;
++					};
++					ov106xx_ti964_des0ep2: endpoint@1 {
++						remote-endpoint = <&ti964_des0ep2>;
++					};
++				};
++			};
++
++			ov106xx@3 {
++				compatible = "ovti,ov106xx";
++				reg = <0x63>;
++
++				port@0 {
++					ov106xx_in3: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2 3 4>;
++						remote-endpoint = <&vin3ep0>;
++					};
++				};
++				port@1 {
++					ov106xx_max9286_des0ep3: endpoint@0 {
++						remote-endpoint = <&max9286_des0ep3>;
++					};
++					ov106xx_ti964_des0ep3: endpoint@1 {
++						remote-endpoint = <&ti964_des0ep3>;
++					};
++				};
++			};
++
++			/* DS90UB964 @ 0x3a */
++			ti964-ti9x3@0 {
++				compatible = "ti,ti964-ti9x3";
++				reg = <0x3a>;
++				ti,sensor_delay = <350>;
++				ti,links = <4>;
++				ti,lanes = <4>;
++				ti,forwarding-mode = "round-robin";
++				ti,cable-mode = "stp";
++
++				port@0 {
++					ti964_des0ep0: endpoint@0 {
++						ti9x3-addr = <0x0c>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in0>;
++					};
++					ti964_des0ep1: endpoint@1 {
++						ti9x3-addr = <0x0d>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in1>;
++					};
++					ti964_des0ep2: endpoint@2 {
++						ti9x3-addr = <0x0e>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in2>;
++					};
++					ti964_des0ep3: endpoint@3 {
++						ti9x3-addr = <0x0f>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in3>;
++					};
++				};
++				port@1 {
++					ti964_csi0ep0: endpoint {
++						csi-rate = <1450>;
++						remote-endpoint = <&csi2_40_ep>;
++					};
++				};
++			};
++
++			/* DS90UB954 @ 0x38 */
++			ti954-ti9x3@0 {
++				compatible = "ti,ti954-ti9x3";
++				reg = <0x38>;
++				/* gpios = <&video_a_ext1 10 GPIO_ACTIVE_HIGH>; */
++				ti,sensor_delay = <350>;
++				ti,links = <2>;
++				ti,lanes = <4>;
++				ti,forwarding-mode = "round-robin";
++				ti,cable-mode = "stp";
++
++				port@0 {
++					ti954_des0ep0: endpoint@0 {
++						ti9x3-addr = <0x0c>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in0>;
++					};
++					ti954_des0ep1: endpoint@1 {
++						ti9x3-addr = <0x0d>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in1>;
++					};
++				};
++				port@1 {
++					ti954_csi0ep0: endpoint {
++						csi-rate = <1450>;
++						remote-endpoint = <&csi2_40_ep>;
++					};
++				};
++			};
++
++			/* MAX9286 @ 0x2c */
++			max9286@0 {
++				compatible = "maxim,max9286";
++				reg = <0x2c>;
++				maxim,sensor_delay = <350>;
++				maxim,links = <4>;
++				maxim,lanes = <4>;
++				maxim,resetb-gpio = <1>;
++				maxim,fsync-mode = "automatic";
++				maxim,timeout = <100>;
++
++				port@0 {
++					max9286_des0ep0: endpoint@0 {
++						max9271-addr = <0x50>;
++						dvp-order = <1>;
++						remote-endpoint = <&ov106xx_in0>;
++					};
++					max9286_des0ep1: endpoint@1 {
++						max9271-addr = <0x51>;
++						dvp-order = <1>;
++						remote-endpoint = <&ov106xx_in1>;
++					};
++					max9286_des0ep2: endpoint@2 {
++						max9271-addr = <0x52>;
++						dvp-order = <1>;
++						remote-endpoint = <&ov106xx_in2>;
++					};
++					max9286_des0ep3: endpoint@3 {
++						max9271-addr = <0x53>;
++						dvp-order = <1>;
++						remote-endpoint = <&ov106xx_in3>;
++					};
++				};
++				port@1 {
++					max9286_csi0ep0: endpoint {
++						csi-rate = <700>;
++						remote-endpoint = <&csi2_40_ep>;
++					};
++				};
++			};
++		};
++
++		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <3>;
++			/* Slot B (CN11) */
++
++			ov106xx@4 {
++				compatible = "ovti,ov106xx";
++				reg = <0x64>;
++
++				port@0 {
++					ov106xx_in4: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2 3 4>;
++						remote-endpoint = <&vin4ep0>;
++					};
++				};
++				port@1 {
++					ov106xx_max9286_des1ep0: endpoint@0 {
++						remote-endpoint = <&max9286_des1ep0>;
++					};
++					ov106xx_ti964_des1ep0: endpoint@1 {
++						remote-endpoint = <&ti964_des1ep0>;
++					};
++					ov106xx_ti954_des1ep0: endpoint@2 {
++						remote-endpoint = <&ti954_des1ep0>;
++					};
++				};
++			};
++
++			ov106xx@5 {
++				compatible = "ovti,ov106xx";
++				reg = <0x65>;
++
++				port@0 {
++					ov106xx_in5: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2 3 4>;
++						remote-endpoint = <&vin5ep0>;
++					};
++				};
++				port@1 {
++					ov106xx_max9286_des1ep1: endpoint@0 {
++						remote-endpoint = <&max9286_des1ep1>;
++					};
++					ov106xx_ti964_des1ep1: endpoint@1 {
++						remote-endpoint = <&ti964_des1ep1>;
++					};
++					ov106xx_ti954_des1ep1: endpoint@2 {
++						remote-endpoint = <&ti954_des1ep1>;
++					};
++				};
++			};
++
++			ov106xx@6 {
++				compatible = "ovti,ov106xx";
++				reg = <0x66>;
++
++				port@0 {
++					ov106xx_in6: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2 3 4>;
++						remote-endpoint = <&vin6ep0>;
++					};
++				};
++				port@1 {
++					ov106xx_max9286_des1ep2: endpoint@0 {
++						remote-endpoint = <&max9286_des1ep2>;
++					};
++					ov106xx_ti964_des1ep2: endpoint@1 {
++						remote-endpoint = <&ti964_des1ep2>;
++					};
++				};
++			};
++
++			ov106xx@7 {
++				compatible = "ovti,ov106xx";
++				reg = <0x67>;
++
++				port@0 {
++					ov106xx_in7: endpoint {
++						clock-lanes = <0>;
++						data-lanes = <1 2 3 4>;
++						remote-endpoint = <&vin7ep0>;
++					};
++				};
++				port@1 {
++					ov106xx_max9286_des1ep3: endpoint@0 {
++						remote-endpoint = <&max9286_des1ep3>;
++					};
++					ov106xx_ti964_des1ep3: endpoint@1 {
++						remote-endpoint = <&ti964_des1ep3>;
++					};
++				};
++			};
++
++			/* DS90UB964 @ 0x3a */
++			ti964-ti9x3@1 {
++				compatible = "ti,ti964-ti9x3";
++				reg = <0x3a>;
++				ti,sensor_delay = <350>;
++				ti,links = <4>;
++				ti,lanes = <4>;
++				ti,forwarding-mode = "round-robin";
++				ti,cable-mode = "stp";
++
++				port@0 {
++					ti964_des1ep0: endpoint@0 {
++						ti9x3-addr = <0x0c>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in4>;
++					};
++					ti964_des1ep1: endpoint@1 {
++						ti9x3-addr = <0x0d>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in5>;
++					};
++					ti964_des1ep2: endpoint@2 {
++						ti9x3-addr = <0x0e>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in6>;
++					};
++					ti964_des1ep3: endpoint@3 {
++						ti9x3-addr = <0x0f>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in7>;
++					};
++				};
++				port@1 {
++					ti964_csi2ep0: endpoint {
++						csi-rate = <1450>;
++						remote-endpoint = <&csi2_41_ep>;
++					};
++				};
++			};
++
++			/* DS90UB954 @ 0x38 */
++			ti954-ti9x3@1 {
++				compatible = "ti,ti954-ti9x3";
++				reg = <0x38>;
++				/* gpios = <&video_b_ext1 10 GPIO_ACTIVE_HIGH>; */
++				ti,sensor_delay = <350>;
++				ti,links = <2>;
++				ti,lanes = <4>;
++				ti,forwarding-mode = "round-robin";
++				ti,cable-mode = "stp";
++
++				port@0 {
++					ti954_des1ep0: endpoint@0 {
++						ti9x3-addr = <0x0c>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in4>;
++					};
++					ti954_des1ep1: endpoint@1 {
++						ti9x3-addr = <0x0d>;
++						dvp-order = <0>;
++						remote-endpoint = <&ov106xx_in5>;
++					};
++				};
++				port@1 {
++					ti954_csi2ep0: endpoint {
++						csi-rate = <1450>;
++						remote-endpoint = <&csi2_41_ep>;
++					};
++				};
++			};
++
++			/* MAX9286 @ 0x2c */
++			max9286@1 {
++				compatible = "maxim,max9286";
++				reg = <0x2c>;
++				maxim,sensor_delay = <350>;
++				maxim,links = <4>;
++				maxim,lanes = <4>;
++				maxim,resetb-gpio = <1>;
++				maxim,fsync-mode = "automatic";
++				maxim,timeout = <100>;
++
++				port@0 {
++					max9286_des1ep0: endpoint@0 {
++						max9271-addr = <0x50>;
++						dvp-order = <1>;
++						remote-endpoint = <&ov106xx_in4>;
++					};
++					max9286_des1ep1: endpoint@1 {
++						max9271-addr = <0x51>;
++						dvp-order = <1>;
++						remote-endpoint = <&ov106xx_in5>;
++					};
++					max9286_des1ep2: endpoint@2 {
++						max9271-addr = <0x52>;
++						dvp-order = <1>;
++						remote-endpoint = <&ov106xx_in6>;
++					};
++					max9286_des1ep3: endpoint@3 {
++						max9271-addr = <0x53>;
++						dvp-order = <1>;
++						remote-endpoint = <&ov106xx_in7>;
++					};
++				};
++				port@1 {
++					max9286_csi2ep0: endpoint {
++						csi-rate = <700>;
++						remote-endpoint = <&csi2_41_ep>;
++					};
++				};
++			};
++		};
++
++		i2c@7 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <7>;
++			/* Slot C (CN12) */
++		};
++
++		i2c@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++			/* Slot A (CN10) */
++
++			video_a_ext0: pca9535@26 {
++				compatible = "nxp,pca9535";
++				reg = <0x26>;
++				gpio-controller;
++				#gpio-cells = <2>;
++
++				video_a_des_cfg1 {
++					gpio-hog;
++					gpios = <5 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "Video-A cfg1";
++				};
++				video_a_des_cfg0 {
++					gpio-hog;
++					gpios = <6 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "Video-A cfg0";
++				};
++				video_a_pwr_shdn {
++					gpio-hog;
++					gpios = <3 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR_SHDN";
++				};
++				video_a_cam_pwr0 {
++					gpio-hog;
++					gpios = <12 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR0";
++				};
++				video_a_cam_pwr1 {
++					gpio-hog;
++					gpios = <13 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR1";
++				};
++				video_a_cam_pwr2 {
++					gpio-hog;
++					gpios = <14 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR2";
++				};
++				video_a_cam_pwr3 {
++					gpio-hog;
++					gpios = <15 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR3";
++				};
++				video_a_des_shdn {
++					gpio-hog;
++					gpios = <4 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A DES_SHDN";
++				};
++				video_a_des_led {
++					gpio-hog;
++					gpios = <7 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "Video-A led";
++				};
++			};
++
++			video_a_ext1: max7325@5c {
++				compatible = "maxim,max7325";
++				reg = <0x5c>;
++				gpio-controller;
++				#gpio-cells = <2>;
++
++				video_a_des_cfg2 {
++					gpio-hog;
++					gpios = <4 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "Video-A cfg2";
++				};
++				video_a_des_cfg1 {
++					gpio-hog;
++					gpios = <6 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "Video-A cfg1";
++				};
++				video_a_des_cfg0 {
++					gpio-hog;
++					gpios = <7 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "Video-A cfg0";
++				};
++				video_a_pwr_shdn {
++					gpio-hog;
++					gpios = <14 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR_SHDN";
++				};
++				video_a_cam_pwr0 {
++					gpio-hog;
++					gpios = <8 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR0";
++				};
++				video_a_cam_pwr1 {
++					gpio-hog;
++					gpios = <9 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR1";
++				};
++				video_a_cam_pwr2 {
++					gpio-hog;
++					gpios = <10 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR2";
++				};
++				video_a_cam_pwr3 {
++					gpio-hog;
++					gpios = <11 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A PWR3";
++				};
++				video_a_des_shdn {
++					gpio-hog;
++					gpios = <13 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-A DES_SHDN";
++				};
++				video_a_led {
++					gpio-hog;
++					gpios = <12 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "Video-A LED";
++				};
++			};
++		};
++
++		i2c@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <2>;
++			/* Slot B (CN11) */
++
++			video_b_ext0: pca9535@26 {
++				compatible = "nxp,pca9535";
++				reg = <0x26>;
++				gpio-controller;
++				#gpio-cells = <2>;
++
++				video_b_des_cfg1 {
++					gpio-hog;
++					gpios = <5 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "Video-B cfg1";
++				};
++				video_b_des_cfg0 {
++					gpio-hog;
++					gpios = <6 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "Video-B cfg0";
++				};
++				video_b_pwr_shdn {
++					gpio-hog;
++					gpios = <3 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR_SHDN";
++				};
++				video_b_cam_pwr0 {
++					gpio-hog;
++					gpios = <12 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR0";
++				};
++				video_b_cam_pwr1 {
++					gpio-hog;
++					gpios = <13 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR1";
++				};
++				video_b_cam_pwr2 {
++					gpio-hog;
++					gpios = <14 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR2";
++				};
++				video_b_cam_pwr3 {
++					gpio-hog;
++					gpios = <15 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR3";
++				};
++				video_b_des_shdn {
++					gpio-hog;
++					gpios = <4 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B DES_SHDN";
++				};
++				video_b_des_led {
++					gpio-hog;
++					gpios = <7 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "Video-B led";
++				};
++			};
++
++			video_b_ext1: max7325@5c {
++				compatible = "maxim,max7325";
++				reg = <0x5c>;
++				gpio-controller;
++				#gpio-cells = <2>;
++
++				video_b_des_cfg2 {
++					gpio-hog;
++					gpios = <4 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "Video-B cfg2";
++				};
++				video_b_des_cfg1 {
++					gpio-hog;
++					gpios = <6 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "Video-B cfg1";
++				};
++				video_b_des_cfg0 {
++					gpio-hog;
++					gpios = <7 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "Video-B cfg0";
++				};
++				video_b_pwr_shdn {
++					gpio-hog;
++					gpios = <14 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR_SHDN";
++				};
++				video_b_cam_pwr0 {
++					gpio-hog;
++					gpios = <8 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR0";
++				};
++				video_b_cam_pwr1 {
++					gpio-hog;
++					gpios = <9 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR1";
++				};
++				video_b_cam_pwr2 {
++					gpio-hog;
++					gpios = <10 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR2";
++				};
++				video_b_cam_pwr3 {
++					gpio-hog;
++					gpios = <11 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B PWR3";
++				};
++				video_b_des_shdn {
++					gpio-hog;
++					gpios = <13 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "Video-B DES_SHDN";
++				};
++				video_b_led {
++					gpio-hog;
++					gpios = <12 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "Video-B LED";
++				};
++			};
++		};
++
++		i2c@5 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <5>;
++			/* Slot C (CN12) */
++		};
++	};
++};
++
++&i2c4 {
++	i2cswitch4: pca9548@74 {
++		compatible = "nxp,pca9548";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0x74>;
++		reset-gpios= <&gpio5 15 GPIO_ACTIVE_LOW>;
++
++		i2c@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++			/* FAN1 node - lm96063 */
++			fan_ctrl_1:lm96063-1@4c {
++				compatible = "lm96163";
++				reg = <0x4c>;
++			};
++		};
++
++		i2c@6 {
++			/* FAN2 */
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <6>;
++			/* FAN2 node - lm96063 */
++			fan_ctrl_2:lm96063-2@4c {
++				compatible = "lm96163";
++				reg = <0x4c>;
++			};
++		};
++
++		i2c@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++
++			/* Power nodes - 2 x TPS544x20 */
++			tps_5v: tps544c20@0x2a {
++				compatible = "tps544c20";
++				reg = <0x2c>;
++				status = "disabled";
++			};
++			tps_3v3: tps544c20@0x22 {
++				compatible = "tps544c20";
++				reg = <0x24>;
++				status = "disabled";
++			};
++		};
++
++		i2c@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <2>;
++			/* CAN and power board nodes */
++
++			gpio_ext_pwr: pca9535@22 {
++				compatible = "nxp,pca9535";
++				reg = <0x22>;
++				gpio-controller;
++				#gpio-cells = <2>;
++				interrupt-controller;
++				interrupt-parent = <&gpio1>;
++				interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
++
++				/* enable input DCDC after wake-up signal released */
++				pwr_hold {
++					gpio-hog;
++					gpios = <11 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "pwr_hold";
++				};
++				pwr_5v_out {
++					gpio-hog;
++					gpios = <14 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "pwr_5v_out";
++				};
++				pwr_5v_oc {
++					gpio-hog;
++					gpios = <15 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "pwr_5v_oc";
++				};
++				pwr_wake8 {
++					gpio-hog;
++					gpios = <12 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "wake8";
++				};
++				pwr_wake7 {
++					gpio-hog;
++					gpios = <13 GPIO_ACTIVE_HIGH>;
++					input;
++					line-name = "wake7";
++				};
++
++				/* CAN0 */
++				can0_stby {
++					gpio-hog;
++					gpios = <4 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "can0_stby";
++				};
++				can0_load {
++					gpio-hog;
++					gpios = <0 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "can0_120R_load";
++				};
++				/* CAN1 */
++				can1_stby {
++					gpio-hog;
++					gpios = <5 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "can1_stby";
++				};
++				can1_load {
++					gpio-hog;
++					gpios = <1 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "can1_120R_load";
++				};
++				/* CAN2 */
++				can2_stby {
++					gpio-hog;
++					gpios = <6 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "can2_stby";
++				};
++				can2_load {
++					gpio-hog;
++					gpios = <2 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "can2_120R_load";
++				};
++				can2_rst {
++					gpio-hog;
++					gpios = <8 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "can2_rst";
++				};
++				/* CAN3 */
++				can3_stby {
++					gpio-hog;
++					gpios = <7 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "can3_stby";
++				};
++				can3_load {
++					gpio-hog;
++					gpios = <3 GPIO_ACTIVE_HIGH>;
++					output-low;
++					line-name = "can3_120R_load";
++				};
++				can3_rst {
++					gpio-hog;
++					gpios = <9 GPIO_ACTIVE_HIGH>;
++					output-high;
++					line-name = "can3_rst";
++				};
++			};
++			rtc@68 {
++				compatible = "dallas,ds1338";
++				reg = <0x68>;
++			};
++		};
++
++		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <3>;
++			/* FPDLink output node - DS90UH947 */
++		};
++
++		i2c@4 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <4>;
++			/* BCM switch node */
++		};
++
++		i2c@5 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <5>;
++			/* LED board node(s) */
++
++			gpio_ext_led: pca9535@22 {
++				compatible = "nxp,pca9535";
++				reg = <0x22>;
++				gpio-controller;
++				#gpio-cells = <2>;
++
++				/* gpios 0..7 are used for indication LEDs, low-active */
++			};
++		};
++
++		/* port 7 is not used */
++	};
++};
++
++&pcie_bus_clk {
++	clock-frequency = <100000000>;
++	status = "okay";
++};
++
++&pciec0 {
++	status = "okay";
++};
++
++&pciec1 {
++	status = "okay";
++};
++
++&vin0 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin0ep0: endpoint {
++				csi,select = "csi40";
++				virtual,channel = <0>;
++				data-lanes = <1 2 3 4>;
++				remote-endpoint = <&ov106xx_in0>;
++			};
++		};
++		port@1 {
++			csi0ep0: endpoint {
++				remote-endpoint = <&csi2_40_ep>;
++			};
++		};
++		port@2 {
++			vin0_max9286_des0ep0: endpoint@0 {
++				remote-endpoint = <&max9286_des0ep0>;
++			};
++			vin0_ti964_des0ep0: endpoint@1 {
++				remote-endpoint = <&ti964_des0ep0>;
++			};
++			vin0_ti954_des0ep0: endpoint@2 {
++				remote-endpoint = <&ti954_des0ep0>;
++			};
++		};
++	};
++};
++
++&vin1 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin1ep0: endpoint {
++				csi,select = "csi40";
++				virtual,channel = <1>;
++				data-lanes = <1 2 3 4>;
++				remote-endpoint = <&ov106xx_in1>;
++			};
++		};
++		port@1 {
++			csi0ep1: endpoint {
++				remote-endpoint = <&csi2_40_ep>;
++			};
++		};
++		port@2 {
++			vin1_max9286_des0ep1: endpoint@0 {
++				remote-endpoint = <&max9286_des0ep1>;
++			};
++			vin1_ti964_des0ep1: endpoint@1 {
++				remote-endpoint = <&ti964_des0ep1>;
++			};
++			vin1_ti954_des0ep1: endpoint@2 {
++				remote-endpoint = <&ti954_des0ep1>;
++			};
++		};
++	};
++};
++
++&vin2 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin2ep0: endpoint {
++				csi,select = "csi40";
++				virtual,channel = <2>;
++				data-lanes = <1 2 3 4>;
++				remote-endpoint = <&ov106xx_in2>;
++			};
++		};
++		port@1 {
++			csi0ep2: endpoint {
++				remote-endpoint = <&csi2_40_ep>;
++			};
++		};
++		port@2 {
++			vin2_max9286_des0ep2: endpoint@0 {
++				remote-endpoint = <&max9286_des0ep2>;
++			};
++			vin2_ti964_des0ep2: endpoint@1 {
++				remote-endpoint = <&ti964_des0ep2>;
++			};
++		};
++	};
++};
++
++&vin3 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin3ep0: endpoint {
++				csi,select = "csi40";
++				virtual,channel = <3>;
++				data-lanes = <1 2 3 4>;
++				remote-endpoint = <&ov106xx_in3>;
++			};
++		};
++		port@1 {
++			csi0ep3: endpoint {
++				remote-endpoint = <&csi2_40_ep>;
++			};
++		};
++		port@2 {
++			vin3_max9286_des0ep3: endpoint@0 {
++				remote-endpoint = <&max9286_des0ep3>;
++			};
++			vin3_ti964_des0ep3: endpoint@1 {
++				remote-endpoint = <&ti964_des0ep3>;
++			};
++		};
++	};
++};
++
++&vin4 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin4ep0: endpoint {
++				csi,select = "csi41";
++				virtual,channel = <0>;
++				remote-endpoint = <&ov106xx_in4>;
++				data-lanes = <1 2 3 4>;
++			};
++		};
++		port@1 {
++			csi2ep0: endpoint {
++				remote-endpoint = <&csi2_41_ep>;
++			};
++		};
++		port@2 {
++			vin4_max9286_des1ep0: endpoint@0 {
++				remote-endpoint = <&max9286_des1ep0>;
++			};
++			vin4_ti964_des1ep0: endpoint@1 {
++				remote-endpoint = <&ti964_des1ep0>;
++			};
++			vin4_ti954_des1ep0: endpoint@2 {
++				remote-endpoint = <&ti954_des1ep0>;
++			};
++		};
++	};
++};
++
++&vin5 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin5ep0: endpoint@0 {
++				csi,select = "csi41";
++				virtual,channel = <1>;
++				remote-endpoint = <&ov106xx_in5>;
++				data-lanes = <1 2 3 4>;
++			};
++		};
++		port@1 {
++			csi2ep1: endpoint {
++				remote-endpoint = <&csi2_41_ep>;
++			};
++		};
++		port@2 {
++			vin5_max9286_des1ep1: endpoint@0 {
++				remote-endpoint = <&max9286_des1ep1>;
++			};
++			vin5_ti964_des1ep1: endpoint@1 {
++				remote-endpoint = <&ti964_des1ep1>;
++			};
++			vin5_ti954_des1ep1: endpoint@2 {
++				remote-endpoint = <&ti954_des1ep1>;
++			};
++		};
++	};
++};
++
++&vin6 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin6ep0: endpoint@0 {
++				csi,select = "csi41";
++				virtual,channel = <2>;
++				remote-endpoint = <&ov106xx_in6>;
++				data-lanes = <1 2 3 4>;
++			};
++		};
++		port@1 {
++			csi2ep2: endpoint {
++				remote-endpoint = <&csi2_41_ep>;
++			};
++		};
++		port@2 {
++			vin6_max9286_des1ep2: endpoint@0 {
++				remote-endpoint = <&max9286_des1ep2>;
++			};
++			vin6_ti964_des1ep2: endpoint@1 {
++				remote-endpoint = <&ti964_des1ep2>;
++			};
++		};
++	};
++};
++
++&vin7 {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			vin7ep0: endpoint@0 {
++				csi,select = "csi41";
++				virtual,channel = <3>;
++				remote-endpoint = <&ov106xx_in7>;
++				data-lanes = <1 2 3 4>;
++			};
++		};
++		port@1 {
++			csi2ep3: endpoint {
++				remote-endpoint = <&csi2_41_ep>;
++			};
++		};
++		port@2 {
++			vin7_max9286_des1ep3: endpoint@0 {
++				remote-endpoint = <&max9286_des1ep3>;
++			};
++			vin7_ti964_des1ep3: endpoint@1 {
++				remote-endpoint = <&ti964_des1ep3>;
++			};
++		};
++	};
++};
++
++&csi2_40 {
++	status = "okay";
++
++	virtual,channel {
++		csi2_vc0 {
++			data,type = "ycbcr422";
++			receive,vc = <0>;
++		};
++		csi2_vc1 {
++			data,type = "ycbcr422";
++			receive,vc = <1>;
++		};
++		csi2_vc2 {
++			data,type = "ycbcr422";
++			receive,vc = <2>;
++		};
++		csi2_vc3 {
++			data,type = "ycbcr422";
++			receive,vc = <3>;
++		};
++	};
++
++	port {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		csi2_40_ep: endpoint {
++			clock-lanes = <0>;
++			data-lanes = <1 2 3 4>;
++			csi-rate = <300>;
++		};
++	};
++};
++
++&csi2_41 {
++	status = "okay";
++
++	virtual,channel {
++		csi2_vc0 {
++			data,type = "ycbcr422";
++			receive,vc = <0>;
++		};
++		csi2_vc1 {
++			data,type = "ycbcr422";
++			receive,vc = <1>;
++		};
++		csi2_vc2 {
++			data,type = "ycbcr422";
++			receive,vc = <2>;
++		};
++		csi2_vc3 {
++			data,type = "ycbcr422";
++			receive,vc = <3>;
++		};
++	};
++
++	port {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		csi2_41_ep: endpoint {
++			clock-lanes = <0>;
++			data-lanes = <1 2 3 4>;
++			csi-rate = <300>;
++		};
++	};
++};
++
++&rcar_sound {
++	pinctrl-0 = <&sound_clk_pins>;
++
++	/* Multi DAI */
++	#sound-dai-cells = <1>;
++};
++
++&sata {
++	status = "okay";
++};
++
++&ssi1 {
++	/delete-property/shared-pin;
++};
++
++&sdhi3 {
++	pinctrl-0 = <&sdhi3_pins>;
++	pinctrl-1 = <&sdhi3_pins_uhs>;
++	pinctrl-names = "default", "state_uhs";
++
++	vmmc-supply = <&vcc_sdhi3>;
++	vqmmc-supply = <&vccq_sdhi3>;
++	cd-gpios = <&gpio4 15 GPIO_ACTIVE_LOW>;
++	wp-gpios = <&gpio4 16 GPIO_ACTIVE_HIGH>;
++	bus-width = <4>;
++	sd-uhs-sdr50;
++	status = "okay";
++};
++
++&msiof1 {
++	status = "disabled";
++};
++
++&usb2_phy0 {
++	pinctrl-0 = <&usb0_pins>;
++	pinctrl-names = "default";
++
++	status = "okay";
++};
++
++&usb2_phy2 {
++	pinctrl-0 = <&usb2_pins>;
++	pinctrl-names = "default";
++
++	status = "okay";
++};
++
++&xhci0 {
++	status = "okay";
++};
++
++&ehci0 {
++	status = "okay";
++};
++
++&ehci2 {
++	status = "okay";
++};
++
++&ohci0 {
++	status = "okay";
++};
++
++&ohci2 {
++	status = "okay";
++};
++
++&can0 {
++	pinctrl-0 = <&can0_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	renesas,can-clock-select = <0x0>;
++};
++
++&can1 {
++	pinctrl-0 = <&can1_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	renesas,can-clock-select = <0x0>;
++};
++
++&canfd {
++	pinctrl-0 = <&canfd0_pins &canfd1_pins>;
++	pinctrl-names = "default";
++	status = "disabled";
++
++	renesas,can-clock-select = <0x0>;
++
++	channel0 {
++		status = "okay";
++	};
++
++	channel1 {
++		status = "okay";
++	};
++};
++
++/* uncomment to enable CN12 on VIN4-7 */
++//#include "ulcb-vb-cn12.dtsi"
 diff --git a/arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi b/arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi
 new file mode 100644
-index 0000000..beb52e9
+index 0000000..7728bdd
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/ulcb-vbm.dtsi
 @@ -0,0 +1,578 @@
@@ -17223,8 +19266,8 @@ index 0000000..beb52e9
 +				};
 +			};
 +
-+			max9286-max9271@0 {
-+				compatible = "maxim,max9286-max9271";
++			max9286@0 {
++				compatible = "maxim,max9286";
 +				reg = <0x2c>;
 +				maxim,sensor_delay = <350>;
 +				maxim,links = <4>;

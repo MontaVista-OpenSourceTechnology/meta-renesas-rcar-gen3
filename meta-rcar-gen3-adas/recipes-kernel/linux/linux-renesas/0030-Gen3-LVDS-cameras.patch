@@ -5,38 +5,42 @@ Subject: [PATCH] Gen3: LVDS cameras
 
 This add Gen3 LVDS cameras support:
 - deserializers: MAX9286, TI964, TI954, TI960
-- cameras: ov10635, ov490+ov10640, ov495+OV2775, ar0132
+- cameras: ov10635, ov490+ov10640, ov495+OV2775, ar0132, ap0101+ar014x
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  drivers/media/i2c/soc_camera/Kconfig             |   47 +
  drivers/media/i2c/soc_camera/Makefile            |    7 +
+ drivers/media/i2c/soc_camera/ap0101_ar014x.c     |  536 ++++++++++
+ drivers/media/i2c/soc_camera/ap0101_ar014x.h     |   28 +
  drivers/media/i2c/soc_camera/ar0132.c            |  581 +++++++++++
  drivers/media/i2c/soc_camera/ar0132.h            |  213 ++++
- drivers/media/i2c/soc_camera/max9286_max9271.c   |  607 ++++++++++++
- drivers/media/i2c/soc_camera/max9286_max9271.h   |  244 +++++
+ drivers/media/i2c/soc_camera/max9286.c           |  672 +++++++++++++
+ drivers/media/i2c/soc_camera/max9286.h           |  244 +++++
  drivers/media/i2c/soc_camera/ov10635.c           |  758 ++++++++++++++
- drivers/media/i2c/soc_camera/ov10635.h           | 1139 ++++++++++++++++++++++
+ drivers/media/i2c/soc_camera/ov10635.h           | 1139 +++++++++++++++++++++
  drivers/media/i2c/soc_camera/ov10635_debug.h     |   54 +
- drivers/media/i2c/soc_camera/ov106xx.c           |  106 ++
- drivers/media/i2c/soc_camera/ov490_ov10640.c     | 1092 +++++++++++++++++++++
- drivers/media/i2c/soc_camera/ov490_ov10640.h     |   93 ++
- drivers/media/i2c/soc_camera/ov495_ov2775.c      |  658 +++++++++++++
+ drivers/media/i2c/soc_camera/ov106xx.c           |  117 +++
+ drivers/media/i2c/soc_camera/ov490_ov10640.c     | 1156 ++++++++++++++++++++++
+ drivers/media/i2c/soc_camera/ov490_ov10640.h     |  102 ++
+ drivers/media/i2c/soc_camera/ov495_ov2775.c      |  658 ++++++++++++
  drivers/media/i2c/soc_camera/ov495_ov2775.h      |   23 +
  drivers/media/i2c/soc_camera/ti954_ti9x3.c       |  431 ++++++++
- drivers/media/i2c/soc_camera/ti964_ti9x3.c       |  399 ++++++++
+ drivers/media/i2c/soc_camera/ti964_ti9x3.c       |  400 ++++++++
  drivers/media/i2c/soc_camera/ti9x4_ti9x3.h       |  153 +++
  drivers/media/platform/soc_camera/rcar_csi2.c    |  297 ++++--
- drivers/media/platform/soc_camera/rcar_vin.c     |  174 +++-
+ drivers/media/platform/soc_camera/rcar_vin.c     |  211 +++-
  drivers/media/platform/soc_camera/soc_camera.c   |   17 +-
  drivers/media/platform/soc_camera/soc_mediabus.c |   16 +
  include/media/drv-intf/soc_mediabus.h            |    3 +
  include/media/soc_camera.h                       |    1 +
- 23 files changed, 7004 insertions(+), 109 deletions(-)
+ 25 files changed, 7755 insertions(+), 109 deletions(-)
+ create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.c
+ create mode 100644 drivers/media/i2c/soc_camera/ap0101_ar014x.h
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.c
  create mode 100644 drivers/media/i2c/soc_camera/ar0132.h
- create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
- create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
+ create mode 100644 drivers/media/i2c/soc_camera/max9286.c
+ create mode 100644 drivers/media/i2c/soc_camera/max9286.h
  create mode 100644 drivers/media/i2c/soc_camera/ov10635.c
  create mode 100644 drivers/media/i2c/soc_camera/ov10635.h
  create mode 100644 drivers/media/i2c/soc_camera/ov10635_debug.h
@@ -108,12 +112,12 @@ index 7704bcf..82da59f 100644
  	tristate "mt9m001 support"
  	depends on SOC_CAMERA && I2C
 diff --git a/drivers/media/i2c/soc_camera/Makefile b/drivers/media/i2c/soc_camera/Makefile
-index 6f994f9..7d4c1ab 100644
+index 6f994f9..e88f6a9 100644
 --- a/drivers/media/i2c/soc_camera/Makefile
 +++ b/drivers/media/i2c/soc_camera/Makefile
 @@ -1,8 +1,15 @@
  obj-$(CONFIG_SOC_CAMERA_IMX074)		+= imx074.o
-+obj-$(CONFIG_SOC_CAMERA_MAX9286_MAX9271)	+= max9286_max9271.o
++obj-$(CONFIG_SOC_CAMERA_MAX9286_MAX9271)	+= max9286.o
 +obj-$(CONFIG_SOC_CAMERA_TI964_TI9X3)	+= ti964_ti9x3.o
 +obj-$(CONFIG_SOC_CAMERA_TI954_TI9X3)	+= ti954_ti9x3.o
  obj-$(CONFIG_SOC_CAMERA_MT9M001)	+= mt9m001.o
@@ -127,14 +131,590 @@ index 6f994f9..7d4c1ab 100644
  obj-$(CONFIG_SOC_CAMERA_OV2640)		+= ov2640.o
  obj-$(CONFIG_SOC_CAMERA_OV5642)		+= ov5642.o
  obj-$(CONFIG_SOC_CAMERA_OV6650)		+= ov6650.o
+diff --git a/drivers/media/i2c/soc_camera/ap0101_ar014x.c b/drivers/media/i2c/soc_camera/ap0101_ar014x.c
+new file mode 100644
+index 0000000..4757657
+--- /dev/null
++++ b/drivers/media/i2c/soc_camera/ap0101_ar014x.c
+@@ -0,0 +1,536 @@
++/*
++ * ON Semiconductor AP0101-AR014X sensor camera driver
++ *
++ * Copyright (C) 2018 Cogent Embedded, Inc.
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#include <linux/delay.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/videodev2.h>
++
++#include <media/soc_camera.h>
++#include <media/v4l2-common.h>
++#include <media/v4l2-ctrls.h>
++#include <media/v4l2-of.h>
++
++#include "ap0101_ar014x.h"
++
++#define AP0101_I2C_ADDR		0x5d
++
++#define AP0101_PID		0x0000
++#define AP0101_VERSION_REG	0x0160
++
++#define AP0101_MEDIA_BUS_FMT	MEDIA_BUS_FMT_YUYV8_2X8
++
++struct ap0101_priv {
++	struct v4l2_subdev		sd;
++	struct v4l2_ctrl_handler	hdl;
++	struct media_pad		pad;
++	struct v4l2_rect		rect;
++	int				init_complete;
++	u8				id[6];
++	int				exposure;
++	int				gain;
++	int				autogain;
++	/* serializers */
++	int				max9286_addr;
++	int				max9271_addr;
++	int				port;
++	int				gpio_resetb;
++	int				gpio_fsin;
++
++};
++
++static inline struct ap0101_priv *to_ap0101(const struct i2c_client *client)
++{
++	return container_of(i2c_get_clientdata(client), struct ap0101_priv, sd);
++}
++
++static void ap0101_s_port(struct i2c_client *client, int fwd_en)
++{
++	struct ap0101_priv *priv = to_ap0101(client);
++	int tmp_addr;
++
++	if (priv->max9286_addr) {
++		tmp_addr = client->addr;
++		client->addr = priv->max9286_addr;				/* Deserializer I2C address */
++		reg8_write(client, 0x0a, fwd_en ? 0x11 << priv->port : 0);	/* Enable/disable reverse/forward control for this port */
++		client->addr = tmp_addr;
++	};
++}
++
++static int ap0101_set_regs(struct i2c_client *client,
++			  const struct ap0101_reg *regs, int nr_regs)
++{
++	int i;
++
++	for (i = 0; i < nr_regs; i++) {
++		if (regs[i].reg == AP0101_DELAY) {
++			mdelay(regs[i].val);
++			continue;
++		}
++
++		reg16_write16(client, regs[i].reg, regs[i].val);
++	}
++
++	return 0;
++}
++
++static int ap0101_s_stream(struct v4l2_subdev *sd, int enable)
++{
++	return 0;
++}
++
++static int ap0101_get_fmt(struct v4l2_subdev *sd,
++			 struct v4l2_subdev_pad_config *cfg,
++			 struct v4l2_subdev_format *format)
++{
++	struct v4l2_mbus_framefmt *mf = &format->format;
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ap0101_priv *priv = to_ap0101(client);
++
++	if (format->pad)
++		return -EINVAL;
++
++	mf->width = priv->rect.width;
++	mf->height = priv->rect.height;
++	mf->code = AP0101_MEDIA_BUS_FMT;
++	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
++	mf->field = V4L2_FIELD_NONE;
++
++	return 0;
++}
++
++static int ap0101_set_fmt(struct v4l2_subdev *sd,
++			 struct v4l2_subdev_pad_config *cfg,
++			 struct v4l2_subdev_format *format)
++{
++	struct v4l2_mbus_framefmt *mf = &format->format;
++
++	mf->code = AP0101_MEDIA_BUS_FMT;
++	mf->colorspace = V4L2_COLORSPACE_SMPTE170M;
++	mf->field = V4L2_FIELD_NONE;
++
++	if (format->which == V4L2_SUBDEV_FORMAT_TRY)
++		cfg->try_fmt = *mf;
++
++	return 0;
++}
++
++static int ap0101_enum_mbus_code(struct v4l2_subdev *sd,
++				struct v4l2_subdev_pad_config *cfg,
++				struct v4l2_subdev_mbus_code_enum *code)
++{
++	if (code->pad || code->index > 0)
++		return -EINVAL;
++
++	code->code = AP0101_MEDIA_BUS_FMT;
++
++	return 0;
++}
++
++static int ap0101_get_edid(struct v4l2_subdev *sd, struct v4l2_edid *edid)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ap0101_priv *priv = to_ap0101(client);
++
++	memcpy(edid->edid, priv->id, 6);
++
++	edid->edid[6] = 0xff;
++	edid->edid[7] = client->addr;
++	edid->edid[8] = AP0101_VERSION_REG >> 8;
++	edid->edid[9] = AP0101_VERSION_REG & 0xff;
++
++	return 0;
++}
++
++static int ap0101_set_selection(struct v4l2_subdev *sd,
++			       struct v4l2_subdev_pad_config *cfg,
++			       struct v4l2_subdev_selection *sel)
++{
++	struct v4l2_rect *rect = &sel->r;
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ap0101_priv *priv = to_ap0101(client);
++
++	if (sel->which != V4L2_SUBDEV_FORMAT_ACTIVE ||
++	    sel->target != V4L2_SEL_TGT_CROP)
++		return -EINVAL;
++
++	rect->left = ALIGN(rect->left, 2);
++	rect->top = ALIGN(rect->top, 2);
++	rect->width = ALIGN(rect->width, 2);
++	rect->height = ALIGN(rect->height, 2);
++
++	if ((rect->left + rect->width > AP0101_MAX_WIDTH) ||
++	    (rect->top + rect->height > AP0101_MAX_HEIGHT))
++		*rect = priv->rect;
++
++	priv->rect.left = rect->left;
++	priv->rect.top = rect->top;
++	priv->rect.width = rect->width;
++	priv->rect.height = rect->height;
++
++	return 0;
++}
++
++static int ap0101_get_selection(struct v4l2_subdev *sd,
++			       struct v4l2_subdev_pad_config *cfg,
++			       struct v4l2_subdev_selection *sel)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ap0101_priv *priv = to_ap0101(client);
++
++	if (sel->which != V4L2_SUBDEV_FORMAT_ACTIVE)
++		return -EINVAL;
++
++	switch (sel->target) {
++	case V4L2_SEL_TGT_CROP_BOUNDS:
++		sel->r.left = 0;
++		sel->r.top = 0;
++		sel->r.width = AP0101_MAX_WIDTH;
++		sel->r.height = AP0101_MAX_HEIGHT;
++		return 0;
++	case V4L2_SEL_TGT_CROP_DEFAULT:
++		sel->r.left = 0;
++		sel->r.top = 0;
++		sel->r.width = AP0101_MAX_WIDTH;
++		sel->r.height = AP0101_MAX_HEIGHT;
++		return 0;
++	case V4L2_SEL_TGT_CROP:
++		sel->r = priv->rect;
++		return 0;
++	default:
++		return -EINVAL;
++	}
++}
++
++static int ap0101_g_mbus_config(struct v4l2_subdev *sd,
++			       struct v4l2_mbus_config *cfg)
++{
++	cfg->flags = V4L2_MBUS_CSI2_1_LANE | V4L2_MBUS_CSI2_CHANNEL_0 |
++		     V4L2_MBUS_CSI2_CONTINUOUS_CLOCK;
++	cfg->type = V4L2_MBUS_CSI2;
++
++	return 0;
++}
++
++#ifdef CONFIG_VIDEO_ADV_DEBUG
++static int ap0101_g_register(struct v4l2_subdev *sd,
++			    struct v4l2_dbg_register *reg)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	int ret;
++	u16 val = 0;
++
++	ret = reg16_read16(client, (u16)reg->reg, &val);
++	if (ret < 0)
++		return ret;
++
++	reg->val = val;
++	reg->size = sizeof(u16);
++
++	return 0;
++}
++
++static int ap0101_s_register(struct v4l2_subdev *sd,
++			    const struct v4l2_dbg_register *reg)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++
++	return reg16_write16(client, (u16)reg->reg, (u16)reg->val);
++}
++#endif
++
++static struct v4l2_subdev_core_ops ap0101_core_ops = {
++#ifdef CONFIG_VIDEO_ADV_DEBUG
++	.g_register = ap0101_g_register,
++	.s_register = ap0101_s_register,
++#endif
++};
++
++static int ap0101_s_ctrl(struct v4l2_ctrl *ctrl)
++{
++	struct v4l2_subdev *sd = to_sd(ctrl);
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ap0101_priv *priv = to_ap0101(client);
++	int ret = -EINVAL;
++
++	if (!priv->init_complete)
++		return 0;
++
++	switch (ctrl->id) {
++	case V4L2_CID_BRIGHTNESS:
++	case V4L2_CID_CONTRAST:
++	case V4L2_CID_SATURATION:
++	case V4L2_CID_HUE:
++	case V4L2_CID_GAMMA:
++	case V4L2_CID_SHARPNESS:
++	case V4L2_CID_AUTOGAIN:
++	case V4L2_CID_GAIN:
++	case V4L2_CID_EXPOSURE:
++	case V4L2_CID_HFLIP:
++	case V4L2_CID_VFLIP:
++		break;
++	}
++
++	return ret;
++}
++
++static const struct v4l2_ctrl_ops ap0101_ctrl_ops = {
++	.s_ctrl = ap0101_s_ctrl,
++};
++
++static struct v4l2_subdev_video_ops ap0101_video_ops = {
++	.s_stream	= ap0101_s_stream,
++	.g_mbus_config	= ap0101_g_mbus_config,
++};
++
++static const struct v4l2_subdev_pad_ops ap0101_subdev_pad_ops = {
++	.get_edid	= ap0101_get_edid,
++	.enum_mbus_code	= ap0101_enum_mbus_code,
++	.get_selection	= ap0101_get_selection,
++	.set_selection	= ap0101_set_selection,
++	.get_fmt	= ap0101_get_fmt,
++	.set_fmt	= ap0101_set_fmt,
++};
++
++static struct v4l2_subdev_ops ap0101_subdev_ops = {
++	.core	= &ap0101_core_ops,
++	.video	= &ap0101_video_ops,
++	.pad	= &ap0101_subdev_pad_ops,
++};
++
++static void ap0101_otp_id_read(struct i2c_client *client)
++{
++}
++
++static ssize_t ap0101_otp_id_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct v4l2_subdev *sd = i2c_get_clientdata(to_i2c_client(dev));
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ap0101_priv *priv = to_ap0101(client);
++
++	return snprintf(buf, 32, "%02x:%02x:%02x:%02x:%02x:%02x\n",
++			priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++}
++
++static DEVICE_ATTR(otp_id_ap0101, S_IRUGO, ap0101_otp_id_show, NULL);
++
++static int ap0101_initialize(struct i2c_client *client)
++{
++	struct ap0101_priv *priv = to_ap0101(client);
++	u16 pid = 0;
++	int ret = 0;
++
++	ap0101_s_port(client, 1);
++
++	/* check and show model ID */
++	reg16_read16(client, AP0101_PID, &pid);
++
++	if (pid != AP0101_VERSION_REG) {
++		dev_dbg(&client->dev, "Product ID error %x\n", pid);
++		ret = -ENODEV;
++		goto err;
++	}
++
++	/* Program wizard registers */
++	ap0101_set_regs(client, ap0101_regs_wizard, ARRAY_SIZE(ap0101_regs_wizard));
++
++	/* Read OTP IDs */
++	ap0101_otp_id_read(client);
++
++	dev_info(&client->dev, "ap0101 PID %x, res %dx%d, OTP_ID %02x:%02x:%02x:%02x:%02x:%02x\n",
++		 pid, AP0101_MAX_WIDTH, AP0101_MAX_HEIGHT, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4], priv->id[5]);
++err:
++	ap0101_s_port(client, 0);
++
++	return ret;
++}
++
++static int ap0101_parse_dt(struct device_node *np, struct ap0101_priv *priv)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(&priv->sd);
++	int i;
++	struct device_node *endpoint = NULL, *rendpoint = NULL;
++	int tmp_addr = 0;
++
++	for (i = 0; ; i++) {
++		endpoint = of_graph_get_next_endpoint(np, endpoint);
++		if (!endpoint)
++			break;
++
++		of_node_put(endpoint);
++
++		rendpoint = of_parse_phandle(endpoint, "remote-endpoint", 0);
++		if (!rendpoint)
++			continue;
++
++		if (!of_property_read_u32(rendpoint, "max9271-addr", &priv->max9271_addr) &&
++		    !of_property_read_u32(rendpoint->parent->parent, "reg", &priv->max9286_addr) &&
++		    !kstrtouint(strrchr(rendpoint->full_name, '@') + 1, 0, &priv->port))
++			break;
++	}
++
++	if (!priv->max9286_addr) {
++		dev_err(&client->dev, "deserializer does not present for AP0101\n");
++		return -EINVAL;
++	}
++
++	ap0101_s_port(client, 1);
++
++	/* setup I2C translator address */
++	tmp_addr = client->addr;
++	if (priv->max9286_addr) {
++		client->addr = priv->max9271_addr;			/* Serializer I2C address */
++
++		reg8_write(client, 0x09, tmp_addr << 1);		/* Sensor translated I2C address */
++		reg8_write(client, 0x0A, AP0101_I2C_ADDR << 1);		/* Sensor native I2C address */
++		usleep_range(2000, 2500);				/* wait 2ms */
++	};
++	client->addr = tmp_addr;
++
++	mdelay(10);
++
++	return 0;
++}
++
++static int ap0101_probe(struct i2c_client *client,
++		       const struct i2c_device_id *did)
++{
++	struct ap0101_priv *priv;
++	int ret;
++
++	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	v4l2_i2c_subdev_init(&priv->sd, client, &ap0101_subdev_ops);
++	priv->sd.flags = V4L2_SUBDEV_FL_HAS_DEVNODE;
++
++	priv->exposure = 0x100;
++	priv->gain = 0x100;
++	priv->autogain = 1;
++	v4l2_ctrl_handler_init(&priv->hdl, 4);
++	v4l2_ctrl_new_std(&priv->hdl, &ap0101_ctrl_ops,
++			  V4L2_CID_BRIGHTNESS, 0, 16, 1, 7);
++	v4l2_ctrl_new_std(&priv->hdl, &ap0101_ctrl_ops,
++			  V4L2_CID_CONTRAST, 0, 16, 1, 7);
++	v4l2_ctrl_new_std(&priv->hdl, &ap0101_ctrl_ops,
++			  V4L2_CID_SATURATION, 0, 7, 1, 2);
++	v4l2_ctrl_new_std(&priv->hdl, &ap0101_ctrl_ops,
++			  V4L2_CID_HUE, 0, 23, 1, 12);
++	v4l2_ctrl_new_std(&priv->hdl, &ap0101_ctrl_ops,
++			  V4L2_CID_GAMMA, -128, 128, 1, 0);
++	v4l2_ctrl_new_std(&priv->hdl, &ap0101_ctrl_ops,
++			  V4L2_CID_SHARPNESS, 0, 10, 1, 3);
++	v4l2_ctrl_new_std(&priv->hdl, &ap0101_ctrl_ops,
++			  V4L2_CID_AUTOGAIN, 0, 1, 1, priv->autogain);
++	v4l2_ctrl_new_std(&priv->hdl, &ap0101_ctrl_ops,
++			  V4L2_CID_GAIN, 0, 0xffff, 1, priv->gain);
++	v4l2_ctrl_new_std(&priv->hdl, &ap0101_ctrl_ops,
++			  V4L2_CID_EXPOSURE, 0, 0xffff, 1, priv->exposure);
++	v4l2_ctrl_new_std(&priv->hdl, &ap0101_ctrl_ops,
++			  V4L2_CID_HFLIP, 0, 1, 1, 1);
++	v4l2_ctrl_new_std(&priv->hdl, &ap0101_ctrl_ops,
++			  V4L2_CID_VFLIP, 0, 1, 1, 0);
++	priv->sd.ctrl_handler = &priv->hdl;
++
++	ret = priv->hdl.error;
++	if (ret)
++		goto cleanup;
++
++	v4l2_ctrl_handler_setup(&priv->hdl);
++
++	priv->pad.flags = MEDIA_PAD_FL_SOURCE;
++	priv->sd.entity.flags |= MEDIA_ENT_F_CAM_SENSOR;
++	ret = media_entity_pads_init(&priv->sd.entity, 1, &priv->pad);
++	if (ret < 0)
++		goto cleanup;
++
++	ret = ap0101_parse_dt(client->dev.of_node, priv);
++	if (ret)
++		goto cleanup;
++
++	ret = ap0101_initialize(client);
++	if (ret < 0)
++		goto cleanup;
++
++	priv->rect.left = 0;
++	priv->rect.top = 0;
++	priv->rect.width = AP0101_MAX_WIDTH;
++	priv->rect.height = AP0101_MAX_HEIGHT;
++
++	ret = v4l2_async_register_subdev(&priv->sd);
++	if (ret)
++		goto cleanup;
++
++	if (device_create_file(&client->dev, &dev_attr_otp_id_ap0101) != 0) {
++		dev_err(&client->dev, "sysfs otp_id entry creation failed\n");
++		goto cleanup;
++	}
++
++	priv->init_complete = 1;
++
++	return 0;
++
++cleanup:
++	media_entity_cleanup(&priv->sd.entity);
++	v4l2_ctrl_handler_free(&priv->hdl);
++	v4l2_device_unregister_subdev(&priv->sd);
++#ifdef CONFIG_SOC_CAMERA_AP0101
++	v4l_err(client, "failed to probe @ 0x%02x (%s)\n",
++		client->addr, client->adapter->name);
++#endif
++	return ret;
++}
++
++static int ap0101_remove(struct i2c_client *client)
++{
++	struct ap0101_priv *priv = i2c_get_clientdata(client);
++
++	device_remove_file(&client->dev, &dev_attr_otp_id_ap0101);
++	v4l2_async_unregister_subdev(&priv->sd);
++	media_entity_cleanup(&priv->sd.entity);
++	v4l2_ctrl_handler_free(&priv->hdl);
++	v4l2_device_unregister_subdev(&priv->sd);
++
++	return 0;
++}
++
++#ifdef CONFIG_SOC_CAMERA_AP0101
++static const struct i2c_device_id ap0101_id[] = {
++	{ "ap0101", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, ap0101_id);
++
++static const struct of_device_id ap0101_of_ids[] = {
++	{ .compatible = "aptina,ap0101", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, ap0101_of_ids);
++
++static struct i2c_driver ap0101_i2c_driver = {
++	.driver	= {
++		.name		= "ap0101",
++		.of_match_table	= ap0101_of_ids,
++	},
++	.probe		= ap0101_probe,
++	.remove		= ap0101_remove,
++	.id_table	= ap0101_id,
++};
++
++module_i2c_driver(ap0101_i2c_driver);
++
++MODULE_DESCRIPTION("SoC Camera driver for AP0101");
++MODULE_AUTHOR("Vladimir Barinov");
++MODULE_LICENSE("GPL");
++#endif
+diff --git a/drivers/media/i2c/soc_camera/ap0101_ar014x.h b/drivers/media/i2c/soc_camera/ap0101_ar014x.h
+new file mode 100644
+index 0000000..16599a1
+--- /dev/null
++++ b/drivers/media/i2c/soc_camera/ap0101_ar014x.h
+@@ -0,0 +1,28 @@
++/*
++ * ON Semiconductor ap0101-ar014x sensor camera wizard 1280x720@30/UYVY/BT601/8bit
++ *
++ * Copyright (C) 2018 Cogent Embedded, Inc.
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#define AP0101_MAX_WIDTH	1280
++#define AP0101_MAX_HEIGHT	720
++
++#define AP0101_DELAY		0xffff
++
++struct ap0101_reg {
++	u16	reg;
++	u16	val;
++};
++
++static const struct ap0101_reg ap0101_regs_wizard[] = {
++/* enable FSIN */
++{0xc88c, 0x0303},
++{0xfc00, 0x2800},
++{0x0040, 0x8100},
++{AP0101_DELAY, 100},
++};
 diff --git a/drivers/media/i2c/soc_camera/ar0132.c b/drivers/media/i2c/soc_camera/ar0132.c
 new file mode 100644
-index 0000000..decbf5f
+index 0000000..bbaeeaae
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0132.c
 @@ -0,0 +1,581 @@
 +/*
-+ * Aptina AR0132 sensor camera driver
++ * ON Semiconductor AR0132 sensor camera driver
 + *
 + * Copyright (C) 2017 Cogent Embedded, Inc.
 + *
@@ -716,12 +1296,12 @@ index 0000000..decbf5f
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ar0132.h b/drivers/media/i2c/soc_camera/ar0132.h
 new file mode 100644
-index 0000000..055841d
+index 0000000..bcee0e5
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ar0132.h
 @@ -0,0 +1,213 @@
 +/*
-+ * OmniVision ar0132 sensor camera wizard 1110x620@30/BGGR/BT601/12bit
++ * ON Semiconductor ar0132 sensor camera wizard 1110x620@30/BGGR/BT601/12bit
 + *
 + * Copyright (C) 2017 Cogent Embedded, Inc.
 + *
@@ -933,16 +1513,16 @@ index 0000000..055841d
 +{0x31D0, 0x0001},
 +{0x30B0, 0x2002},
 +};
-diff --git a/drivers/media/i2c/soc_camera/max9286_max9271.c b/drivers/media/i2c/soc_camera/max9286_max9271.c
+diff --git a/drivers/media/i2c/soc_camera/max9286.c b/drivers/media/i2c/soc_camera/max9286.c
 new file mode 100644
-index 0000000..91223a0
+index 0000000..20ef2de
 --- /dev/null
-+++ b/drivers/media/i2c/soc_camera/max9286_max9271.c
-@@ -0,0 +1,607 @@
++++ b/drivers/media/i2c/soc_camera/max9286.c
+@@ -0,0 +1,672 @@
 +/*
-+ * MAXIM max9286-max9271 GMSL driver
++ * MAXIM max9286 GMSL driver
 + *
-+ * Copyright (C) 2015-2017 Cogent Embedded, Inc.
++ * Copyright (C) 2015-2018 Cogent Embedded, Inc.
 + *
 + * This program is free software; you can redistribute  it and/or modify it
 + * under  the terms of  the GNU General  Public License as published by the
@@ -963,7 +1543,7 @@ index 0000000..91223a0
 +#include <media/v4l2-of.h>
 +#include <media/v4l2-subdev.h>
 +
-+#include "max9286_max9271.h"
++#include "max9286.h"
 +
 +#define MAXIM_I2C_I2C_SPEED_837KHZ	(0x7 << 2) /* 837kbps */
 +#define MAXIM_I2C_I2C_SPEED_533KHZ	(0x6 << 2) /* 533kbps */
@@ -974,7 +1554,7 @@ index 0000000..91223a0
 +#define MAXIM_I2C_I2C_SPEED_028KHZ	(0x1 << 2) /* 28.3 kbps */
 +#define MAXIM_I2C_I2C_SPEED		MAXIM_I2C_I2C_SPEED_339KHZ
 +
-+struct max9286_max9271_priv {
++struct max9286_priv {
 +	struct v4l2_subdev	sd[4];
 +	struct device_node	*sd_of_node[4];
 +	int			des_addr;
@@ -988,47 +1568,68 @@ index 0000000..91223a0
 +	char			pclk_rising_edge;
 +	int			gpio_resetb;
 +	int			active_low_resetb;
++	int			him;
++	int			hsync;
++	int			vsync;
 +	int			timeout;
 +	atomic_t		use_count;
 +	u32			csi2_outord;
 +	struct i2c_client	*client;
 +	int			max9271_addr_map[4];
++	int			ser_id;
 +	struct regulator	*poc_supply[4]; /* PoC power supply */
 +};
 +
-+static int force_conf_link;
-+static int force_poc_trig;
-+#ifndef MODULE
-+static __init int max9286_max9271_force_conf_link(char *str)
-+{
-+	/* force configuration link */
-+	/* used only if robust firmware flashing required (f.e. recovery) */
-+	force_conf_link = 1;
-+	return 0;
-+}
-+early_param("force_conf_link", max9286_max9271_force_conf_link);
++static int conf_link;
++module_param(conf_link, int, 0644);
++MODULE_PARM_DESC(conf_link, " Force configuration link. Used only if robust firmware flashing required (f.e. recovery)");
 +
-+static __init int max9286_max9271_force_poc_trig(char *str)
-+{
-+	/* force PoC triggering during reverse channel setup */
-+	/* to be used on systems with dedicated PoC and unstable ser-des lock */
-+	force_poc_trig = 1;
-+	return 0;
-+}
-+early_param("force_poc_trig", max9286_max9271_force_poc_trig);
-+#endif
++static int poc_trig;
++module_param(poc_trig, int, 0644);
++MODULE_PARM_DESC(poc_trig, " Use PoC triggering during reverse channel setup. Useful on systems with dedicated PoC and unstable ser-des lock */");
 +
-+static void max9286_max9271_preinit(struct i2c_client *client, int addr)
++static int him;
++module_param(him, int, 0644);
++MODULE_PARM_DESC(him, " Use High-Immunity mode (default: leagacy mode) */");
++
++static int fsync_period;
++module_param(fsync_period, int, 0644);
++MODULE_PARM_DESC(fsync_period, " Frame sync period (default: 3.2MHz) */");
++
++static int hsync;
++module_param(hsync, int, 0644);
++MODULE_PARM_DESC(hsync, " HSYNC invertion (default: 0 - not inverted) */");
++
++static int vsync = 1;
++module_param(vsync, int, 0644);
++MODULE_PARM_DESC(vsync, " VSYNC invertion (default: 1 - inverted) */");
++
++static char* ser_name(int id)
 +{
++	switch (id) {
++	case MAX9271_ID:
++		return "MAX9271";
++	case MAX96705_ID:
++		return "MAX96705";
++	default:
++		return "unknown";
++	}
++}
++
++static void max9286_preinit(struct i2c_client *client, int addr)
++{
++	struct max9286_priv *priv = i2c_get_clientdata(client);
++
 +	client->addr = addr;			/* MAX9286-CAMx I2C */
 +	reg8_write(client, 0x0a, 0x00);		/* disable reverse control for all cams */
 +	reg8_write(client, 0x00, 0x00);		/* disable all GMSL links [0:3] */
 +	usleep_range(2000, 2500);		/* wait 2ms after any change of reverse channel settings */
++	reg8_write(client, 0x1c, priv->him ? 0xf4 : 0x04); /* high-immunity or legacy mode */
 +}
 +
-+static void max9286_max9271_sensor_reset(struct i2c_client *client, int addr, int reset_on)
++static void max9286_sensor_reset(struct i2c_client *client, int addr, int reset_on)
 +{
-+	struct max9286_max9271_priv *priv = i2c_get_clientdata(client);
++	struct max9286_priv *priv = i2c_get_clientdata(client);
 +
 +	if (priv->gpio_resetb < 1 || priv->gpio_resetb > 5)
 +		return;
@@ -1040,9 +1641,9 @@ index 0000000..91223a0
 +	reg8_write(client, 0x0e, 0x42 | BIT(priv->gpio_resetb)); /* set GPIOn direction output */
 +}
 +
-+static void max9286_max9271_postinit(struct i2c_client *client, int addr)
++static void max9286_postinit(struct i2c_client *client, int addr)
 +{
-+	struct max9286_max9271_priv *priv = i2c_get_clientdata(client);
++	struct max9286_priv *priv = i2c_get_clientdata(client);
 +	int idx;
 +
 +	for (idx = 0; idx < priv->links; idx++) {
@@ -1050,7 +1651,7 @@ index 0000000..91223a0
 +		reg8_write(client, 0x0a, 0x11 << idx);		/* enable reverse/forward control for CAMx */
 +
 +		client->addr = priv->max9271_addr_map[idx];	/* MAX9271-CAMx I2C */
-+		max9286_max9271_sensor_reset(client, client->addr, 0); /* sensor unreset */
++		max9286_sensor_reset(client, client->addr, 0); /* sensor unreset */
 +	}
 +
 +	client->addr = addr;					/* MAX9286 I2C */
@@ -1062,9 +1663,9 @@ index 0000000..91223a0
 +	usleep_range(5000, 5500);				/* wait 2ms after any change of reverse channel settings */
 +}
 +
-+static int max9286_max9271_reverse_channel_setup(struct i2c_client *client, int idx)
++static int max9286_reverse_channel_setup(struct i2c_client *client, int idx)
 +{
-+	struct max9286_max9271_priv *priv = i2c_get_clientdata(client);
++	struct max9286_priv *priv = i2c_get_clientdata(client);
 +	u8 val = 0;
 +	int timeout = priv->timeout;
 +	char timeout_str[10];
@@ -1087,8 +1688,8 @@ index 0000000..91223a0
 +		client->addr = 0x40;				/* MAX9271-CAMx I2C */
 +		reg8_write(client, 0x04, 0x43);			/* wake-up, enable reverse_control/conf_link */
 +		usleep_range(2000, 2500);			/* wait 2ms after any change of reverse channel settings */
-+		reg8_write(client, 0x08, 0x1);			/* reverse channel receiver high threshold enable */
-+		reg8_write(client, 0x97, 0x5f);			/* enable reverse control channel programming (MAX96705-MAX96711 only) */
++		reg8_write(client, 0x08, 0x01);			/* reverse channel receiver high threshold enable */
++		reg8_write(client, 0x97, priv->him ? 0xaf : 0x5f); /* enable reverse control channel programming (MAX96705-MAX96711 only) */
 +		usleep_range(2000, 2500);			/* wait 2ms after any change of reverse channel settings */
 +
 +		client->addr = priv->des_addr;			/* MAX9286-CAMx I2C */
@@ -1097,20 +1698,23 @@ index 0000000..91223a0
 +
 +		client->addr = 0x40;				/* MAX9271-CAMx I2C */
 +		reg8_read(client, 0x1e, &val);			/* read max9271 ID */
-+		if (val == MAX9271_ID || val == MAX96705_ID || --timeout == 0)
++		if (val == MAX9271_ID || val == MAX96705_ID || --timeout == 0) {
++			priv->ser_id = val;
 +			break;
++		}
 +
 +		/* Check if already initialized (after reboot/reset ?) */
 +		client->addr = priv->max9271_addr_map[idx];	/* MAX9271-CAMx I2C */
 +		reg8_read(client, 0x1e, &val);			/* read max9271 ID */
 +		if (val == MAX9271_ID || val == MAX96705_ID) {
++			priv->ser_id = val;
 +			reg8_write(client, 0x04, 0x43);		/* enable reverse_control/conf_link */
 +			usleep_range(2000, 2500);		/* wait 2ms after any change of reverse channel settings */
 +			ret = -EADDRINUSE;
 +			break;
 +		}
 +
-+		if (timeout == priv->timeout / 2 && force_poc_trig) {
++		if (timeout == priv->timeout / 2 && poc_trig) {
 +			if (!IS_ERR(priv->poc_supply[idx])) {
 +				if (regulator_disable(priv->poc_supply[idx]))
 +					dev_err(&client->dev, "fail to disable POC%d regulator\n", idx);
@@ -1121,7 +1725,7 @@ index 0000000..91223a0
 +		}
 +	}
 +
-+	max9286_max9271_sensor_reset(client, client->addr, 1);	/* sensor reset */
++	max9286_sensor_reset(client, client->addr, 1);	/* sensor reset */
 +
 +	if (!timeout) {
 +		ret = -ETIMEDOUT;
@@ -1134,7 +1738,7 @@ index 0000000..91223a0
 +
 +out:
 +	sprintf(timeout_str, "retries=%d", priv->timeout - timeout);
-+	dev_info(&client->dev, "link%d MAX9271 %sat 0x%x %s %s\n", idx,
++	dev_info(&client->dev, "link%d %s %sat 0x%x %s %s\n", idx, ser_name(priv->ser_id),
 +			       ret == -EADDRINUSE ? "already " : "", priv->max9271_addr_map[idx],
 +			       ret == -ETIMEDOUT ? "not found: timeout GMSL link establish" : "",
 +			       priv->timeout - timeout? timeout_str : "");
@@ -1142,9 +1746,9 @@ index 0000000..91223a0
 +	return ret;
 +}
 +
-+static void max9286_max9271_initial_setup(struct i2c_client *client)
++static void max9286_initial_setup(struct i2c_client *client)
 +{
-+	struct max9286_max9271_priv *priv = i2c_get_clientdata(client);
++	struct max9286_priv *priv = i2c_get_clientdata(client);
 +
 +	/* Initial setup */
 +	client->addr = priv->des_addr;				/* MAX9286-CAMx I2C */
@@ -1167,10 +1771,11 @@ index 0000000..91223a0
 +		dev_err(&client->dev, "CSI2 lanes number is invalid (%d)\n", priv->lanes);
 +	}
 +
++	reg8_write(client, 0x06, priv->fsync_period & 0xff);
++	reg8_write(client, 0x07, (priv->fsync_period >> 8) & 0xff);
++	reg8_write(client, 0x08, priv->fsync_period >> 16);
++
 +	if (strcmp(priv->fsync_mode, "manual") == 0) {
-+		reg8_write(client, 0x06, priv->fsync_period & 0xff);
-+		reg8_write(client, 0x07, (priv->fsync_period >> 8) & 0xff);
-+		reg8_write(client, 0x08, priv->fsync_period >> 16);
 +		reg8_write(client, 0x01, 0x00);			/* manual: FRAMESYNC set manually via [0x06:0x08] regs */
 +	} else if (strcmp(priv->fsync_mode, "automatic") == 0) {
 +		reg8_write(client, 0x01, 0x02);			/* automatic: FRAMESYNC taken from the slowest Link */
@@ -1182,12 +1787,13 @@ index 0000000..91223a0
 +
 +	reg8_write(client, 0x63, 0);				/* disable overlap window */
 +	reg8_write(client, 0x64, 0);
-+	reg8_write(client, 0x0c, 0x89);				/* enable HS/VS encoding, use D14/15 for HS/VS, invert VS */
++	reg8_write(client, 0x0c, 0x91 | (priv->vsync ? BIT(3) : 0) | (priv->hsync ? BIT(2) : 0)); /* enable HS/VS encoding, use D14/15 for HS/VS, invert HS/VS */
++	reg8_write(client, 0x19, 0x0c);				/* Drive HSTRAIL state for 120ns after the last payload bit */
 +}
 +
-+static void max9286_max9271_gmsl_link_setup(struct i2c_client *client, int idx)
++static void max9286_gmsl_link_setup(struct i2c_client *client, int idx)
 +{
-+	struct max9286_max9271_priv *priv = i2c_get_clientdata(client);
++	struct max9286_priv *priv = i2c_get_clientdata(client);
 +
 +	/* GMSL setup */
 +	client->addr = 0x40;					/* MAX9271-CAMx I2C */
@@ -1196,6 +1802,27 @@ index 0000000..91223a0
 +	usleep_range(2000, 2500);				/* wait 2ms */
 +	reg8_write(client, 0x02, 0xff);				/* spread spectrum +-4%, pclk range automatic, Gbps automatic  */
 +	usleep_range(2000, 2500);				/* wait 2ms */
++
++	if (priv->ser_id == MAX96705_ID) {
++		/* setup crossbar in DBL mode: reverse DVP bus */
++		reg8_write(client, 0x20, 0x07);
++		reg8_write(client, 0x21, 0x06);
++		reg8_write(client, 0x22, 0x05);
++		reg8_write(client, 0x23, 0x04);
++		reg8_write(client, 0x24, 0x03);
++		reg8_write(client, 0x25, 0x02);
++		reg8_write(client, 0x26, 0x01);
++		reg8_write(client, 0x27, 0x00);
++
++		reg8_write(client, 0x30, 0x17);
++		reg8_write(client, 0x31, 0x16);
++		reg8_write(client, 0x32, 0x15);
++		reg8_write(client, 0x33, 0x14);
++		reg8_write(client, 0x34, 0x13);
++		reg8_write(client, 0x35, 0x12);
++		reg8_write(client, 0x36, 0x11);
++		reg8_write(client, 0x37, 0x10);
++	}
 +
 +	client->addr = priv->des_addr;				/* MAX9286-CAMx I2C */
 +	reg8_write(client, 0x34, 0x22 | MAXIM_I2C_I2C_SPEED);	/* disable artificial ACK, I2C speed set */
@@ -1223,9 +1850,9 @@ index 0000000..91223a0
 +#endif
 +}
 +
-+static int max9286_max9271_initialize(struct i2c_client *client)
++static int max9286_initialize(struct i2c_client *client)
 +{
-+	struct max9286_max9271_priv *priv = i2c_get_clientdata(client);
++	struct max9286_priv *priv = i2c_get_clientdata(client);
 +	int idx, ret;
 +
 +	dev_info(&client->dev, "LINKs=%d, LANES=%d, FSYNC mode=%s, FSYNC period=%d, PCLK edge=%s\n",
@@ -1233,10 +1860,10 @@ index 0000000..91223a0
 +			       priv->pclk_rising_edge ? "rising" : "falling");
 +
 +	if (priv->des_quirk_addr)
-+		max9286_max9271_preinit(client, priv->des_quirk_addr);
++		max9286_preinit(client, priv->des_quirk_addr);
 +
-+	max9286_max9271_preinit(client, priv->des_addr);
-+	max9286_max9271_initial_setup(client);
++	max9286_preinit(client, priv->des_addr);
++	max9286_initial_setup(client);
 +
 +	for (idx = 0; idx < priv->links; idx++) {
 +		if (!IS_ERR(priv->poc_supply[idx])) {
@@ -1244,13 +1871,13 @@ index 0000000..91223a0
 +				dev_err(&client->dev, "fail to enable POC%d regulator\n", idx);
 +		}
 +
-+		ret = max9286_max9271_reverse_channel_setup(client, idx);
++		ret = max9286_reverse_channel_setup(client, idx);
 +		if (ret)
 +			continue;
-+		max9286_max9271_gmsl_link_setup(client, idx);
++		max9286_gmsl_link_setup(client, idx);
 +	}
 +
-+	max9286_max9271_postinit(client, priv->des_addr);
++	max9286_postinit(client, priv->des_addr);
 +
 +	client->addr = priv->des_addr;
 +
@@ -1258,10 +1885,10 @@ index 0000000..91223a0
 +}
 +
 +#ifdef CONFIG_VIDEO_ADV_DEBUG
-+static int max9286_max9271_g_register(struct v4l2_subdev *sd,
++static int max9286_g_register(struct v4l2_subdev *sd,
 +				      struct v4l2_dbg_register *reg)
 +{
-+	struct max9286_max9271_priv *priv = v4l2_get_subdevdata(sd);
++	struct max9286_priv *priv = v4l2_get_subdevdata(sd);
 +	struct i2c_client *client = priv->client;
 +	int ret;
 +	u8 val = 0;
@@ -1276,19 +1903,19 @@ index 0000000..91223a0
 +	return 0;
 +}
 +
-+static int max9286_max9271_s_register(struct v4l2_subdev *sd,
++static int max9286_s_register(struct v4l2_subdev *sd,
 +				      const struct v4l2_dbg_register *reg)
 +{
-+	struct max9286_max9271_priv *priv = v4l2_get_subdevdata(sd);
++	struct max9286_priv *priv = v4l2_get_subdevdata(sd);
 +	struct i2c_client *client = priv->client;
 +
 +	return reg8_write(client, (u8)reg->reg, (u8)reg->val);
 +}
 +#endif
 +
-+static int max9286_max9271_s_power(struct v4l2_subdev *sd, int on)
++static int max9286_s_power(struct v4l2_subdev *sd, int on)
 +{
-+	struct max9286_max9271_priv *priv = v4l2_get_subdevdata(sd);
++	struct max9286_priv *priv = v4l2_get_subdevdata(sd);
 +	struct i2c_client *client = priv->client;
 +
 +	if (on) {
@@ -1302,9 +1929,9 @@ index 0000000..91223a0
 +	return 0;
 +}
 +
-+static int max9286_max9271_registered_async(struct v4l2_subdev *sd)
++static int max9286_registered_async(struct v4l2_subdev *sd)
 +{
-+	struct max9286_max9271_priv *priv = v4l2_get_subdevdata(sd);
++	struct max9286_priv *priv = v4l2_get_subdevdata(sd);
 +	struct i2c_client *client = priv->client;
 +	int idx, tmp_addr;
 +
@@ -1316,7 +1943,7 @@ index 0000000..91223a0
 +	reg8_write(client, 0x0a, 0x11 << idx);			/* enable reverse/forward control for CAMx */
 +
 +	client->addr = priv->max9271_addr_map[idx];		/* MAX9271-CAMx */
-+	reg8_write(client, 0x04, force_conf_link ? 0x43 : 0x83); /* enable reverse_control/serial_link */
++	reg8_write(client, 0x04, conf_link ? 0x43 : 0x83);	/* enable serial_link */
 +	usleep_range(2000, 2500);				/* wait 2ms after changing reverse_control */
 +
 +	client->addr = priv->des_addr;				/* MAX9286 I2C */
@@ -1327,22 +1954,22 @@ index 0000000..91223a0
 +	return 0;
 +}
 +
-+static struct v4l2_subdev_core_ops max9286_max9271_subdev_core_ops = {
++static struct v4l2_subdev_core_ops max9286_subdev_core_ops = {
 +#ifdef CONFIG_VIDEO_ADV_DEBUG
-+	.g_register		= max9286_max9271_g_register,
-+	.s_register		= max9286_max9271_s_register,
++	.g_register		= max9286_g_register,
++	.s_register		= max9286_s_register,
 +#endif
-+	.s_power		= max9286_max9271_s_power,
-+	.registered_async	= max9286_max9271_registered_async,
++	.s_power		= max9286_s_power,
++	.registered_async	= max9286_registered_async,
 +};
 +
-+static struct v4l2_subdev_ops max9286_max9271_subdev_ops = {
-+	.core	= &max9286_max9271_subdev_core_ops,
++static struct v4l2_subdev_ops max9286_subdev_ops = {
++	.core	= &max9286_subdev_core_ops,
 +};
 +
-+static int max9286_max9271_parse_dt(struct i2c_client *client)
++static int max9286_parse_dt(struct i2c_client *client)
 +{
-+	struct max9286_max9271_priv *priv = i2c_get_clientdata(client);
++	struct max9286_priv *priv = i2c_get_clientdata(client);
 +	struct device_node *np = client->dev.of_node;
 +	struct device_node *endpoint = NULL;
 +	struct property *prop;
@@ -1402,6 +2029,24 @@ index 0000000..91223a0
 +		priv->timeout = 100;
 +	if (of_property_read_u32(np, "maxim,i2c-quirk", &priv->des_quirk_addr))
 +		priv->des_quirk_addr = 0;
++	if (of_property_read_u32(np, "maxim,him", &priv->him))
++		priv->him = 0;
++	if (of_property_read_u32(np, "maxim,hsync", &priv->hsync))
++		priv->hsync = 0;
++	if (of_property_read_u32(np, "maxim,vsync", &priv->vsync))
++		priv->vsync = 1;
++
++	/* module params override dts */
++	if (him)
++		priv->him = him;
++	if (fsync_period) {
++		priv->fsync_period = fsync_period;
++		priv->fsync_mode = fsync_mode_default;
++	}
++	if (hsync)
++		priv->hsync = hsync;
++	if (!vsync)
++		priv->vsync = vsync;
 +
 +	for (i = 0; i < priv->links; i++) {
 +		endpoint = of_graph_get_next_endpoint(np, endpoint);
@@ -1421,9 +2066,9 @@ index 0000000..91223a0
 +	return 0;
 +}
 +
-+static void max9286_max9271_setup_remote_endpoint(struct i2c_client *client)
++static void max9286_setup_remote_endpoint(struct i2c_client *client)
 +{
-+	struct max9286_max9271_priv *priv = i2c_get_clientdata(client);
++	struct max9286_priv *priv = i2c_get_clientdata(client);
 +	struct device_node *np = client->dev.of_node;
 +	struct device_node *endpoint = NULL, *rendpoint = NULL;
 +	int i;
@@ -1454,10 +2099,10 @@ index 0000000..91223a0
 +	}
 +}
 +
-+static int max9286_max9271_probe(struct i2c_client *client,
++static int max9286_probe(struct i2c_client *client,
 +				 const struct i2c_device_id *did)
 +{
-+	struct max9286_max9271_priv *priv;
++	struct max9286_priv *priv;
 +	int err, i;
 +	char supply_name[10];
 +
@@ -1471,7 +2116,7 @@ index 0000000..91223a0
 +	atomic_set(&priv->use_count, 0);
 +	priv->csi2_outord = 0xff;
 +
-+	err = max9286_max9271_parse_dt(client);
++	err = max9286_parse_dt(client);
 +	if (err)
 +		goto out;
 +
@@ -1480,14 +2125,14 @@ index 0000000..91223a0
 +		priv->poc_supply[i] = devm_regulator_get_optional(&client->dev, supply_name);
 +	}
 +
-+	err = max9286_max9271_initialize(client);
++	err = max9286_initialize(client);
 +	if (err < 0)
 +		goto out;
 +
-+	max9286_max9271_setup_remote_endpoint(client);
++	max9286_setup_remote_endpoint(client);
 +
 +	for (i = 0; i < 4; i++) {
-+		v4l2_subdev_init(&priv->sd[i], &max9286_max9271_subdev_ops);
++		v4l2_subdev_init(&priv->sd[i], &max9286_subdev_ops);
 +		priv->sd[i].owner = client->dev.driver->owner;
 +		priv->sd[i].dev = &client->dev;
 +		priv->sd[i].grp_id = i;
@@ -1506,9 +2151,9 @@ index 0000000..91223a0
 +	return err;
 +}
 +
-+static int max9286_max9271_remove(struct i2c_client *client)
++static int max9286_remove(struct i2c_client *client)
 +{
-+	struct max9286_max9271_priv *priv = i2c_get_clientdata(client);
++	struct max9286_priv *priv = i2c_get_clientdata(client);
 +	int i;
 +
 +	for (i = 0; i < 4; i++) {
@@ -1519,38 +2164,38 @@ index 0000000..91223a0
 +	return 0;
 +}
 +
-+static const struct of_device_id max9286_max9271_dt_ids[] = {
-+	{ .compatible = "maxim,max9286-max9271" },
++static const struct of_device_id max9286_dt_ids[] = {
++	{ .compatible = "maxim,max9286" },
 +	{},
 +};
-+MODULE_DEVICE_TABLE(of, max9286_max9271_dt_ids);
++MODULE_DEVICE_TABLE(of, max9286_dt_ids);
 +
-+static const struct i2c_device_id max9286_max9271_id[] = {
-+	{ "max9286_max9271", 0 },
++static const struct i2c_device_id max9286_id[] = {
++	{ "max9286", 0 },
 +	{ }
 +};
-+MODULE_DEVICE_TABLE(i2c, max9286_max9271_id);
++MODULE_DEVICE_TABLE(i2c, max9286_id);
 +
-+static struct i2c_driver max9286_max9271_i2c_driver = {
++static struct i2c_driver max9286_i2c_driver = {
 +	.driver	= {
-+		.name		= "max9286_max9271",
-+		.of_match_table	= of_match_ptr(max9286_max9271_dt_ids),
++		.name		= "max9286",
++		.of_match_table	= of_match_ptr(max9286_dt_ids),
 +	},
-+	.probe		= max9286_max9271_probe,
-+	.remove		= max9286_max9271_remove,
-+	.id_table	= max9286_max9271_id,
++	.probe		= max9286_probe,
++	.remove		= max9286_remove,
++	.id_table	= max9286_id,
 +};
 +
-+module_i2c_driver(max9286_max9271_i2c_driver);
++module_i2c_driver(max9286_i2c_driver);
 +
-+MODULE_DESCRIPTION("GMSL driver for MAX9286-MAX9271");
++MODULE_DESCRIPTION("GMSL driver for MAX9286");
 +MODULE_AUTHOR("Vladimir Barinov");
 +MODULE_LICENSE("GPL");
-diff --git a/drivers/media/i2c/soc_camera/max9286_max9271.h b/drivers/media/i2c/soc_camera/max9286_max9271.h
+diff --git a/drivers/media/i2c/soc_camera/max9286.h b/drivers/media/i2c/soc_camera/max9286.h
 new file mode 100644
 index 0000000..6c2a9e0
 --- /dev/null
-+++ b/drivers/media/i2c/soc_camera/max9286_max9271.h
++++ b/drivers/media/i2c/soc_camera/max9286.h
 @@ -0,0 +1,244 @@
 +/*
 + * MAXIM max9286-max9271 GMSL driver include file
@@ -1798,7 +2443,7 @@ index 0000000..6c2a9e0
 +#endif /* _MAX9286_MAX9271_H */
 diff --git a/drivers/media/i2c/soc_camera/ov10635.c b/drivers/media/i2c/soc_camera/ov10635.c
 new file mode 100644
-index 0000000..6296647
+index 0000000..c8da1f4
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov10635.c
 @@ -0,0 +1,758 @@
@@ -1824,7 +2469,7 @@ index 0000000..6296647
 +#include <media/v4l2-ctrls.h>
 +#include <media/v4l2-of.h>
 +
-+#include "max9286_max9271.h"
++#include "max9286.h"
 +#include "ov10635.h"
 +
 +#define OV10635_I2C_ADDR		0x30
@@ -3767,10 +4412,10 @@ index 0000000..4c3515a
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ov106xx.c b/drivers/media/i2c/soc_camera/ov106xx.c
 new file mode 100644
-index 0000000..f2bb706
+index 0000000..4c797f9
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov106xx.c
-@@ -0,0 +1,106 @@
+@@ -0,0 +1,117 @@
 +/*
 + * OmniVision ov10635/ov490-ov10640/ov495-ov2775 sensor camera driver
 + *
@@ -3786,12 +4431,14 @@ index 0000000..f2bb706
 +#include "ov490_ov10640.c"
 +#include "ov495_ov2775.c"
 +#include "ar0132.c"
++#include "ap0101_ar014x.c"
 +
 +static enum {
 +	ID_OV10635,
 +	ID_OV490_OV10640,
 +	ID_OV495_OV2775,
 +	ID_AR0132,
++	ID_AP0101_AR014X,
 +} chip_id;
 +
 +static int ov106xx_probe(struct i2c_client *client,
@@ -3824,6 +4471,12 @@ index 0000000..f2bb706
 +		goto out;
 +	}
 +
++	ret = ap0101_probe(client, did);
++	if (!ret) {
++		chip_id = ID_AP0101_AR014X;
++		goto out;
++	}
++
 +	v4l_err(client, "failed to probe @ 0x%02x (%s)\n",
 +			client->addr, client->adapter->name);
 +out:
@@ -3844,6 +4497,9 @@ index 0000000..f2bb706
 +		break;
 +	case ID_AR0132:
 +		ar0132_remove(client);
++		break;
++	case ID_AP0101_AR014X:
++		ap0101_remove(client);
 +		break;
 +	};
 +
@@ -3874,15 +4530,15 @@ index 0000000..f2bb706
 +
 +module_i2c_driver(ov106xx_i2c_driver);
 +
-+MODULE_DESCRIPTION("SoC Camera driver for OV10635 or OV490/OV10640 or OV495/OV2775 or AR0132");
++MODULE_DESCRIPTION("SoC Camera driver for OV10635 or OV490/OV10640 or OV495/OV2775 or AR0132 or AP0101/AR014X");
 +MODULE_AUTHOR("Vladimir Barinov");
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.c b/drivers/media/i2c/soc_camera/ov490_ov10640.c
 new file mode 100644
-index 0000000..813c08e
+index 0000000..be7098e
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.c
-@@ -0,0 +1,1092 @@
+@@ -0,0 +1,1156 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -3905,7 +4561,7 @@ index 0000000..813c08e
 +#include <media/v4l2-ctrls.h>
 +#include <media/v4l2-of.h>
 +
-+#include "max9286_max9271.h"
++#include "max9286.h"
 +#include "ov490_ov10640.h"
 +
 +#define OV490_I2C_ADDR		0x24
@@ -3933,6 +4589,11 @@ index 0000000..813c08e
 +	int				exposure;
 +	int				gain;
 +	int				autogain;
++	int				red;
++	int				green_r;
++	int				green_b;
++	int				blue;
++	int				awb;
 +	int				dvp_order;
 +	/* serializers */
 +	int				max9286_addr;
@@ -4368,6 +5029,54 @@ index 0000000..813c08e
 +		ret |= reg16_write(client, 0xFFFE, 0x80);
 +		usleep_range(100, 150); /* wait 100 us */
 +		ret |= reg16_write(client, 0x00C0, 0xea);
++		break;
++	case V4L2_CID_AUTO_WHITE_BALANCE:
++	case V4L2_CID_RED_BALANCE:
++	case V4L2_CID_BLUE_BALANCE:
++		if (ctrl->id == V4L2_CID_AUTO_WHITE_BALANCE)
++			priv->awb = ctrl->val;
++		if (ctrl->id == V4L2_CID_RED_BALANCE) {
++			priv->red = ctrl->val;
++			priv->red <<= 8;
++			priv->green_r = priv->red / 2;
++		}
++		if (ctrl->id == V4L2_CID_BLUE_BALANCE) {
++			priv->blue = ctrl->val;
++			priv->blue <<= 8;
++			priv->green_b = priv->blue / 2;
++		}
++
++		ret = reg16_write(client, 0xFFFD, 0x80);
++		ret |= reg16_write(client, 0xFFFE, 0x19);
++		usleep_range(100, 150); /* wait 100 us */
++		ret |= reg16_write(client, 0x5000, !priv->awb);
++		ret |= reg16_write(client, 0x5001, priv->red >> 8);
++		ret |= reg16_write(client, 0x5002, priv->red & 0xff);
++		ret |= reg16_write(client, 0x5003, priv->green_r >> 8);
++		ret |= reg16_write(client, 0x5004, priv->green_r & 0xff);
++		ret |= reg16_write(client, 0x5005, priv->green_b >> 8);
++		ret |= reg16_write(client, 0x5006, priv->green_b & 0xff);
++		ret |= reg16_write(client, 0x5007, priv->blue >> 8);
++		ret |= reg16_write(client, 0x5008, priv->blue & 0xff);
++		ret |= reg16_write(client, 0x5009, priv->red >> 8);
++		ret |= reg16_write(client, 0x500a, priv->red & 0xff);
++		ret |= reg16_write(client, 0x500b, priv->green_r >> 8);
++		ret |= reg16_write(client, 0x500c, priv->green_r & 0xff);
++		ret |= reg16_write(client, 0x500d, priv->green_b >> 8);
++		ret |= reg16_write(client, 0x500e, priv->green_b & 0xff);
++		ret |= reg16_write(client, 0x500f, priv->blue >> 8);
++		ret |= reg16_write(client, 0x5010, priv->blue & 0xff);
++		ret |= reg16_write(client, 0x5011, priv->red >> 8);
++		ret |= reg16_write(client, 0x5012, priv->red & 0xff);
++		ret |= reg16_write(client, 0x5013, priv->green_r >> 8);
++		ret |= reg16_write(client, 0x5014, priv->green_r & 0xff);
++		ret |= reg16_write(client, 0x5015, priv->green_b >> 8);
++		ret |= reg16_write(client, 0x5016, priv->green_b & 0xff);
++		ret |= reg16_write(client, 0x5017, priv->blue >> 8);
++		ret |= reg16_write(client, 0x5018, priv->blue & 0xff);
++		ret |= reg16_write(client, 0xFFFE, 0x80);
++		usleep_range(100, 150); /* wait 100 us */
++		ret |= reg16_write(client, 0x00C0, 0xeb);
 +		break;
 +	case V4L2_CID_HFLIP:
 +#if 1
@@ -4855,6 +5564,11 @@ index 0000000..813c08e
 +	priv->exposure = 0x100;
 +	priv->gain = 0x100;
 +	priv->autogain = 1;
++	priv->red = 0x400;
++	priv->blue = 0x400;
++	priv->green_r = priv->red / 2;
++	priv->green_b = priv->blue / 2;
++	priv->awb = 1;
 +	v4l2_ctrl_handler_init(&priv->hdl, 4);
 +	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
 +			  V4L2_CID_BRIGHTNESS, 0, 16, 1, 7);
@@ -4874,6 +5588,12 @@ index 0000000..813c08e
 +			  V4L2_CID_GAIN, 0, 0xffff, 1, priv->gain);
 +	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
 +			  V4L2_CID_EXPOSURE, 0, 0xffff, 1, priv->exposure);
++	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
++			  V4L2_CID_AUTO_WHITE_BALANCE, 0, 1, 1, priv->autogain);
++	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
++			  V4L2_CID_RED_BALANCE, 2, 0xf, 1, priv->red >> 8);
++	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
++			  V4L2_CID_BLUE_BALANCE, 2, 0xf, 1, priv->blue >> 8);
 +	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
 +			  V4L2_CID_HFLIP, 0, 1, 1, 1);
 +	v4l2_ctrl_new_std(&priv->hdl, &ov490_ctrl_ops,
@@ -4977,10 +5697,10 @@ index 0000000..813c08e
 +#endif
 diff --git a/drivers/media/i2c/soc_camera/ov490_ov10640.h b/drivers/media/i2c/soc_camera/ov490_ov10640.h
 new file mode 100644
-index 0000000..8c9ecf1
+index 0000000..b22e93e
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ov490_ov10640.h
-@@ -0,0 +1,93 @@
+@@ -0,0 +1,102 @@
 +/*
 + * OmniVision ov490-ov10640 sensor camera wizard 1280x1080@30/UYVY/BT601/8bit
 + *
@@ -4991,6 +5711,8 @@ index 0000000..8c9ecf1
 + * Free Software Foundation;  either version 2 of the  License, or (at your
 + * option) any later version.
 + */
++
++//#define OV490_DISPLAY_PATTERN
 +
 +struct ov490_reg {
 +	u16	reg;
@@ -5073,6 +5795,13 @@ index 0000000..8c9ecf1
 +{0x5001, 0x00},
 +{0xfffe, 0x80},
 +{0x00c0, 0xdc},
++#ifdef OV490_DISPLAY_PATTERN
++{0xfffd, 0x80},
++{0xfffe, 0x19},
++{0x5000, 0x02},
++{0xfffe, 0x80},
++{0x00c0, 0xd6},
++#endif
 +};
 diff --git a/drivers/media/i2c/soc_camera/ov495_ov2775.c b/drivers/media/i2c/soc_camera/ov495_ov2775.c
 new file mode 100644
@@ -6206,10 +6935,10 @@ index 0000000..1672173
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/ti964_ti9x3.c b/drivers/media/i2c/soc_camera/ti964_ti9x3.c
 new file mode 100644
-index 0000000..770d306
+index 0000000..bffd7c2
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/ti964_ti9x3.c
-@@ -0,0 +1,399 @@
+@@ -0,0 +1,400 @@
 +/*
 + * TI (ti964/ti960)-(ti913/ti953) FPDLinkIII driver
 + *
@@ -6281,7 +7010,8 @@ index 0000000..770d306
 +		reg8_write(client, 0x1f, 0x00);			/* CSI rate 1.5/1.6Gbps */
 +		break;
 +	case 800: /* REFCLK = 25MHZ */
-+		reg8_write(client, 0x1f, 0x02);			/* CSI rate 800Mbps */
++	case 700: /* REFCLK = 22.5MHZ */
++		reg8_write(client, 0x1f, 0x02);			/* CSI rate 700/800Mbps */
 +		break;
 +	case 400: /* REFCLK = 25MHZ */
 +		reg8_write(client, 0x1f, 0x03);			/* CSI rate 400Mbps */
@@ -7255,10 +7985,24 @@ index 4d95da6..2ef27e8 100644
  
  	return 0;
 diff --git a/drivers/media/platform/soc_camera/rcar_vin.c b/drivers/media/platform/soc_camera/rcar_vin.c
-index 74fb005..496a8bd 100644
+index 74fb005..ac75af6 100644
 --- a/drivers/media/platform/soc_camera/rcar_vin.c
 +++ b/drivers/media/platform/soc_camera/rcar_vin.c
-@@ -106,6 +106,7 @@
+@@ -95,17 +95,21 @@
+ #define VNC8A_REG	0xF0	/* Video n Coefficient Set C8A Register */
+ #define VNC8B_REG	0xF4	/* Video n Coefficient Set C8B Register */
+ #define VNC8C_REG	0xF8	/* Video n Coefficient Set C8C Register */
++#define VNLUTP_REG	0x100	/* Video n Lookup table pointer */
++#define VNLUTD_REG	0x104	/* Video n Lookup table data register */
+ 
+ /* Register bit fields for R-Car VIN */
+ /* Video n Main Control Register bits */
+ #define VNMC_DPINE		(1 << 27)
+ #define VNMC_SCLE		(1 << 26)
+ #define VNMC_FOC		(1 << 21)
++#define VNMC_LUTE		(1 << 20)
+ #define VNMC_YCAL		(1 << 19)
+ #define VNMC_INF_YUV8_BT656	(0 << 16)
  #define VNMC_INF_YUV8_BT601	(1 << 16)
  #define VNMC_INF_YUV10_BT656	(2 << 16)
  #define VNMC_INF_YUV10_BT601	(3 << 16)
@@ -7266,7 +8010,7 @@ index 74fb005..496a8bd 100644
  #define VNMC_INF_YUV16		(5 << 16)
  #define VNMC_INF_RGB888		(6 << 16)
  #define VNMC_INF_MASK		(7 << 16)
-@@ -138,6 +139,7 @@
+@@ -138,6 +142,7 @@
  #define VNINTS_FOS		(1 << 0)
  
  /* Video n Data Mode Register bits */
@@ -7274,7 +8018,18 @@ index 74fb005..496a8bd 100644
  #define VNDMR_EXRGB		(1 << 8)
  #define VNDMR_BPSM		(1 << 4)
  #define VNDMR_DTMD_YCSEP	(1 << 1)
-@@ -408,6 +410,7 @@ enum csi2_fmt {
+@@ -178,6 +183,10 @@
+ #define RCAR_VIN_BT656			(1 << 3)
+ #define RCAR_VIN_CSI2			(1 << 4)
+ 
++static int lut_reverse;
++module_param(lut_reverse, int, 0644);
++MODULE_PARM_DESC(lut_reverse, " Use LUT for data order reverse (only 8-bit data allowed)*/");
++
+ static int ifmd0_reg_match[VNCSI_IFMD_SEL_NUMBER];
+ static int ifmd4_reg_match[VNCSI_IFMD_SEL_NUMBER];
+ static int ifmd0_init = true;
+@@ -408,6 +417,7 @@ enum csi2_fmt {
  	RCAR_CSI_FMT_NONE = -1,
  	RCAR_CSI_RGB888,
  	RCAR_CSI_YCBCR422,
@@ -7282,11 +8037,12 @@ index 74fb005..496a8bd 100644
  };
  
  struct vin_coeff {
-@@ -773,10 +776,13 @@ struct rcar_vin_priv {
+@@ -773,10 +783,14 @@ struct rcar_vin_priv {
  	enum csi2_fmt			csi_fmt;
  	enum virtual_ch			vc;
  	bool				csi_sync;
 +	bool				deser_sync;
++	int				lut_updated;
  
  	struct rcar_vin_async_client	*async_client;
  	/* Asynchronous CSI2 linking */
@@ -7296,7 +8052,16 @@ index 74fb005..496a8bd 100644
  	/* Synchronous probing compatibility */
  	struct platform_device		*csi2_pdev;
  
-@@ -989,6 +995,10 @@ static int rcar_vin_setup(struct rcar_vin_priv *priv)
+@@ -939,6 +953,8 @@ static int rcar_vin_setup(struct rcar_vin_priv *priv)
+ 	struct rcar_vin_cam *cam = icd->host_priv;
+ 	u32 vnmc, dmr, interrupts;
+ 	bool progressive = false, output_is_yuv = false, input_is_yuv = false;
++	int i;
++	u32 lutd;
+ 
+ 	switch (priv->field) {
+ 	case V4L2_FIELD_TOP:
+@@ -989,6 +1005,10 @@ static int rcar_vin_setup(struct rcar_vin_priv *priv)
  			VNMC_INF_YUV10_BT656 : VNMC_INF_YUV10_BT601;
  		input_is_yuv = true;
  		break;
@@ -7307,7 +8072,7 @@ index 74fb005..496a8bd 100644
  	default:
  		break;
  	}
-@@ -1021,6 +1031,10 @@ static int rcar_vin_setup(struct rcar_vin_priv *priv)
+@@ -1021,6 +1041,10 @@ static int rcar_vin_setup(struct rcar_vin_priv *priv)
  		dmr = 0;
  		output_is_yuv = true;
  		break;
@@ -7318,7 +8083,7 @@ index 74fb005..496a8bd 100644
  	case V4L2_PIX_FMT_ARGB555:
  		dmr = VNDMR_DTMD_ARGB;
  		break;
-@@ -1043,6 +1057,10 @@ static int rcar_vin_setup(struct rcar_vin_priv *priv)
+@@ -1043,6 +1067,10 @@ static int rcar_vin_setup(struct rcar_vin_priv *priv)
  
  		dmr = VNDMR_EXRGB | VNDMR_DTMD_ARGB;
  		break;
@@ -7329,7 +8094,7 @@ index 74fb005..496a8bd 100644
  	default:
  		goto e_format;
  	}
-@@ -1061,7 +1079,9 @@ static int rcar_vin_setup(struct rcar_vin_priv *priv)
+@@ -1061,7 +1089,9 @@ static int rcar_vin_setup(struct rcar_vin_priv *priv)
  		else
  			vnmc |= VNMC_DPINE;
  
@@ -7340,7 +8105,41 @@ index 74fb005..496a8bd 100644
  			&& is_scaling(cam))
  			vnmc |= VNMC_SCLE;
  	}
-@@ -1211,6 +1231,10 @@ static void rcar_vin_videobuf_queue(struct vb2_buffer *vb)
+@@ -1073,6 +1103,33 @@ static int rcar_vin_setup(struct rcar_vin_priv *priv)
+ 	if (vin_debug)
+ 		interrupts |= VNIE_FOE;
+ 
++	if (lut_reverse && !priv->lut_updated) {
++		iowrite32(0, priv->base + VNLUTP_REG);
++
++		for (i = 0; i < 1024; i++) {
++			/* reverse MSB 8bits image at 10bit LUT address */
++			lutd  = ((i >> 2) & BIT(0) ? BIT(7) : 0);
++			lutd |= ((i >> 2) & BIT(1) ? BIT(6) : 0);
++			lutd |= ((i >> 2) & BIT(2) ? BIT(5) : 0);
++			lutd |= ((i >> 2) & BIT(3) ? BIT(4) : 0);
++			lutd |= ((i >> 2) & BIT(4) ? BIT(3) : 0);
++			lutd |= ((i >> 2) & BIT(5) ? BIT(2) : 0);
++			lutd |= ((i >> 2) & BIT(6) ? BIT(1) : 0);
++			lutd |= ((i >> 2) & BIT(7) ? BIT(0) : 0);
++#if 0
++			/* strait (no any density convertion, used for testing) */
++			lutd = i >> 2;
++#endif
++			lutd = (lutd << 16) | (lutd << 8) | lutd;
++			iowrite32(lutd, priv->base + VNLUTD_REG);
++		}
++		/* update LUT table once */
++		priv->lut_updated = 1;
++	}
++
++	if (lut_reverse)
++		vnmc |= VNMC_LUTE;
++
+ 	/* ack interrupts */
+ 	iowrite32(interrupts, priv->base + VNINTS_REG);
+ 	/* enable interrupts */
+@@ -1211,6 +1268,10 @@ static void rcar_vin_videobuf_queue(struct vb2_buffer *vb)
   */
  static void rcar_vin_wait_stop_streaming(struct rcar_vin_priv *priv)
  {
@@ -7351,14 +8150,14 @@ index 74fb005..496a8bd 100644
  	while (priv->state != STOPPED) {
  		/* issue stop if running */
  		if (priv->state == RUNNING)
-@@ -1361,6 +1385,31 @@ static struct v4l2_subdev *find_csi2(struct rcar_vin_priv *pcdev)
+@@ -1361,6 +1422,31 @@ static struct v4l2_subdev *find_csi2(struct rcar_vin_priv *pcdev)
  	return NULL;
  }
  
 +static struct v4l2_subdev *find_deser(struct rcar_vin_priv *pcdev)
 +{
 +	struct v4l2_subdev *sd;
-+	char name[] = "max9286_max9271";
++	char name[] = "max9286";
 +	char name2[] = "ti964_ti9x3";
 +	char name3[] = "ti954_ti9x3";
 +
@@ -7383,7 +8182,7 @@ index 74fb005..496a8bd 100644
  static int rcar_vin_add_device(struct soc_camera_device *icd)
  {
  	struct soc_camera_host *ici = to_soc_camera_host(icd->parent);
-@@ -1375,7 +1424,8 @@ static int rcar_vin_add_device(struct soc_camera_device *icd)
+@@ -1375,7 +1461,8 @@ static int rcar_vin_add_device(struct soc_camera_device *icd)
  	if (priv->chip == RCAR_H3 || priv->chip == RCAR_M3 ||
  		priv->chip == RCAR_V3M) {
  		struct v4l2_subdev *csi2_sd = find_csi2(priv);
@@ -7393,7 +8192,7 @@ index 74fb005..496a8bd 100644
  
  		if (csi2_sd) {
  			csi2_sd->grp_id = soc_camera_grp_id(icd);
-@@ -1390,6 +1440,18 @@ static int rcar_vin_add_device(struct soc_camera_device *icd)
+@@ -1390,6 +1477,18 @@ static int rcar_vin_add_device(struct soc_camera_device *icd)
  			if (ret < 0 && ret != -ENOIOCTLCMD && ret != -ENODEV)
  				return ret;
  		}
@@ -7412,7 +8211,7 @@ index 74fb005..496a8bd 100644
  		/*
  		 * -ENODEV is special:
  		 * either csi2_sd == NULL or the CSI-2 driver
-@@ -1417,6 +1479,7 @@ static void rcar_vin_remove_device(struct soc_camera_device *icd)
+@@ -1417,6 +1516,7 @@ static void rcar_vin_remove_device(struct soc_camera_device *icd)
  	struct rcar_vin_priv *priv = ici->priv;
  	struct vb2_v4l2_buffer *vbuf;
  	struct v4l2_subdev *csi2_sd = find_csi2(priv);
@@ -7420,7 +8219,7 @@ index 74fb005..496a8bd 100644
  	int i;
  
  	/* disable capture, disable interrupts */
-@@ -1443,6 +1506,8 @@ static void rcar_vin_remove_device(struct soc_camera_device *icd)
+@@ -1443,6 +1543,8 @@ static void rcar_vin_remove_device(struct soc_camera_device *icd)
  
  	if ((csi2_sd) && (priv->csi_sync))
  		v4l2_subdev_call(csi2_sd, core, s_power, 0);
@@ -7429,7 +8228,7 @@ index 74fb005..496a8bd 100644
  
  	dev_dbg(icd->parent, "R-Car VIN driver detached from camera %d\n",
  		icd->devnum);
-@@ -1621,13 +1686,19 @@ static int rcar_vin_set_rect(struct soc_camera_device *icd)
+@@ -1621,13 +1723,19 @@ static int rcar_vin_set_rect(struct soc_camera_device *icd)
  
  	if (priv->chip == RCAR_H3 || priv->chip == RCAR_M3 ||
  		priv->chip == RCAR_V3M) {
@@ -7451,7 +8250,7 @@ index 74fb005..496a8bd 100644
  		   (icd->current_fmt->host_fmt->fourcc == V4L2_PIX_FMT_NV16) ||
  		   (icd->current_fmt->host_fmt->fourcc == V4L2_PIX_FMT_NV12))
  			iowrite32(ALIGN(cam->out_width, 0x20),
-@@ -1868,6 +1939,14 @@ static bool rcar_vin_packing_supported(const struct soc_mbus_pixelfmt *fmt)
+@@ -1868,6 +1976,14 @@ static bool rcar_vin_packing_supported(const struct soc_mbus_pixelfmt *fmt)
  		.layout			= SOC_MBUS_LAYOUT_PACKED,
  	},
  	{
@@ -7466,7 +8265,7 @@ index 74fb005..496a8bd 100644
  		.fourcc			= V4L2_PIX_FMT_RGB565,
  		.name			= "RGB565",
  		.bits_per_sample	= 16,
-@@ -1899,6 +1978,22 @@ static bool rcar_vin_packing_supported(const struct soc_mbus_pixelfmt *fmt)
+@@ -1899,6 +2015,22 @@ static bool rcar_vin_packing_supported(const struct soc_mbus_pixelfmt *fmt)
  		.order			= SOC_MBUS_ORDER_LE,
  		.layout			= SOC_MBUS_LAYOUT_PACKED,
  	},
@@ -7489,7 +8288,7 @@ index 74fb005..496a8bd 100644
  };
  
  static int rcar_vin_get_formats(struct soc_camera_device *icd, unsigned int idx,
-@@ -2012,6 +2107,8 @@ static int rcar_vin_get_formats(struct soc_camera_device *icd, unsigned int idx,
+@@ -2012,6 +2144,8 @@ static int rcar_vin_get_formats(struct soc_camera_device *icd, unsigned int idx,
  	case MEDIA_BUS_FMT_YUYV8_2X8:
  	case MEDIA_BUS_FMT_YUYV10_2X10:
  	case MEDIA_BUS_FMT_RGB888_1X24:
@@ -7498,7 +8297,7 @@ index 74fb005..496a8bd 100644
  		if (cam->extra_fmt)
  			break;
  
-@@ -2218,12 +2315,15 @@ static int rcar_vin_set_fmt(struct soc_camera_device *icd,
+@@ -2218,12 +2352,15 @@ static int rcar_vin_set_fmt(struct soc_camera_device *icd,
  	case V4L2_PIX_FMT_ABGR32:
  	case V4L2_PIX_FMT_UYVY:
  	case V4L2_PIX_FMT_YUYV:
@@ -7514,7 +8313,7 @@ index 74fb005..496a8bd 100644
  	default:
  		can_scale = false;
  		break;
-@@ -2316,7 +2416,8 @@ static int rcar_vin_try_fmt(struct soc_camera_device *icd,
+@@ -2316,7 +2453,8 @@ static int rcar_vin_try_fmt(struct soc_camera_device *icd,
  	/* odd number clipping by pixel post clip processing, */
  	/* it is outputted to a memory per even pixels. */
  	if ((pixfmt == V4L2_PIX_FMT_NV16) || (pixfmt == V4L2_PIX_FMT_NV12) ||
@@ -7524,7 +8323,7 @@ index 74fb005..496a8bd 100644
  		v4l_bound_align_image(&pix->width, 5, priv->max_width, 1,
  				      &pix->height, 2, priv->max_height, 0, 0);
  	else
-@@ -2486,6 +2587,19 @@ static int rcar_vin_cropcap(struct soc_camera_device *icd,
+@@ -2486,6 +2624,19 @@ static int rcar_vin_cropcap(struct soc_camera_device *icd,
  }
  #endif
  
@@ -7544,7 +8343,7 @@ index 74fb005..496a8bd 100644
  static struct soc_camera_host_ops rcar_vin_host_ops = {
  	.owner		= THIS_MODULE,
  	.add		= rcar_vin_add_device,
-@@ -2504,6 +2618,7 @@ static int rcar_vin_cropcap(struct soc_camera_device *icd,
+@@ -2504,6 +2655,7 @@ static int rcar_vin_cropcap(struct soc_camera_device *icd,
  	.get_selection	= rcar_vin_get_selection,
  	.cropcap	= rcar_vin_cropcap,
  #endif
@@ -7552,7 +8351,7 @@ index 74fb005..496a8bd 100644
  };
  
  #ifdef CONFIG_OF
-@@ -2524,7 +2639,7 @@ static int rcar_vin_cropcap(struct soc_camera_device *icd,
+@@ -2524,7 +2676,7 @@ static int rcar_vin_cropcap(struct soc_camera_device *icd,
  MODULE_DEVICE_TABLE(of, rcar_vin_of_table);
  #endif
  
@@ -7561,7 +8360,7 @@ index 74fb005..496a8bd 100644
  static DECLARE_BITMAP(device_map, MAP_MAX_NUM);
  static DEFINE_MUTEX(list_lock);
  
-@@ -2714,7 +2829,11 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -2714,7 +2866,11 @@ static int rcar_vin_probe(struct platform_device *pdev)
  	const char *str;
  	unsigned int i;
  	struct device_node *epn = NULL, *ren = NULL;
@@ -7573,7 +8372,7 @@ index 74fb005..496a8bd 100644
  
  	match = of_match_device(of_match_ptr(rcar_vin_of_table), &pdev->dev);
  
-@@ -2741,13 +2860,27 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -2741,13 +2897,27 @@ static int rcar_vin_probe(struct platform_device *pdev)
  		dev_dbg(&pdev->dev, "node name:%s\n",
  			of_node_full_name(ren->parent));
  
@@ -7584,7 +8383,7 @@ index 74fb005..496a8bd 100644
 +		}
  
 -		of_node_put(ren);
-+		if (strcmp(ren->parent->name, "max9286-max9271") == 0) {
++		if (strcmp(ren->parent->name, "max9286") == 0) {
 +			max9286_ren = of_parse_phandle(epn, "remote-endpoint", 0);
 +			max9286_use = true;
 +		}
@@ -7605,7 +8404,7 @@ index 74fb005..496a8bd 100644
  	}
  
  	ret = v4l2_of_parse_endpoint(np, &ep);
-@@ -2799,6 +2932,7 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -2799,6 +2969,7 @@ static int rcar_vin_probe(struct platform_device *pdev)
  	priv->ici.drv_name = dev_name(&pdev->dev);
  	priv->ici.ops = &rcar_vin_host_ops;
  	priv->csi_sync = false;
@@ -7613,7 +8412,7 @@ index 74fb005..496a8bd 100644
  
  	priv->pdata_flags = pdata_flags;
  	if (!match) {
-@@ -2983,7 +3117,25 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -2983,7 +3154,25 @@ static int rcar_vin_probe(struct platform_device *pdev)
  		goto cleanup;
  
  	if (csi_use) {

@@ -8,8 +8,9 @@ This is only for H3ULCB.HAD
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- include/configs/h3ulcb.h | 4 ++--
- 1 file changed, 1 insertions(+), 1 deletions(-)
+ include/configs/h3ulcb.h  | 4 ++--
+ board/renesas/ulcb/ulcb.c | 3 +++
+ 2 file changed, 4 insertions(+), 1 deletions(-)
 
 diff --git a/include/configs/h3ulcb.h b/include/configs/h3ulcb.h
 index b9be845..3da2e5a 100644
@@ -23,6 +24,27 @@ index b9be845..3da2e5a 100644
 +#define CONFIG_CONS_SCIF1
  #define CONFIG_SH_SCIF_CLK_FREQ	CONFIG_S3D4_CLK_FREQ
  
+diff --git a/board/renesas/ulcb/ulcb.c b/board/renesas/ulcb/ulcb.c
+index 0d8752f..1be01cf 100644
+--- a/board/renesas/ulcb/ulcb.c
++++ b/board/renesas/ulcb/ulcb.c
+@@ -29,6 +29,7 @@
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
++#define SCIF1_MSTP206	(1 << 6)
+ #define SCIF2_MSTP310	(1 << 10)
+ #define ETHERAVB_MSTP812	(1 << 12)
+ #define DVFS_MSTP926	(1 << 26)
+@@ -49,6 +50,8 @@ int board_early_init_f(void)
+ 
+ 	rcar_prr_init();
+ 
++	/* SCIF1 */
++	mstp_clrbits_le32(SMSTPCR2, SMSTPCR2, SCIF1_MSTP206);
+ 	/* SCIF2 */
+ 	mstp_clrbits_le32(SMSTPCR3, SMSTPCR3, SCIF2_MSTP310);
+ 	/* EHTERAVB */
 -- 
 1.9.1
 

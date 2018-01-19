@@ -80,8 +80,7 @@ SRC_URI_append = " \
     file://0077-MOST-dim2-add-timeouts.patch \
     file://0078-MOST-aim-fix-null-pointer-crash.patch \
     file://0079-Revert-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-f.patch \
-    file://0080-dmaengine-rcar-dmac-ensure-CHCR-DE-bit-is-actually-0.patch \
-    file://0081-dmaengine-rcar-dmac-use-TCRB-instead-of-TCR-for-resi.patch \
+    file://0082-gpio-pca953x-fix-interrupt-trigger.patch \
     file://0001-arm64-dts-renesas-preserve-drm-HDMI-connector-naming.patch \
     file://0001-arm64-dts-renesas-disable-r8a7796-hscif0-dma.patch \
 "
@@ -104,12 +103,14 @@ KERNEL_DEVICETREE_append_h3ulcb = " \
     renesas/r8a7795-es1-h3ulcb-had-beta.dtb \
     renesas/r8a7795-es1-h3ulcb-kf.dtb \
     renesas/r8a7795-es1-h3ulcb-vb.dtb \
+    renesas/r8a7795-es1-h3ulcb-vb2.dtb \
     renesas/r8a7795-es1-h3ulcb-vbm.dtb \
     renesas/r8a7795-h3ulcb-view.dtb \
     renesas/r8a7795-h3ulcb-had-alfa.dtb \
     renesas/r8a7795-h3ulcb-had-beta.dtb \
     renesas/r8a7795-h3ulcb-kf.dtb \
     renesas/r8a7795-h3ulcb-vb.dtb \
+    renesas/r8a7795-h3ulcb-vb2.dtb \
     renesas/r8a7795-h3ulcb-vbm.dtb \
 "
 
@@ -126,6 +127,7 @@ KERNEL_DEVICETREE_append_salvator-x = " \
 
 KERNEL_DEVICETREE_append_eagle = " \
     renesas/r8a7797-eagle.dtb \
+    renesas/r8a7797-eagle-function.dtb \
 "
 
 KERNEL_DEVICETREE_append_v3msk = " \

@@ -7,14 +7,14 @@ This adds IMP resource nodes for Gen3 SoCs
 
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
- arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi | 98 +++++++++++++++++++++++++++
- arch/arm64/boot/dts/renesas/r8a7795.dtsi     | 98 +++++++++++++++++++++++++++
- arch/arm64/boot/dts/renesas/r8a7796.dtsi     | 62 +++++++++++++++++
- arch/arm64/boot/dts/renesas/r8a7797.dtsi     | 99 ++++++++++++++++++++++++++++
- 4 files changed, 357 insertions(+)
+ arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi |  98 ++++++++++++++++++++++++
+ arch/arm64/boot/dts/renesas/r8a7795.dtsi     |  98 ++++++++++++++++++++++++
+ arch/arm64/boot/dts/renesas/r8a7796.dtsi     |  62 ++++++++++++++++
+ arch/arm64/boot/dts/renesas/r8a7797.dtsi     | 107 +++++++++++++++++++++++++++
+ 4 files changed, 365 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
-index b3f3102..e15af8c 100644
+index 3a2d2c8..c6bc187 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7795-es1.dtsi
 @@ -2794,6 +2794,104 @@
@@ -123,7 +123,7 @@ index b3f3102..e15af8c 100644
  			compatible = "renesas,imr-lx4";
  			reg = <0 0xfe860000 0 0x2000>;
 diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index 02c5931..8ba4cec 100644
+index 8f7d776..a01a4f3 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
 @@ -2790,6 +2790,104 @@
@@ -232,7 +232,7 @@ index 02c5931..8ba4cec 100644
  			compatible = "renesas,imr-lx4";
  			reg = <0 0xfe860000 0 0x2000>;
 diff --git a/arch/arm64/boot/dts/renesas/r8a7796.dtsi b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
-index b94d9e0..7c19f35 100644
+index f214f26..d3e91f1 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7796.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7796.dtsi
 @@ -2531,5 +2531,67 @@
@@ -304,15 +304,15 @@ index b94d9e0..7c19f35 100644
  	};
  };
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797.dtsi b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
-index 1be93e8..232eb19 100644
+index 118a473..05b50ca 100644
 --- a/arch/arm64/boot/dts/renesas/r8a7797.dtsi
 +++ b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
-@@ -970,6 +970,112 @@
+@@ -967,6 +967,113 @@
  			status = "okay";
  		};
  
 +		imp_distributer: impdes0 {
-+			compatible = "renesas,impx4-distributer";
++			compatible = "renesas,impx5+-distributer";
 +			reg = <0 0xffa00000 0 0x4000>;
 +			interrupts = <GIC_SPI 281 IRQ_TYPE_LEVEL_HIGH>;
 +			clocks = <&cpg CPG_MOD 830>;
@@ -335,8 +335,8 @@ index 1be93e8..232eb19 100644
 +			reg = <0 0xff920000 0 0x20000>;
 +			interrupt-parent = <&imp_distributer>;
 +			interrupts = <1>;
-+			clocks = <&cpg CPG_MOD 826>;
-+			power-domains = <&sysc R8A7797_PD_A2IR1>;
++			clocks = <&cpg CPG_MOD 827>;
++			power-domains = <&sysc R8A7797_PD_A2IR0>;
 +		};
 +
 +		imp2 {
@@ -344,8 +344,8 @@ index 1be93e8..232eb19 100644
 +			reg = <0 0xff940000 0 0x20000>;
 +			interrupt-parent = <&imp_distributer>;
 +			interrupts = <2>;
-+			clocks = <&cpg CPG_MOD 825>;
-+			power-domains = <&sysc R8A7797_PD_A2IR2>;
++			clocks = <&cpg CPG_MOD 826>;
++			power-domains = <&sysc R8A7797_PD_A2IR1>;
 +		};
 +
 +		imp3 {
@@ -353,8 +353,8 @@ index 1be93e8..232eb19 100644
 +			reg = <0 0xff960000 0 0x20000>;
 +			interrupt-parent = <&imp_distributer>;
 +			interrupts = <3>;
-+			clocks = <&cpg CPG_MOD 824>;
-+			power-domains = <&sysc R8A7797_PD_A2IR3>;
++			clocks = <&cpg CPG_MOD 826>;
++			power-domains = <&sysc R8A7797_PD_A2IR1>;
 +		};
 +
 +		impsc0 {
@@ -379,28 +379,36 @@ index 1be93e8..232eb19 100644
 +			compatible = "renesas,impx5-dmac";
 +			reg = <0 0xffa10000 0 0x1000>;
 +			interrupt-parent = <&imp_distributer>;
-+			interrupts = <16>;
-+			clocks = <&cpg CPG_MOD 830>;
-+			power-domains = <&sysc R8A7797_PD_A3IR>;
++			interrupts = <6>;
++			clocks = <&cpg CPG_MOD 825>;
++			power-domains = <&sysc R8A7797_PD_A2IR2>;
 +		};
 +
 +		impdm1 {
 +			compatible = "renesas,impx5-dmac";
-+			reg = <0 0xffa10000 0 0x1000>,
-+			      <0 0xffa10800 0 0x0800>;
++			reg = <0 0xffa11000 0 0x1000>;
 +			interrupt-parent = <&imp_distributer>;
-+			interrupts = <17>;
-+			clocks = <&cpg CPG_MOD 830>;
-+			power-domains = <&sysc R8A7797_PD_A3IR>;
++			interrupts = <7>;
++			clocks = <&cpg CPG_MOD 825>;
++			power-domains = <&sysc R8A7797_PD_A2IR2>;
 +		};
 +
 +		imppsc0 {
-+			compatible = "renesas,impx5-dmac";
++			compatible = "renesas,impx5+-psc";
 +			reg = <0 0xffa20000 0 0x4000>;
 +			interrupt-parent = <&imp_distributer>;
-+			interrupts = <12>;
-+			clocks = <&cpg CPG_MOD 830>;
-+			power-domains = <&sysc R8A7797_PD_A3IR>;
++			interrupts = <8>;
++			clocks = <&cpg CPG_MOD 825>;
++			power-domains = <&sysc R8A7797_PD_A2IR2>;
++		};
++
++		impcnn0 {
++			compatible = "renesas,impx5+-cnn";
++			reg = <0 0xff9e0000 0 0x10000>;
++			interrupt-parent = <&imp_distributer>;
++			interrupts = <9>;
++			clocks = <&cpg CPG_MOD 824>;
++			power-domains = <&sysc R8A7797_PD_A2IR3>;
 +		};
 +
 +		impc0 {
@@ -408,13 +416,6 @@ index 1be93e8..232eb19 100644
 +			reg = <0 0xed000000 0 0x100000>;
 +			clocks = <&cpg CPG_MOD 830>;
 +			power-domains = <&sysc R8A7797_PD_A3IR>;
-+		};
-+
-+		impcnn0 {
-+			compatible = "renesas,impx4-legacy";
-+			reg = <0 0xff9e0000 0 0x10000>;
-+			clocks = <&cpg CPG_MOD 824>;
-+			power-domains = <&sysc R8A7797_PD_A2IR3>;
 +		};
 +
  		imrlx4_ch0: imr-lx4@fe860000 {

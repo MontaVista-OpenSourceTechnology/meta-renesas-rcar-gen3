@@ -77,14 +77,18 @@
 #define DRIVER_NAME "uio_imp"
 #define DRIVER_VER "0.0"
 
-#define LUIO_DEVICE_IMP     0
-#define LUIO_DEVICE_IMPSC   1
-#define LUIO_DEVICE_IMPDES  2
-#define LUIO_DEVICE_IMRLSX  3
-#define LUIO_DEVICE_IMRX    4
-#define LUIO_DEVICE_MEM     5
-#define LUIO_DEVICE_VSP     6
-#define LUIO_DEVICE_IMPDMAC 7
+enum {
+	LUIO_DEVICE_IMP,
+	LUIO_DEVICE_IMPSC,
+	LUIO_DEVICE_IMPDES,
+	LUIO_DEVICE_IMRLSX,
+	LUIO_DEVICE_IMRX,
+	LUIO_DEVICE_MEM,
+	LUIO_DEVICE_VSP,
+	LUIO_DEVICE_IMPDMAC,
+	LUIO_DEVICE_IMPPSC,
+	LUIO_DEVICE_IMPCNN,
+};
 
 #define IMP_INTERNAL_REG_SIZE 0x1000
 #define IMP_NUM_DIST_HWIRQ 32
@@ -137,7 +141,8 @@ static irqreturn_t imp_handler(int irq, struct uio_info *dev_info)
 
 	if (stat != 0) {
 		/* mask all interrupts */
-		WriteReg(dev_info, 0x14, ReadReg(dev_info, 0x14) & 0x0fffffff);
+		u32 mask = ReadReg(dev_info, 0x14);
+		WriteReg(dev_info, 0x14, mask & 0x0fffffff);
 
 		return IRQ_HANDLED;
 	} else {
@@ -190,6 +195,68 @@ static void impsc_sreset(struct uio_info *info)
 	WriteReg(info, 0x20, 0xffffffff);
 }
 
+static irqreturn_t impdmac_handler(int irq, struct uio_info *dev_info)
+{
+	u32 stat = ReadReg(dev_info, 0x08);
+
+	if (clear_int && (stat & 0x00000040)) {
+		/* clear INT state */
+		WriteReg(dev_info, 0x0c, 0x00000040);
+		return IRQ_NONE;
+	}
+
+	if (stat != 0) {
+		/* mask all interrupts */
+		WriteReg(dev_info, 0x14, 0xffffffff);
+
+		return IRQ_HANDLED;
+	} else {
+		return IRQ_NONE;
+	}
+}
+
+static void impdmac_sreset(struct uio_info *info)
+{
+	/* software reset */
+	WriteReg(info, 0x04, 0x80000000);
+	WriteReg(info, 0x04, 0x00000000);
+	ReadReg(info, 0x04);
+
+	/* mask all interrupts */
+	WriteReg(info, 0x14, 0xffffffff);
+}
+
+static irqreturn_t impcnn_handler(int irq, struct uio_info *dev_info)
+{
+	u32 stat = ReadReg(dev_info, 0x10);
+
+	if (clear_int && (stat & 0x00000004)) {
+		/* clear INT state */
+		WriteReg(dev_info, 0x18, 0x00000004);
+		return IRQ_NONE;
+	}
+
+	if (stat != 0) {
+		/* mask all interrupts */
+		WriteReg(dev_info, 0x1c, 0xffffffff);
+
+		return IRQ_HANDLED;
+	} else {
+		return IRQ_NONE;
+	}
+}
+
+static void impcnn_sreset(struct uio_info *info)
+{
+	/* software reset */
+	WriteReg(info, 0x08, 0x00000001);
+	WriteReg(info, 0x08, 0x00000000);
+	ReadReg(info, 0x08);
+
+	/* mask all interrupts */
+	WriteReg(info, 0x1c, 0xffffffff);
+}
+
 static irqreturn_t impdist_handler(int irq, struct uio_info *dev_info)
 {
 	unsigned int bit;
@@ -206,6 +273,32 @@ static irqreturn_t impdist_handler(int irq, struct uio_info *dev_info)
 	if (stat & 0x400)
 		stat |= ReadReg(dev_info, 0x118); /* g2intsel */
 	stat &= ~0x700;
+
+	if (!stat)
+		return IRQ_NONE;
+
+	for_each_set_bit(bit, &stat, IMP_NUM_DIST_HWIRQ)
+		generic_handle_irq(priv->domain_irq[bit]);
+
+	return IRQ_HANDLED;
+}
+
+static irqreturn_t impdist2_handler(int irq, struct uio_info *dev_info)
+{
+	unsigned int bit;
+	unsigned long stat;
+	struct uio_imp_platdata *priv = dev_info->priv;
+
+	stat = ReadReg(dev_info, 0x100); /* sr */
+	stat &= ~ReadReg(dev_info, 0x10c); /* imr */
+
+	if (stat & 0x20000000)
+		stat |= ReadReg(dev_info, 0x110); /* g0intsel */
+	if (stat & 0x40000000)
+		stat |= ReadReg(dev_info, 0x114); /* g1intsel */
+	if (stat & 0x80000000)
+		stat |= ReadReg(dev_info, 0x118); /* g2intsel */
+	stat &= ~0xe0000000;
 
 	if (!stat)
 		return IRQ_NONE;
@@ -257,37 +350,6 @@ static void impdist_sreset(struct uio_info *info)
 	WriteReg(info, 0x500, 0);
 }
 
-static irqreturn_t impdmac_handler(int irq, struct uio_info *dev_info)
-{
-	u32 stat = ReadReg(dev_info, 0x08);
-
-	if (clear_int && (stat & 0x00000040)) {
-		/* clear INT state */
-		WriteReg(dev_info, 0x0c, 0x00000040);
-		return IRQ_NONE;
-	}
-
-	if (stat != 0) {
-		/* mask all interrupts */
-		WriteReg(dev_info, 0x14, 0xffffffff);
-
-		return IRQ_HANDLED;
-	} else {
-		return IRQ_NONE;
-	}
-}
-
-static void impdmac_sreset(struct uio_info *info)
-{
-	/* software reset */
-	WriteReg(info, 0x04, 0x80000000);
-	WriteReg(info, 0x04, 0x00000000);
-	ReadReg(info, 0x04);
-
-	/* mask all interrupts */
-	WriteReg(info, 0x14, 0xffffffff);
-}
-
 static const struct imp_dev_data imp_dev_data_legacy = {
 	.dtype = LUIO_DEVICE_IMP,
 	.handler = imp_handler,
@@ -311,13 +373,30 @@ static const struct imp_dev_data imp_dev_data_dmac = {
 	.handler = impdmac_handler,
 	.sreset = impdmac_sreset,
 };
+static const struct imp_dev_data imp_dev_data_distributer2 = {
+	.dtype = LUIO_DEVICE_IMPDES,
+	.handler = impdist2_handler,
+};
+static const struct imp_dev_data imp_dev_data_psc = {
+	.dtype = LUIO_DEVICE_IMPPSC,
+	.handler = impdmac_handler,	/* same as dmac */
+	.sreset = impdmac_sreset,	/* same as dmac */
+};
+static const struct imp_dev_data imp_dev_data_cnn = {
+	.dtype = LUIO_DEVICE_IMPCNN,
+	.handler = impcnn_handler,
+	.sreset = impcnn_sreset,
+};
 
 static const struct of_device_id of_imp_match[] = {
-	{ .compatible = "renesas,impx4-legacy",      .data = &imp_dev_data_legacy      },
-	{ .compatible = "renesas,impx4-shader",      .data = &imp_dev_data_shader      },
-	{ .compatible = "renesas,impx4-distributer", .data = &imp_dev_data_distributer },
-	{ .compatible = "renesas,impx4-memory",      .data = &imp_dev_data_memory      },
-	{ .compatible = "renesas,impx5-dmac",        .data = &imp_dev_data_dmac        },
+	{ .compatible = "renesas,impx4-legacy",       .data = &imp_dev_data_legacy       },
+	{ .compatible = "renesas,impx4-shader",       .data = &imp_dev_data_shader       },
+	{ .compatible = "renesas,impx4-distributer",  .data = &imp_dev_data_distributer  },
+	{ .compatible = "renesas,impx4-memory",       .data = &imp_dev_data_memory       },
+	{ .compatible = "renesas,impx5-dmac",         .data = &imp_dev_data_dmac         },
+	{ .compatible = "renesas,impx5+-distributer", .data = &imp_dev_data_distributer2 },
+	{ .compatible = "renesas,impx5+-psc",         .data = &imp_dev_data_psc          },
+	{ .compatible = "renesas,impx5+-cnn",         .data = &imp_dev_data_cnn          },
 	{ /* Terminator */ },
 };
 MODULE_DEVICE_TABLE(of, of_imp_match);

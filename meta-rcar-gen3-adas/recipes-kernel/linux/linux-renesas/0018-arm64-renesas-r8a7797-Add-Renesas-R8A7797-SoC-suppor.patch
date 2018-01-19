@@ -8,10 +8,10 @@ This adds Renesas R8A7797 SoC support
 Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm64/Kconfig.platforms                  |    6 +
- arch/arm64/boot/dts/renesas/r8a7797.dtsi      | 1002 ++++++++++
+ arch/arm64/boot/dts/renesas/r8a7797.dtsi      | 1156 +++++++++++
  drivers/clk/renesas/Kconfig                   |    1 +
  drivers/clk/renesas/Makefile                  |    1 +
- drivers/clk/renesas/r8a7797-cpg-mssr.c        |  222 +++
+ drivers/clk/renesas/r8a7797-cpg-mssr.c        |  231 +++
  drivers/clk/renesas/rcar-gen3-cpg.c           |   41 +-
  drivers/clk/renesas/rcar-gen3-cpg.h           |    6 +
  drivers/clk/renesas/renesas-cpg-mssr.c        |    6 +
@@ -34,7 +34,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/pinctrl/sh-pfc/Kconfig                |    5 +
  drivers/pinctrl/sh-pfc/Makefile               |    1 +
  drivers/pinctrl/sh-pfc/core.c                 |    7 +
- drivers/pinctrl/sh-pfc/pfc-r8a7797.c          | 2586 +++++++++++++++++++++++++
+ drivers/pinctrl/sh-pfc/pfc-r8a7797.c          | 2628 +++++++++++++++++++++++++
  drivers/pinctrl/sh-pfc/sh_pfc.h               |   12 +
  drivers/soc/renesas/Makefile                  |    4 +
  drivers/soc/renesas/r8a7797-sysc.c            |   39 +
@@ -47,7 +47,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/thermal/rcar_gen3_thermal.c           |   29 +
  include/dt-bindings/clock/r8a7797-cpg-mssr.h  |   48 +
  include/dt-bindings/power/r8a7797-sysc.h      |   32 +
- 40 files changed, 4281 insertions(+), 29 deletions(-)
+ 40 files changed, 4486 insertions(+), 29 deletions(-)
  create mode 100644 arch/arm64/boot/dts/renesas/r8a7797.dtsi
  create mode 100644 drivers/clk/renesas/r8a7797-cpg-mssr.c
  create mode 100644 drivers/pinctrl/sh-pfc/pfc-r8a7797.c
@@ -74,10 +74,10 @@ index ebe0a37..d3b6771 100644
  	help
 diff --git a/arch/arm64/boot/dts/renesas/r8a7797.dtsi b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
 new file mode 100644
-index 0000000..6eaa5ba
+index 0000000..0dd374f
 --- /dev/null
 +++ b/arch/arm64/boot/dts/renesas/r8a7797.dtsi
-@@ -0,0 +1,1002 @@
+@@ -0,0 +1,1156 @@
 +/*
 + * Device Tree Source for the r8a7797 SoC
 + *
@@ -577,6 +577,158 @@ index 0000000..6eaa5ba
 +			};
 +		};
 +
++		cmt0: timer@ffca0000 {
++			compatible = "renesas,cmt-48-r8a7797", "renesas,cmt-48-gen2";
++			reg = <0 0xffca0000 0 0x1004>;
++			interrupts = <GIC_SPI 142 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 143 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 303>;
++			clock-names = "fck";
++			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
++
++			renesas,channels-mask = <0x60>;
++
++			status = "disabled";
++		};
++
++		cmt1: timer@e6130000 {
++			compatible = "renesas,cmt-48-r8a7797", "renesas,cmt-48-gen2";
++			reg = <0 0xe6130000 0 0x1004>;
++			interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 125 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 126 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 127 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 302>;
++			clock-names = "fck";
++			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
++
++			renesas,channels-mask = <0xff>;
++
++			status = "disabled";
++		};
++
++		cmt2: timer@e6140000 {
++			compatible = "renesas,cmt-48-r8a7797", "renesas,cmt-48-gen2";
++			reg = <0 0xe6140000 0 0x1004>;
++			interrupts = <GIC_SPI 258 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 259 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 260 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 261 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 262 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 263 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 264 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 265 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 301>;
++			clock-names = "fck";
++			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
++
++			renesas,channels-mask = <0xff>;
++
++			status = "disabled";
++		};
++
++		cmt3: timer@e6148000 {
++			compatible = "renesas,cmt-48-r8a7797", "renesas,cmt-48-gen2";
++			reg = <0 0xe6148000 0 0x1004>;
++			interrupts = <GIC_SPI 273 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 274 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 275 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 276 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 277 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 278 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 279 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 280 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 300>;
++			clock-names = "fck";
++			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
++
++			renesas,channels-mask = <0xff>;
++
++			status = "disabled";
++		};
++
++		tpu: pwm@e6e80000 {
++			compatible = "renesas,tpu-r8a7797", "renesas,tpu";
++			reg = <0 0xe6e80000 0 0x100>;
++			clocks = <&cpg CPG_MOD 304>;
++			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
++			status = "disabled";
++			#pwm-cells = <4>;
++		};
++
++		tmu0: timer@e61e0000 {
++			compatible = "renesas,tmu-r8a7797", "renesas,tmu";
++			reg = <0 0xe61e0000 0 0x30>;
++			interrupts = <GIC_SPI 136 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 137 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 138 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 125>;
++			clock-names = "fck";
++			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
++			#renesas,channels = <3>;
++			status = "disabled";
++		};
++
++		tmu1: timer@e6fc0000 {
++			compatible = "renesas,tmu-r8a7797", "renesas,tmu";
++			reg = <0 0xe6fc0000 0 0x30>;
++			interrupts = <GIC_SPI 128 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 129 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 130 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 147 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 124>;
++			clock-names = "fck";
++			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
++			#renesas,channels = <3>;
++			status = "disabled";
++		};
++
++		tmu2: timer@e6fd0000 {
++			compatible = "renesas,tmu-r8a7797", "renesas,tmu";
++			reg = <0 0xe6fd0000 0 0x30>;
++			interrupts = <GIC_SPI 303 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 304 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 305 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 306 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 123>;
++			clock-names = "fck";
++			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
++			#renesas,channels = <3>;
++			status = "disabled";
++		};
++
++		tmu3: timer@e6fe0000 {
++			compatible = "renesas,tmu-r8a7797", "renesas,tmu";
++			reg = <0 0xe6fe0000 0 0x30>;
++			interrupts = <GIC_SPI 131 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 132 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 133 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 146 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 122>;
++			clock-names = "fck";
++			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
++			#renesas,channels = <3>;
++			status = "disabled";
++		};
++
++		tmu4: timer@ffc00000 {
++			compatible = "renesas,tmu-r8a7797", "renesas,tmu";
++			reg = <0 0xffc00000 0 0x30>;
++			interrupts = <GIC_SPI 116 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 117 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 118 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 369 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 121>;
++			clock-names = "fck";
++			power-domains = <&sysc R8A7797_PD_ALWAYS_ON>;
++			#renesas,channels = <3>;
++			status = "disabled";
++		};
++
 +		pwm0: pwm@e6e30000 {
 +			compatible = "renesas,pwm-r8a7797", "renesas,pwm-rcar";
 +			reg = <0 0xe6e30000 0 0x10>;
@@ -970,8 +1122,10 @@ index 0000000..6eaa5ba
 +		};
 +
 +		tsc1: thermal@0xe6190000 {
-+			compatible = "renesas,thermal-r8a7797";
-+			reg = <0 0xe6190000 0 0x5c>;
++			compatible = "renesas,rcar-thermal";
++			reg =  <0 0xe6190000 0 0x14
++				0 0xe6190100 0 0x38>;
++
 +			interrupts = <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH>,
 +				     <GIC_SPI 68 IRQ_TYPE_LEVEL_HIGH>,
 +				     <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;		/* SPI67~69:Thermal Sensor.ch0~2 */
@@ -1106,10 +1260,10 @@ index 2c224e9..c2ef11e 100644
  obj-$(CONFIG_CLK_RENESAS_CPG_MSSR)	+= renesas-cpg-mssr.o clk-div6.o
 diff --git a/drivers/clk/renesas/r8a7797-cpg-mssr.c b/drivers/clk/renesas/r8a7797-cpg-mssr.c
 new file mode 100644
-index 0000000..29dfe4a
+index 0000000..6f481a4
 --- /dev/null
 +++ b/drivers/clk/renesas/r8a7797-cpg-mssr.c
-@@ -0,0 +1,222 @@
+@@ -0,0 +1,231 @@
 +/*
 + * r8a7797 Clock Pulse Generator / Module Standby and Software Reset
 + *
@@ -1204,6 +1358,10 @@ index 0000000..29dfe4a
 +};
 +
 +static const struct mssr_mod_clk r8a7797_mod_clks[] __initconst = {
++	DEF_MOD("tmu4",			 121,	R8A7797_CLK_S2D2),
++	DEF_MOD("tmu3",			 122,	R8A7797_CLK_S2D2),
++	DEF_MOD("tmu2",			 123,	R8A7797_CLK_S2D2),
++	DEF_MOD("tmu1",			 124,	R8A7797_CLK_S2D2),
 +	DEF_MOD("ivcp1e",		 127,	R8A7797_CLK_S2D1),
 +	DEF_MOD("scif4",		 203,	R8A7797_CLK_S2D4),	/* @@ H3=S3D4 */
 +	DEF_MOD("scif3",		 204,	R8A7797_CLK_S2D4),	/* @@ H3=S3D4 */
@@ -1216,6 +1374,11 @@ index 0000000..29dfe4a
 +	DEF_MOD("mfis",			 213,	R8A7797_CLK_S2D2),	/* @@ H3=S3D2 */
 +	DEF_MOD("sys-dmac2",	 217,	R8A7797_CLK_S2D1),	/* @@ H3=S3D1 */
 +	DEF_MOD("sys-dmac1",	 218,	R8A7797_CLK_S2D1),	/* @@ H3=S3D1 */
++	DEF_MOD("cmt3",			 300,	R8A7797_CLK_R),
++	DEF_MOD("cmt2",			 301,	R8A7797_CLK_R),
++	DEF_MOD("cmt1",			 302,	R8A7797_CLK_R),
++	DEF_MOD("cmt0",			 303,	R8A7797_CLK_R),
++	DEF_MOD("tpu",			 304,	R8A7797_CLK_S2D4),
 +	DEF_MOD("sdif",			 314,	R8A7797_CLK_SD0),
 +	DEF_MOD("rwdt0",		 402,	R8A7797_CLK_R),
 +	DEF_MOD("intc-ex",		 407,	R8A7797_CLK_CP),
@@ -2166,10 +2329,10 @@ index a6a8f65..9aba933 100644
  		.compatible = "renesas,pfc-sh73a0",
 diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a7797.c b/drivers/pinctrl/sh-pfc/pfc-r8a7797.c
 new file mode 100644
-index 0000000..9b6127f
+index 0000000..6b83f44
 --- /dev/null
 +++ b/drivers/pinctrl/sh-pfc/pfc-r8a7797.c
-@@ -0,0 +1,2586 @@
+@@ -0,0 +1,2628 @@
 +/*
 + * R8A7797 processor support - PFC hardware block.
 + *
@@ -3572,6 +3735,36 @@ index 0000000..9b6127f
 +	MSIOF3_RXD_MARK,
 +};
 +
++/* - TPU ------------------------------------------------------------------- */
++static const unsigned int tpu_to0_pins[] = {
++	/* TPU0TO0 */
++	RCAR_GP_PIN(4, 0),
++};
++static const unsigned int tpu_to0_mux[] = {
++	TPU0TO0_MARK,
++};
++static const unsigned int tpu_to1_pins[] = {
++	/* TPU0TO1 */
++	RCAR_GP_PIN(4, 1),
++};
++static const unsigned int tpu_to1_mux[] = {
++	TPU0TO1_MARK,
++};
++static const unsigned int tpu_to2_pins[] = {
++	/* TPU0TO2 */
++	RCAR_GP_PIN(4, 2),
++};
++static const unsigned int tpu_to2_mux[] = {
++	TPU0TO2_MARK,
++};
++static const unsigned int tpu_to3_pins[] = {
++	/* TPU0TO3 */
++	RCAR_GP_PIN(4, 3),
++};
++static const unsigned int tpu_to3_mux[] = {
++	TPU0TO3_MARK,
++};
++
 +/* - PWM0 ------------------------------------------------------------------- */
 +static const unsigned int pwm0_a_pins[] = {
 +	/* PWM0 */
@@ -4062,6 +4255,10 @@ index 0000000..9b6127f
 +	SH_PFC_PIN_GROUP(msiof3_ss2),
 +	SH_PFC_PIN_GROUP(msiof3_txd),
 +	SH_PFC_PIN_GROUP(msiof3_rxd),
++	SH_PFC_PIN_GROUP(tpu_to0),
++	SH_PFC_PIN_GROUP(tpu_to1),
++	SH_PFC_PIN_GROUP(tpu_to2),
++	SH_PFC_PIN_GROUP(tpu_to3),
 +	SH_PFC_PIN_GROUP(pwm0_a),
 +	SH_PFC_PIN_GROUP(pwm0_b),
 +	SH_PFC_PIN_GROUP(pwm1_a),
@@ -4246,6 +4443,13 @@ index 0000000..9b6127f
 +	"msiof3_rxd",
 +};
 +
++static const char * const tpu_groups[] = {
++	"tpu_to0",
++	"tpu_to1",
++	"tpu_to2",
++	"tpu_to3",
++};
++
 +static const char * const pwm0_groups[] = {
 +	"pwm0_a",
 +	"pwm0_b",
@@ -4361,6 +4565,7 @@ index 0000000..9b6127f
 +	SH_PFC_FUNCTION(msiof1),
 +	SH_PFC_FUNCTION(msiof2),
 +	SH_PFC_FUNCTION(msiof3),
++	SH_PFC_FUNCTION(tpu),
 +	SH_PFC_FUNCTION(pwm0),
 +	SH_PFC_FUNCTION(pwm1),
 +	SH_PFC_FUNCTION(pwm2),
