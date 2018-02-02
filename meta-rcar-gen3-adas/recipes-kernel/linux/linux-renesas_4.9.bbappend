@@ -50,7 +50,6 @@ SRC_URI_append = " \
     file://0032-media-i2c-Add-ov5642-sensor.patch \
     file://0033-media-soc-camera-fix-parallel-i-f-in-VIN.patch \
     file://0034-media-soc_camera-Fix-VIDIOC_S_SELECTION-ioctl-miscal.patch \
-    file://0035-regulator-fixed-probe-after-i2c.patch \
     file://0040-arm64-dts-renesas-add-ADAS-boards.patch \
     file://0042-arm64-dts-renesas-r8a7795-es1-h3ulcb-disable-eMMC.patch \
     file://0043-arm64-dts-renesas-ulcb-use-versaclock-for-du-rgb-and-lvds.patch \
