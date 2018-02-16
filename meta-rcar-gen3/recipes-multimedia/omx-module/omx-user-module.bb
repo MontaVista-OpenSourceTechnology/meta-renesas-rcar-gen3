@@ -485,3 +485,6 @@ INHIBIT_SYSROOT_STRIP = "1"
 # Skip debug split and strip of do_package()
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 INHIBIT_PACKAGE_STRIP = "1"
+
+RPROVIDES_${PN} = "libomxil"
+
