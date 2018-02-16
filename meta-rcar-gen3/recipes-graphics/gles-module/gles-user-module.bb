@@ -23,6 +23,8 @@ SRC_URI_append = " \
     file://0001-WORKAROUND-using-GLES3-gl3ext.h-from-mesa-to-prevent.patch \
 "
 
+SRC_URI_append = " file://Fix_EGL_CAST_macro.diff "
+
 inherit update-rc.d systemd
 
 INITSCRIPT_NAME = "pvrinit"

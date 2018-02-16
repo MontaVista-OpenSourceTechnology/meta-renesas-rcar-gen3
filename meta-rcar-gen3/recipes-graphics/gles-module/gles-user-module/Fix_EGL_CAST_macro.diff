@@ -1,0 +1,13 @@
+diff --git a/usr/include/EGL/eglext.h b/usr/include/EGL/eglext.h
+index 4c53540..1606f1d 100644
+--- a/usr/include/EGL/eglext.h
++++ b/usr/include/EGL/eglext.h
+@@ -288,7 +288,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglStreamConsumerReleaseKHR (EGLDisplay dpy, EGLSt
+ #define EGL_KHR_stream_cross_process_fd 1
+ typedef int EGLNativeFileDescriptorKHR;
+ #ifdef EGL_KHR_stream
+-#define EGL_NO_FILE_DESCRIPTOR_KHR        EGL_CAST((EGLNativeFileDescriptorKHR,(-1))
++#define EGL_NO_FILE_DESCRIPTOR_KHR        EGL_CAST(EGLNativeFileDescriptorKHR,(-1))
+ typedef EGLNativeFileDescriptorKHR (EGLAPIENTRYP PFNEGLGETSTREAMFILEDESCRIPTORKHRPROC) (EGLDisplay dpy, EGLStreamKHR stream);
+ typedef EGLStreamKHR (EGLAPIENTRYP PFNEGLCREATESTREAMFROMFILEDESCRIPTORKHRPROC) (EGLDisplay dpy, EGLNativeFileDescriptorKHR file_descriptor);
+ #ifdef EGL_EGLEXT_PROTOTYPES
