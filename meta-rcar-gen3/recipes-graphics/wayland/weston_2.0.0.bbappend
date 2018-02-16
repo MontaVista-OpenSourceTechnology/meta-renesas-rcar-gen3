@@ -13,7 +13,6 @@ SRC_URI_append = " \
     file://weston.png \
     file://weston.desktop \
     file://xwayland.weston-start \
-    file://weston.ini \
     file://weston_v4l2.ini \
 "
 
