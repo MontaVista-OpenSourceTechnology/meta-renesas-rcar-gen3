@@ -1,1 +1,1 @@
-export RENESAS_DATADIR = "/usr/local"
+export RENESAS_DATADIR = "/usr"
