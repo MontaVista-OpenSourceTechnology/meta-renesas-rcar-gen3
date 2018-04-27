@@ -1,0 +1,88 @@
+From ae18804d5b0542066b92d6f269748cd0e860b37f Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Fri, 16 Feb 2018 22:13:02 +0300
+Subject: [PATCH] i2c: rcar_i2c: add 16bit addressing
+
+This adds 16bit addressing for RCAR I2C
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/i2c/rcar_i2c.c | 37 +++++++++++++++++++++++++++++++------
+ 1 file changed, 31 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/i2c/rcar_i2c.c b/drivers/i2c/rcar_i2c.c
+index 90ad116..017ae0b 100644
+--- a/drivers/i2c/rcar_i2c.c
++++ b/drivers/i2c/rcar_i2c.c
+@@ -88,9 +88,21 @@ static void rcar_i2c_raw_rw_finish(struct rcar_i2c *dev)
+ }
+ 
+ static int
+-rcar_i2c_raw_write(struct rcar_i2c *dev, u8 chip, uint addr, u8 *val, int size)
++rcar_i2c_raw_write(struct rcar_i2c *dev, u8 chip, uint addr, int alen, u8 *val, int size)
+ {
+-	rcar_i2c_raw_rw_common(dev, chip, addr);
++	if (alen == sizeof(u8)) {
++		rcar_i2c_raw_rw_common(dev, chip, addr);
++	} else {
++		rcar_i2c_raw_rw_common(dev, chip, addr >> 8);
++
++		/* set send date */
++		writel(addr & 0xff, &dev->icrxdtxd);
++		/* start SCLclk */
++		writel(~MSR_MDE, &dev->icmsr);
++
++		while (!(readl(&dev->icmsr) & MSR_MDE))
++			udelay(10);
++	}
+ 
+ 	/* set send date */
+ 	writel(*val, &dev->icrxdtxd);
+@@ -111,11 +123,23 @@ rcar_i2c_raw_write(struct rcar_i2c *dev, u8 chip, uint addr, u8 *val, int size)
+ }
+ 
+ static u8
+-rcar_i2c_raw_read(struct rcar_i2c *dev, u8 chip, uint addr)
++rcar_i2c_raw_read(struct rcar_i2c *dev, u8 chip, uint addr, int alen)
+ {
+ 	u8 ret;
+ 
+-	rcar_i2c_raw_rw_common(dev, chip, addr);
++	if (alen == sizeof(u8)) {
++		rcar_i2c_raw_rw_common(dev, chip, addr);
++	} else {
++		rcar_i2c_raw_rw_common(dev, chip, addr >> 8);
++
++		/* set send date */
++		writel(addr & 0xff, &dev->icrxdtxd);
++		/* start SCLclk */
++		writel(~MSR_MDE, &dev->icmsr);
++
++		while (!(readl(&dev->icmsr) & MSR_MDE))
++			udelay(10);
++	}
+ 
+ 	/* set slave address, receive */
+ 	writel((chip << 1) | 1, &dev->icmar);
+@@ -236,7 +260,7 @@ static int rcar_i2c_read(struct i2c_adapter *adap, uint8_t chip,
+ 	int i;
+ 
+ 	for (i = 0; i < len; i++)
+-		data[i] = rcar_i2c_raw_read(dev, chip, addr + i);
++		data[i] = rcar_i2c_raw_read(dev, chip, addr + i, alen);
+ 
+ 	return 0;
+ }
+@@ -245,7 +269,8 @@ static int rcar_i2c_write(struct i2c_adapter *adap, uint8_t chip, uint addr,
+ 			int alen, u8 *data, int len)
+ {
+ 	struct rcar_i2c *dev = (struct rcar_i2c *)i2c_dev[adap->hwadapnr];
+-	return rcar_i2c_raw_write(dev, chip, addr, data, len);
++
++	return rcar_i2c_raw_write(dev, chip, addr, alen, data, len);
+ }
+ 
+ static int
+-- 
+1.9.1
+

@@ -1,0 +1,28 @@
+From defb4800e4b12760ac0479a7bcd71b0a3cf0aaa3 Mon Sep 17 00:00:00 2001
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Date: Tue, 30 Jan 2018 17:42:44 +0300
+Subject: [PATCH] pinctrl: sh-pfc: r8a7795: fix ssi349_ctrl name
+
+This fixes the ssi349_ctrl for r8a7795 SoC
+
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+---
+ drivers/pinctrl/sh-pfc/pfc-r8a7795.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a7795.c b/drivers/pinctrl/sh-pfc/pfc-r8a7795.c
+index 3fc141a..f7dad4b 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a7795.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a7795.c
+@@ -5066,7 +5066,7 @@ enum {
+ 	"ssi2_ctrl_a",
+ 	"ssi2_ctrl_b",
+ 	"ssi3_data",
+-	"ssi34_ctrl",
++	"ssi349_ctrl",
+ 	"ssi4_data",
+ 	"ssi4_ctrl",
+ 	"ssi5_data",
+-- 
+1.9.1
+

@@ -1,0 +1,45 @@
+From 730f3d906fa599bf76bb0b1fdf35b44a7cbdc2ed Mon Sep 17 00:00:00 2001
+From: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+Date: Thu, 22 Mar 2018 14:57:46 +0300
+Subject: [PATCH 09/12] r8a7797: clk: Add rpc clock
+
+Signed-off-by: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+---
+ drivers/clk/renesas/r8a7797-cpg-mssr.c       | 2 ++
+ include/dt-bindings/clock/r8a7797-cpg-mssr.h | 1 +
+ 2 files changed, 3 insertions(+)
+
+diff --git a/drivers/clk/renesas/r8a7797-cpg-mssr.c b/drivers/clk/renesas/r8a7797-cpg-mssr.c
+index a3eed41..9763f6c 100644
+--- a/drivers/clk/renesas/r8a7797-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a7797-cpg-mssr.c
+@@ -74,6 +74,7 @@ static const struct cpg_core_clk r8a7797_core_clks[] __initconst = {
+ 	DEF_FIXED("s2d1",       R8A7797_CLK_S2D1,  CLK_S2,         1, 1),
+ 	DEF_FIXED("s2d2",       R8A7797_CLK_S2D2,  CLK_S2,         2, 1),
+ 	DEF_FIXED("s2d4",       R8A7797_CLK_S2D4,  CLK_S2,         4, 1),
++	DEF_FIXED("rpcsrc",     R8A7797_CLK_RPCSRC,  CLK_PLL1_DIV2, 5, 1),
+ 
+ 	DEF_GEN3_SD0H("sd0h",   R8A7797_CLK_SD0H,  CLK_PLL1_DIV4, 0x0074),
+ 	DEF_GEN3_SD0("sd0",     R8A7797_CLK_SD0,   CLK_PLL1_DIV4, 0x0074),
+@@ -158,6 +159,7 @@ static const struct mssr_mod_clk r8a7797_mod_clks[] __initconst = {
+ 	DEF_MOD("i2c2",			 929,	R8A7797_CLK_S2D2),
+ 	DEF_MOD("i2c1",			 930,	R8A7797_CLK_S2D2),
+ 	DEF_MOD("i2c0",			 931,	R8A7797_CLK_S2D2),
++	DEF_MOD("rpc",			 917,	R8A7797_CLK_RPCSRC),
+ };
+ 
+ static const unsigned int r8a7797_crit_mod_clks[] __initconst = {
+diff --git a/include/dt-bindings/clock/r8a7797-cpg-mssr.h b/include/dt-bindings/clock/r8a7797-cpg-mssr.h
+index ae6b3af..c3bd0a7 100644
+--- a/include/dt-bindings/clock/r8a7797-cpg-mssr.h
++++ b/include/dt-bindings/clock/r8a7797-cpg-mssr.h
+@@ -44,5 +44,6 @@
+ #define R8A7797_CLK_CPEX		29
+ #define R8A7797_CLK_R			30
+ #define R8A7797_CLK_OSC			31
++#define R8A7797_CLK_RPCSRC		32
+ 
+ #endif /* __DT_BINDINGS_CLOCK_R8A7797_CPG_MSSR_H__ */
+-- 
+2.7.4
+

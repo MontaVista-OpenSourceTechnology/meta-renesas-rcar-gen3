@@ -20,6 +20,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  plat/renesas/rcar/drivers/rom/rom_api.c            |   18 +-
  plat/renesas/rcar/drivers/scif/scif.S              |   29 +-
  plat/renesas/rcar/include/bl2_dma_register.h       |    4 +
+ plat/renesas/rcar/include/platform_def.h           |    6 +
  plat/renesas/rcar/pfc/V3M/pfc_init_v3m.c           | 1076 ++++++++++++++++++++
  plat/renesas/rcar/pfc/V3M/pfc_init_v3m.h           |   37 +
  plat/renesas/rcar/pfc/pfc.mk                       |    7 +
@@ -29,8 +30,8 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  plat/renesas/rcar/qos/V3M/qos_init_v3m.h           |   37 +
  plat/renesas/rcar/qos/qos.mk                       |    7 +
  plat/renesas/rcar/qos/qos_init.c                   |   25 +
- plat/renesas/rcar/rcar_def.h                       |    1 +
- 23 files changed, 2490 insertions(+), 13 deletions(-)
+ plat/renesas/rcar/rcar_def.h                       |    5 +
+ 24 files changed, 2500 insertions(+), 13 deletions(-)
  mode change 100644 => 100755 plat/renesas/rcar/bl2_rcar_setup.c
  create mode 100644 plat/renesas/rcar/ddr/V3M/boot_init_dram_regdef_v3m.h
  create mode 100644 plat/renesas/rcar/ddr/V3M/boot_init_dram_v3m.h
@@ -1169,6 +1170,26 @@ index 7c7e7a8..4bc9341 100644
  
  #if (DMACH==0)		/* SYS-DMAC0 (CH0) */
  #define SYS_DMAC_BIT	((uint32_t)1U << 19U)
+diff --git a/plat/renesas/rcar/include/platform_def.h b/plat/renesas/rcar/include/platform_def.h
+index ae5dfab..59685c1 100644
+--- a/plat/renesas/rcar/include/platform_def.h
++++ b/plat/renesas/rcar/include/platform_def.h
+@@ -149,9 +149,15 @@
+  * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
+  * size plus a little space for growth.
+  */
++#if RCAR_LSI == RCAR_V3M
++#define RCAR_SECRAM_BASE		(0xE6300000)
++#define BL2_BASE			(0xE6344000)
++#define BL2_LIMIT			(0xE636E800)
++#else
+ #define	RCAR_SECRAM_BASE		(0xE6300000)
+ #define BL2_BASE			(0xE6304000)
+ #define BL2_LIMIT			(0xE632E800)
++#endif
+ 
+ /*******************************************************************************
+  * BL31 specific defines.
 diff --git a/plat/renesas/rcar/pfc/V3M/pfc_init_v3m.c b/plat/renesas/rcar/pfc/V3M/pfc_init_v3m.c
 new file mode 100644
 index 0000000..0344189
@@ -2989,10 +3010,22 @@ index ca0f311..86ee492 100644
    #error "Don't have QoS initialize routine(Unknown chip)."
   #endif
 diff --git a/plat/renesas/rcar/rcar_def.h b/plat/renesas/rcar/rcar_def.h
-index 03e0f14..103f754 100644
+index 03e0f14..ddbca3b 100644
 --- a/plat/renesas/rcar/rcar_def.h
 +++ b/plat/renesas/rcar/rcar_def.h
-@@ -255,6 +255,7 @@
+@@ -79,7 +79,11 @@
+ #define DEVICE_RCAR_BASE	0xE6000000U
+ #define DEVICE_RCAR_SIZE	0x00300000U
+ 
++#if RCAR_LSI == RCAR_V3M
++#define DEVICE_RCAR_BASE2	MAKE_U(0xE6370000)
++#else
+ #define DEVICE_RCAR_BASE2	MAKE_U(0xE6360000)
++#endif
+ #define DEVICE_RCAR_SIZE2	0x19CA0000U
+ 
+ #define DEVICE_SRAM_BASE	0xE6310000
+@@ -255,6 +259,7 @@
  #define RCAR_CUT_MASK			(0x000000FFU)
  #define RCAR_PRODUCT_H3			(0x00004F00U)
  #define RCAR_PRODUCT_M3			(0x00005200U)

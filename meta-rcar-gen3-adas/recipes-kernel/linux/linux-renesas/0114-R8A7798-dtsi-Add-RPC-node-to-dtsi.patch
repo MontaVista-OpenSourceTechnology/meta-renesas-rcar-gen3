@@ -1,0 +1,35 @@
+From 80ebc1949eb5d7db33c60faa8537029fcf6379ba Mon Sep 17 00:00:00 2001
+From: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+Date: Mon, 19 Mar 2018 11:14:26 +0300
+Subject: [PATCH 05/12] R8A7798: dtsi: Add RPC node to dtsi
+
+Signed-off-by: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7798.dtsi | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7798.dtsi b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
+index e2b3404..fac60e6 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7798.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7798.dtsi
+@@ -1026,6 +1026,17 @@
+ 			status = "disabled";
+ 		};
+ 
++		qspi0: qspi@ee200000 {
++			compatible = "renesas,qspi-rpc-r8a7798";
++			reg = <0 0xee200000 0 0x1f0>,
++			      <0 0x08000000 0 0x04000000>,
++			      <0 0xee208000 0 0x100>;
++			interrupts = <GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&cpg CPG_MOD 917>;
++			power-domains = <&sysc R8A7798_PD_ALWAYS_ON>;
++			status = "disabled";
++		};
++
+ 		msiof0: spi@e6e90000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+-- 
+2.7.4
+

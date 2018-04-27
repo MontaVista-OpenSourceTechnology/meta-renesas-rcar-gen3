@@ -9,12 +9,12 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 ---
  arch/arm/cpu/armv8/Kconfig      |   4 +
  board/renesas/eagle/Kconfig     |  15 +++
- board/renesas/eagle/MAINTAINERS |   6 ++
+ board/renesas/eagle/MAINTAINERS |   6 +
  board/renesas/eagle/Makefile    |   9 ++
- board/renesas/eagle/eagle.c     | 224 ++++++++++++++++++++++++++++++++++++++++
+ board/renesas/eagle/eagle.c     | 252 ++++++++++++++++++++++++++++++++++++++++
  configs/r8a7797_eagle_defconfig |   9 ++
- include/configs/r8a7797_eagle.h | 152 +++++++++++++++++++++++++++
- 7 files changed, 419 insertions(+)
+ include/configs/r8a7797_eagle.h | 152 ++++++++++++++++++++++++
+ 7 files changed, 447 insertions(+)
  create mode 100644 board/renesas/eagle/Kconfig
  create mode 100644 board/renesas/eagle/MAINTAINERS
  create mode 100644 board/renesas/eagle/Makefile
@@ -93,10 +93,10 @@ index 0000000..87d63e1
 +obj-y	:= eagle.o ../rcar-gen3-common/common.o
 diff --git a/board/renesas/eagle/eagle.c b/board/renesas/eagle/eagle.c
 new file mode 100644
-index 0000000..4eda15c
+index 0000000..48ea727
 --- /dev/null
 +++ b/board/renesas/eagle/eagle.c
-@@ -0,0 +1,224 @@
+@@ -0,0 +1,252 @@
 +/*
 + * board/renesas/eagle/eagle.c
 + *     This file is Eagle board support.
@@ -128,27 +128,31 @@ index 0000000..4eda15c
 +DECLARE_GLOBAL_DATA_PTR;
 +
 +#define SCIF0_MSTP207		(1 << 7)
++#define SD0_MSTP314		(1 << 14)
 +#define ETHERAVB_MSTP812	(1 << 12)
-+#define RPC_MSTP917			(1 << 17)
++#define RPC_MSTP917		(1 << 17)
++#define I2C0_MSTP931		(1 << 31)
 +
-+#define CLK2MHZ(clk)	(clk / 1000 / 1000)
++#define SD0CKCR			0xE6150074
++
++#define PFC_PMMR		0xe6060000
++#define PFC_POC1		0xe6060384
++#define POC_MMC_3V3		0x003ff000
++
 +void s_init(void)
 +{
 +	struct rcar_rwdt *rwdt = (struct rcar_rwdt *)RWDT_BASE;
 +	struct rcar_swdt *swdt = (struct rcar_swdt *)SWDT_BASE;
-+	u32 stc;
 +
 +	/* Watchdog init */
 +	writel(0xA5A5A500, &rwdt->rwtcsra);
 +	writel(0xA5A5A500, &swdt->swtcsra);
-+
-+	/* CPU frequency setting. Set to 0.8GHz */
-+	stc = ((800 / CLK2MHZ(CONFIG_SYS_CLK_FREQ)) - 1) << PLL0_STC_BIT;
-+	clrsetbits_le32(PLL0CR, PLL0_STC_MASK, stc);
 +}
 +
 +int board_early_init_f(void)
 +{
++	int freq;
++
 +	rcar_prr_init();
 +
 +	writel(0xa5a5ffff, 0xe6150900);
@@ -156,10 +160,17 @@ index 0000000..4eda15c
 +	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, 0x02000000);
 +	/* SCIF0 */
 +	mstp_clrbits_le32(MSTPSR2, SMSTPCR2, SCIF0_MSTP207);
++	/* SDHI2/MMC */
++	mstp_clrbits_le32(MSTPSR3, SMSTPCR3, SD0_MSTP314);
 +	/* EHTERAVB */
 +	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHERAVB_MSTP812);
 +	/* QSPI */
 +	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, RPC_MSTP917);
++	/* I2C0 */
++	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, I2C0_MSTP931);
++
++	freq = rcar_get_sdhi_config_clk();
++	writel(freq, SD0CKCR);
 +
 +	return 0;
 +}
@@ -178,7 +189,7 @@ index 0000000..4eda15c
 +	gpio_request(GPIO_FN_AVB0_AVTP_MATCH, NULL);
 +	gpio_request(GPIO_FN_AVB0_LINK, NULL);
 +	gpio_request(GPIO_FN_AVB0_PHY_INT, NULL);
-+	gpio_request(GPIO_FN_AVB0_MAGIC, NULL);
++	/* gpio_request(GPIO_FN_AVB0_MAGIC, NULL); */
 +	gpio_request(GPIO_FN_AVB0_MDC, NULL);
 +	gpio_request(GPIO_FN_AVB0_MDIO, NULL);
 +	gpio_request(GPIO_FN_AVB0_TXCREFCLK, NULL);
@@ -208,8 +219,8 @@ index 0000000..4eda15c
 +	udelay(1);
 +#endif
 +
-+	/* QSPI */
 +#if !defined(CONFIG_SYS_NO_FLASH)
++	/* QSPI */
 +	gpio_request(GPIO_FN_QSPI0_SPCLK, NULL);
 +	gpio_request(GPIO_FN_QSPI0_MOSI_IO0, NULL);
 +	gpio_request(GPIO_FN_QSPI0_MISO_IO1, NULL);
@@ -225,6 +236,12 @@ index 0000000..4eda15c
 +	gpio_request(GPIO_FN_RPC_RESET_N, NULL);
 +	gpio_request(GPIO_FN_RPC_WP_N, NULL);
 +	gpio_request(GPIO_FN_RPC_INT_N, NULL);
++#endif
++
++#if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_RCAR)
++	/* I2C0 to access PMIC */
++	gpio_request(GPIO_IFN_SDA0, NULL);
++	gpio_request(GPIO_IFN_SCL0, NULL);
 +#endif
 +	return 0;
 +}
@@ -265,22 +282,39 @@ index 0000000..4eda15c
 +
 +int board_mmc_init(bd_t *bis)
 +{
-+	return -ENODEV;
++	int ret = -ENODEV;
++#ifdef CONFIG_SH_SDHI
++	u32 val;
++
++	/* SDHI2/eMMC */
++	gpio_request(GPIO_FN_MMC_D0, NULL);
++	gpio_request(GPIO_FN_MMC_D1, NULL);
++	gpio_request(GPIO_FN_MMC_D2, NULL);
++	gpio_request(GPIO_FN_MMC_D3, NULL);
++	gpio_request(GPIO_FN_MMC_D4, NULL);
++	gpio_request(GPIO_FN_MMC_D5, NULL);
++	gpio_request(GPIO_FN_MMC_D6, NULL);
++	gpio_request(GPIO_FN_MMC_D7, NULL);
++	gpio_request(GPIO_FN_MMC_CLK, NULL);
++	gpio_request(GPIO_FN_MMC_CMD, NULL);
++	gpio_request(GPIO_FN_MMC_CD, NULL);
++	gpio_request(GPIO_FN_MMC_WP, NULL);
++
++	val = readl(PFC_POC1);
++	val &= ~POC_MMC_3V3;		/* POC = 1.8V */
++	writel(~val, PFC_PMMR);
++	writel(val, PFC_POC1);
++
++	ret = sh_sdhi_init(CONFIG_SYS_SH_SDHI2_BASE, 0,
++			   SH_SDHI_QUIRK_64BIT_BUF);
++#endif
++	return ret;
 +}
 +
 +
 +int dram_init(void)
 +{
 +	gd->ram_size = PHYS_SDRAM_1_SIZE;
-+#if (CONFIG_NR_DRAM_BANKS >= 2)
-+	gd->ram_size += PHYS_SDRAM_2_SIZE;
-+#endif
-+#if (CONFIG_NR_DRAM_BANKS >= 3)
-+	gd->ram_size += PHYS_SDRAM_3_SIZE;
-+#endif
-+#if (CONFIG_NR_DRAM_BANKS >= 4)
-+	gd->ram_size += PHYS_SDRAM_4_SIZE;
-+#endif
 +
 +	return 0;
 +}
@@ -289,18 +323,6 @@ index 0000000..4eda15c
 +{
 +	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 +	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-+#if (CONFIG_NR_DRAM_BANKS >= 2)
-+	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-+	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
-+#endif
-+#if (CONFIG_NR_DRAM_BANKS >= 3)
-+	gd->bd->bi_dram[2].start = PHYS_SDRAM_3;
-+	gd->bd->bi_dram[2].size = PHYS_SDRAM_3_SIZE;
-+#endif
-+#if (CONFIG_NR_DRAM_BANKS >= 4)
-+	gd->bd->bi_dram[3].start = PHYS_SDRAM_4;
-+	gd->bd->bi_dram[3].size = PHYS_SDRAM_4_SIZE;
-+#endif
 +}
 +
 +const struct rcar_sysinfo sysinfo = {
@@ -309,8 +331,14 @@ index 0000000..4eda15c
 +
 +void reset_cpu(ulong addr)
 +{
-+#if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
-+	i2c_reg_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x20, 0x80);
++#if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_RCAR)
++	u8 val;
++
++	i2c_set_bus_num(0);
++	i2c_init(400000, 0);
++	i2c_read(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
++	val |= 0x02;
++	i2c_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
 +#endif
 +}
 +
@@ -338,7 +366,7 @@ index 0000000..d68e28f
 +CONFIG_SPI_FLASH_SPANSION=y
 diff --git a/include/configs/r8a7797_eagle.h b/include/configs/r8a7797_eagle.h
 new file mode 100644
-index 0000000..a4ae6bf
+index 0000000..c6ab5b7
 --- /dev/null
 +++ b/include/configs/r8a7797_eagle.h
 @@ -0,0 +1,152 @@
@@ -362,8 +390,8 @@ index 0000000..a4ae6bf
 +#include "rcar-gen3-common.h"
 +
 +/* Cache Definitions */
-+#define CONFIG_SYS_DCACHE_OFF
-+#define CONFIG_SYS_ICACHE_OFF
++//#define CONFIG_SYS_DCACHE_OFF
++//#define CONFIG_SYS_ICACHE_OFF
 +
 +/* SCIF */
 +#define CONFIG_SCIF_CONSOLE
@@ -412,6 +440,7 @@ index 0000000..a4ae6bf
 +#define CONFIG_PLL1_CLK_FREQ	(CONFIG_SYS_CLK_FREQ * 192 / 2)
 +#define CONFIG_S3D2_CLK_FREQ	(266666666u/2)
 +#define CONFIG_S3D4_CLK_FREQ	(266666666u/4)
++#define CONFIG_S2D2_CLK_FREQ	(133333333u)
 +
 +/* Generic Timer Definitions (use in assembler source) */
 +#define COUNTER_FREQUENCY	0xFE502A	/* 16.66MHz from CPclk */
@@ -423,15 +452,14 @@ index 0000000..a4ae6bf
 +
 +/* i2c */
 +#define CONFIG_SYS_I2C
-+#define CONFIG_SYS_I2C_SH
-+#define CONFIG_SYS_I2C_SLAVE		0x60
-+#define CONFIG_SYS_I2C_SH_NUM_CONTROLLERS	1
-+#define CONFIG_SYS_I2C_SH_SPEED0	400000
-+#define CONFIG_SH_I2C_DATA_HIGH		4
-+#define CONFIG_SH_I2C_DATA_LOW		5
-+#define CONFIG_SH_I2C_CLOCK		10000000
-+
-+#define CONFIG_SYS_I2C_POWERIC_ADDR	0x30
++#define CONFIG_SYS_I2C_RCAR
++#define CONFIG_SYS_RCAR_I2C0_SPEED	400000
++#define CONFIG_SYS_RCAR_I2C1_SPEED	400000
++#define CONFIG_SYS_RCAR_I2C2_SPEED	400000
++#define CONFIG_SYS_RCAR_I2C3_SPEED	400000
++#define CONFIF_SYS_RCAR_I2C_NUM_CONTROLLERS	4
++#define CONFIG_SYS_I2C_POWERIC_ADDR	0x5A
++#define CONFIG_HP_CLK_FREQ		CONFIG_S2D2_CLK_FREQ
 +
 +/* USB */
 +#undef CONFIG_CMD_USB

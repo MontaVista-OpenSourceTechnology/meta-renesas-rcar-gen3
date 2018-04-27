@@ -1,0 +1,219 @@
+From 466608ee2217ce02df6df977a35c4afa6ee1e350 Mon Sep 17 00:00:00 2001
+From: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+Date: Wed, 4 Apr 2018 12:29:47 +0300
+Subject: [PATCH 1/2] RPC: Hyperflash: Add devicetree support
+
+Signed-off-by: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+---
+ drivers/mtd/rpc_hyperflash.c | 142 +++++++++++++++++++++++--------------------
+ 1 file changed, 77 insertions(+), 65 deletions(-)
+
+diff --git a/drivers/mtd/rpc_hyperflash.c b/drivers/mtd/rpc_hyperflash.c
+index cf4d56e..c15e520 100644
+--- a/drivers/mtd/rpc_hyperflash.c
++++ b/drivers/mtd/rpc_hyperflash.c
+@@ -15,8 +15,10 @@
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/partitions.h>
+ #include <linux/of.h>
++#include <linux/clk.h>
+ #include <linux/rwsem.h>
+ #include <linux/slab.h>
++#include <linux/platform_device.h>
+ 
+ /* RPC */
+ #define RPC_BASE		0xEE200000
+@@ -156,10 +158,9 @@
+ 
+ struct rpc_info {
+ 	struct rw_semaphore lock;
++	struct clk *clk;
+ 	void __iomem *rpc_base;
+ 	void __iomem *flash_base;
+-	struct resource *rpc_res;
+-	struct resource *flash_res;
+ 	u32 flash_id;
+ 	struct mtd_info mtd;
+ };
+@@ -243,8 +244,6 @@ enum rpc_hf_size {
+ 	RPC_HF_SIZE_64BIT = RPC_SMENR_SPIDE(0xF),
+ };
+ 
+-struct rpc_info *rpc_info;
+-
+ static void rpc_hf_mode_man(struct rpc_info *info)
+ {
+ 	rpc_wait_tend(info);
+@@ -861,8 +860,8 @@ static int rpc_hf_init_mtd(struct rpc_info *info)
+ 	rpc_hf_read_reg(info, 0x27 << 1, data, RPC_HF_SIZE_16BIT);
+ 	size = 1 << data[0];
+ 
+-	if (size > resource_size(info->flash_res))
+-		size = resource_size(info->flash_res);
++	if (size > RPC_FLASH_SIZE)
++		size = RPC_FLASH_SIZE;
+ 
+ 	if (size & (RPC_HF_ERASE_SIZE - 1)) {
+ 		retval = -EINVAL;
+@@ -891,86 +890,99 @@ static int rpc_hf_init_mtd(struct rpc_info *info)
+ 	return retval;
+ }
+ 
+-static int rpc_flash_init(void)
++static int rpc_flash_probe(struct platform_device *pdev)
+ {
+-	struct rpc_info *info;
++	struct rpc_info *rpc;
+ 	struct resource *res;
+-	void __iomem *base;
+-	int retval = -ENODEV;
+-
+-	if (!of_machine_is_compatible("renesas,r8a7795"))
+-		return -ENODEV;
++	int ret;
+ 
+-	info = kzalloc(sizeof(*info), GFP_KERNEL);
+-	if (!info)
++	rpc = devm_kzalloc(&pdev->dev, sizeof(*rpc), GFP_KERNEL);
++	if (!rpc)
+ 		return -ENOMEM;
+ 
+-	res = request_mem_region(RPC_BASE, RPC_SIZE, "RPC");
+-	if (!res)
+-		goto out_info;
++	/* ...get memory */
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	rpc->rpc_base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(rpc->rpc_base)) {
++		dev_err(&pdev->dev, "cannot get resources\n");
++		ret = PTR_ERR(rpc->rpc_base);
++		goto error;
++	}
+ 
+-	info->rpc_res = res;
+-	base = ioremap(res->start, resource_size(res));
+-	if (!base)
+-		goto out_rpc_res;
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
++	rpc->flash_base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(rpc->flash_base)) {
++		dev_err(&pdev->dev, "cannot get resources\n");
++		ret = PTR_ERR(rpc->flash_base);
++		goto error;
++	}
+ 
+-	info->rpc_base = base;
+-	res = request_mem_region(RPC_FLASH_BASE, RPC_FLASH_SIZE, "RPC-ext");
+-	if (!res)
+-		goto out_rpc_base;
++	/* ...get clk */
++	rpc->clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(rpc->clk)) {
++		dev_err(&pdev->dev, "cannot get clock\n");
++		ret = PTR_ERR(rpc->clk);
++		goto error;
++	}
+ 
+-	info->flash_res = res;
+-	base = ioremap(res->start, resource_size(res));
+-	if (!base)
+-		goto out_flash_res;
++	/* ... enable clk */
++	ret = clk_prepare_enable(rpc->clk);
++	if (ret) {
++		dev_err(&pdev->dev, "cannot prepare clock\n");
++		goto error;
++	}
++
++	platform_set_drvdata(pdev, rpc);
+ 
+-	info->flash_base = base;
+-	retval = rpc_hf_init_mtd(info);
+-	if (retval)
+-		goto out_flash_base;
++	mtd_set_of_node(&rpc->mtd, pdev->dev.of_node);
++	ret = rpc_hf_init_mtd(rpc);
++	if (ret) {
++		dev_err(&pdev->dev, "mtd device register error.\n");
++		goto error_clk_disable;
++	}
+ 
+-	pr_info("HyperFlash Id: %x\n", info->flash_id);
++	dev_info(&pdev->dev, "HyperFlash Id: %x\n", rpc->flash_id);
+ 
+-	rpc_info = info;
+ 	return 0;
+ 
+-out_flash_base:
+-	iounmap(info->flash_base);
+-out_flash_res:
+-	release_mem_region(info->flash_res->start,
+-			   resource_size(info->flash_res));
+-out_rpc_base:
+-	iounmap(info->rpc_base);
+-out_rpc_res:
+-	release_mem_region(info->rpc_res->start,
+-			   resource_size(info->rpc_res));
+-out_info:
+-	kfree(info);
+-	return retval;
++
++error_clk_disable:
++	clk_disable_unprepare(rpc->clk);
++error:
++	return ret;
+ }
+ 
+-static void rpc_flash_exit(void)
++static int rpc_flash_exit(struct platform_device *pdev)
+ {
+-	struct rpc_info *info = rpc_info;
++	struct rpc_info *rpc = platform_get_drvdata(pdev);
++
++	/* HW shutdown */
++	clk_disable_unprepare(rpc->clk);
++	mtd_device_unregister(&rpc->mtd);
++	return 0;
++}
+ 
+-	if (!info)
+-		return;
+ 
+-	rpc_info = NULL;
++static const struct of_device_id rpc_flash_of_match[] = {
++	{ .compatible = "renesas,rpc-hyperflash-r8a7798" },
++	{ .compatible = "renesas,rpc-hyperflash-r8a7797" },
++	{ },
++};
+ 
+-	mtd_device_unregister(&info->mtd);
++MODULE_DEVICE_TABLE(of, rpc_flash_of_match);
+ 
+-	iounmap(info->flash_base);
+-	release_mem_region(info->flash_res->start,
+-			   resource_size(info->flash_res));
+-	iounmap(info->rpc_base);
+-	release_mem_region(info->rpc_res->start,
+-			   resource_size(info->rpc_res));
+-	kfree(info);
+-}
++/* platform driver interface */
++static struct platform_driver rpc_flash_platform_driver = {
++	.probe		= rpc_flash_probe,
++	.remove		= rpc_flash_exit,
++	.driver		= {
++		.owner	= THIS_MODULE,
++		.name	= "rpc",
++		.of_match_table = of_match_ptr(rpc_flash_of_match),
++	},
++};
+ 
+-module_init(rpc_flash_init);
+-module_exit(rpc_flash_exit);
++module_platform_driver(rpc_flash_platform_driver);
+ 
+ MODULE_LICENSE("GPL v2");
+ MODULE_DESCRIPTION("Renesas RPC HyperFlash MTD driver");
+-- 
+2.7.4
+

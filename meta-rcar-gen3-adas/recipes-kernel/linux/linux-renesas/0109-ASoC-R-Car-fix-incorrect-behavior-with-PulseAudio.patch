@@ -1,0 +1,65 @@
+From 539d604c483df0a00033f207a2926b6048d99fbc Mon Sep 17 00:00:00 2001
+From: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+Date: Fri, 30 Mar 2018 15:57:43 +0300
+Subject: [PATCH] ASoC: R-Car: fix incorrect behavior with PulseAudio
+
+io->hw_params is set for hw_constraint. And set to NULL in
+rsnd_hw_params. But rule chacker can be called between
+rsnd_hw_params and rsnd_soc_dai_trigger causing driver to
+use io->hw_params instead of cached values.
+Set io->hw_params = NULL in rsnd_soc_dai_trigger before actually
+starting HW.
+
+Signed-off-by: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
+---
+ sound/soc/sh/rcar/core.c | 8 ++++++++
+ sound/soc/sh/rcar/ssi.c  | 6 +++---
+ 2 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/sound/soc/sh/rcar/core.c b/sound/soc/sh/rcar/core.c
+index 7e85aec..982f3d0 100644
+--- a/sound/soc/sh/rcar/core.c
++++ b/sound/soc/sh/rcar/core.c
+@@ -630,6 +630,14 @@ static int rsnd_soc_dai_trigger(struct snd_pcm_substream *substream, int cmd,
+ 	int ret;
+ 	unsigned long flags;
+ 
++	/*
++	 * hw_refine finished. remove hw_param from rdai
++	 * see
++	 *	__rsnd_soc_hw_rule_rate()
++	 *	__rsnd_soc_hw_rule_channels()
++	 */
++	io->hw_params = NULL;
++
+ 	spin_lock_irqsave(&priv->lock, flags);
+ 
+ 	switch (cmd) {
+diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
+index fb5f7fd..8695647 100644
+--- a/sound/soc/sh/rcar/ssi.c
++++ b/sound/soc/sh/rcar/ssi.c
+@@ -240,7 +240,6 @@ static int rsnd_ssi_master_clk_start(struct rsnd_mod *mod,
+ 	struct rsnd_dai *rdai = rsnd_io_to_rdai(io);
+ 	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
+ 	struct rsnd_mod *ssi_parent_mod = rsnd_io_to_mod_ssip(io);
+-	int chan = rsnd_runtime_channel_for_ssi(io);
+ 	int idx, ret;
+ 	unsigned int main_rate;
+ 	unsigned int rate = rsnd_io_is_play(io) ?
+@@ -265,9 +264,10 @@ static int rsnd_ssi_master_clk_start(struct rsnd_mod *mod,
+ 		return 0;
+ 	}
+ 
+-	main_rate = rsnd_ssi_clk_query(priv, rate, chan, &idx);
++	main_rate = rsnd_ssi_clk_query(priv, rate, ssi->chan, &idx);
+ 	if (!main_rate) {
+-		dev_err(dev, "unsupported clock rate\n");
++		dev_err(dev, "unsupported clock rate: %dx%d\n",
++			rate, ssi->chan);
+ 		return -EIO;
+ 	}
+ 
+-- 
+1.9.1
+

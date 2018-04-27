@@ -1,0 +1,101 @@
+From 2e5e9bce98281417fec62cb8af23c086c3d5b01a Mon Sep 17 00:00:00 2001
+From: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+Date: Thu, 5 Apr 2018 17:23:14 +0300
+Subject: [PATCH] V3HSK: dts: Add qspi node
+
+Signed-off-by: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts | 73 +++++++++++++++++++++++++++
+ 1 file changed, 73 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts
+index bf8abe6..d863a95 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7798-v3hsk.dts
+@@ -225,6 +225,17 @@
+ 		groups = "tpu_to0";
+ 		function = "tpu";
+ 	};
++
++
++	qspi0_pins: qspi0 {
++		groups = "qspi0_ctrl", "qspi0_data4";
++		function = "qspi0";
++	};
++
++	qspi1_pins: qspi1 {
++		groups = "qspi1_ctrl", "qspi1_data4";
++		function = "qspi1";
++	};
+ };
+ 
+ &scif0 {
+@@ -356,3 +367,65 @@
+ 		max-speed = <1000>;
+ 	};
+ };
++
++&qspi0 {
++	pinctrl-0 = <&qspi0_pins &qspi1_pins>;
++	pinctrl-names = "default";
++
++	status = "okay";
++
++	flash@0 {
++		compatible = "spansion,s25fs512s", "jedec,spi-nor";
++		reg = <0>;
++		spi-max-frequency = <50000000>;
++		spi-rx-bus-width = <4>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			bootparam@0 {
++				reg = <0x00000000 0x040000>;
++				read-only;
++			};
++			cr7@00040000 {
++				reg = <0x00040000 0x080000>;
++				read-only;
++			};
++			cert_header_sa3@000C0000 {
++				reg = <0x000C0000 0x080000>;
++				read-only;
++			};
++			bl2@00140000 {
++				reg = <0x00140000 0x040000>;
++				read-only;
++			};
++			cert_header_sa6@00180000 {
++				reg = <0x00180000 0x040000>;
++				read-only;
++			};
++			bl31@001C0000 {
++				reg = <0x001C0000 0x460000>;
++				read-only;
++			};
++			uboot@00640000 {
++				reg = <0x00640000 0x0C0000>;
++				read-only;
++			};
++			uboot-env@00700000 {
++				reg = <0x00700000 0x040000>;
++				read-only;
++			};
++			dtb@00740000 {
++				reg = <0x00740000 0x080000>;
++			};
++			kernel@007C0000 {
++				reg = <0x007C0000 0x1400000>;
++			};
++			user@01BC0000 {
++				reg = <0x01BC0000 0x2440000>;
++			};
++		};
++	};
++};
+-- 
+2.7.4
+

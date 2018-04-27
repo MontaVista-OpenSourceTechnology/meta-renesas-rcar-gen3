@@ -1,0 +1,89 @@
+From 0d10eb085d28a442b147e63383d1836cb3e62ae4 Mon Sep 17 00:00:00 2001
+From: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+Date: Mon, 19 Mar 2018 11:32:58 +0300
+Subject: [PATCH 08/12] spi-nor: Add flash array support
+
+Signed-off-by: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+---
+ drivers/mtd/spi-nor/spi-nor.c | 20 ++++++++++++++++++--
+ include/linux/mtd/spi-nor.h   | 12 ++++++++++++
+ 2 files changed, 30 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/mtd/spi-nor/spi-nor.c b/drivers/mtd/spi-nor/spi-nor.c
+index 1855bbe..3ced558 100644
+--- a/drivers/mtd/spi-nor/spi-nor.c
++++ b/drivers/mtd/spi-nor/spi-nor.c
+@@ -1338,6 +1338,9 @@ int spi_nor_scan(struct spi_nor *nor, const char *name, enum read_mode mode)
+ 	if (ret)
+ 		return ret;
+ 
++	if (!nor->array_size)
++		nor->array_size = 1;
++
+ 	if (name)
+ 		info = spi_nor_match_id(name);
+ 	/* Try to auto-detect if chip name wasn't specified or not found */
+@@ -1500,7 +1503,10 @@ int spi_nor_scan(struct spi_nor *nor, const char *name, enum read_mode mode)
+ 			/* Dedicated 4-byte command set */
+ 			switch (nor->flash_read) {
+ 			case SPI_NOR_QUAD:
+-				nor->read_opcode = SPINOR_OP_READ4_1_1_4;
++				if (info->flags & SPANSION_S512FS_QUIRK)
++					nor->read_opcode = SPINOR_OP_READ4_1_4_4;
++				else
++					nor->read_opcode = SPINOR_OP_READ4_1_1_4;
+ 				break;
+ 			case SPI_NOR_DUAL:
+ 				nor->read_opcode = SPINOR_OP_READ4_1_1_2;
+@@ -1528,7 +1534,17 @@ int spi_nor_scan(struct spi_nor *nor, const char *name, enum read_mode mode)
+ 		return -EINVAL;
+ 	}
+ 
+-	nor->read_dummy = spi_nor_read_dummy_cycles(nor);
++	if (info->flags & SPANSION_S512FS_QUIRK) {
++		nor->read_dummy = 10;
++		nor->flags |= SNOR_F_USE_CLSR;
++	} else
++		nor->read_dummy = spi_nor_read_dummy_cycles(nor);
++
++	/* recount parameters using array size */
++	mtd->erasesize *= nor->array_size;
++	mtd->size *= nor->array_size;
++	nor->page_size *= nor->array_size;
++	mtd->writebufsize *= nor->array_size;
+ 
+ 	dev_info(dev, "%s (%lld Kbytes)\n", info->name,
+ 			(long long)mtd->size >> 10);
+diff --git a/include/linux/mtd/spi-nor.h b/include/linux/mtd/spi-nor.h
+index 99f7b2a..7216b09 100644
+--- a/include/linux/mtd/spi-nor.h
++++ b/include/linux/mtd/spi-nor.h
+@@ -174,6 +174,7 @@ struct spi_nor {
+ 	bool			sst_write_second;
+ 	u32			flags;
+ 	u8			cmd_buf[SPI_NOR_MAX_CMD_SIZE];
++	u8			array_size;
+ 
+ 	int (*prepare)(struct spi_nor *nor, enum spi_nor_ops ops);
+ 	void (*unprepare)(struct spi_nor *nor, enum spi_nor_ops ops);
+@@ -204,6 +205,17 @@ static inline struct device_node *spi_nor_get_flash_node(struct spi_nor *nor)
+ 	return mtd_get_of_node(&nor->mtd);
+ }
+ 
++static inline void spi_nor_set_array_size(struct spi_nor *nor,
++					  u8 size)
++{
++	nor->array_size = size;
++}
++
++static inline u8 spi_nor_get_array_size(struct spi_nor *nor)
++{
++	return nor->array_size;
++}
++
+ static inline int spi_nor_get_read_addr_nbits(u8 opcode)
+ {
+ 	if (opcode == SPINOR_OP_READ4_1_4_4)
+-- 
+2.7.4
+

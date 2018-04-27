@@ -1,0 +1,46 @@
+From 05ab83db0e0012674a0255fe37a51713a1601732 Mon Sep 17 00:00:00 2001
+From: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+Date: Mon, 19 Mar 2018 10:42:50 +0300
+Subject: [PATCH 02/12] Renesas: r8a7798: Add RPC clock
+
+Signed-off-by: Dmitry Shifrin <dmitry.shifrin@cogentembedded.com>
+---
+ drivers/clk/renesas/r8a7798-cpg-mssr.c       | 3 +++
+ include/dt-bindings/clock/r8a7798-cpg-mssr.h | 1 +
+ 2 files changed, 4 insertions(+)
+
+diff --git a/drivers/clk/renesas/r8a7798-cpg-mssr.c b/drivers/clk/renesas/r8a7798-cpg-mssr.c
+index e407916..2614147 100644
+--- a/drivers/clk/renesas/r8a7798-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a7798-cpg-mssr.c
+@@ -90,6 +90,8 @@ static const struct cpg_core_clk r8a7798_core_clks[] __initconst = {
+ 
+ 	DEF_GEN3_SD("sd0",      R8A7798_CLK_SD0,   CLK_SDSRC,    0x0074), /* OK? */
+ 
++	DEF_GEN3_RPCSRC("rpcsrc", R8A7798_CLK_RPCSRC, CLK_PLL1,  0x0238),
++
+ 	DEF_FIXED("cl",         R8A7798_CLK_CL,    CLK_PLL1_DIV2, 48, 1),
+ 	DEF_FIXED("cp",         R8A7798_CLK_CP,    CLK_EXTAL,      2, 1),
+ 
+@@ -194,6 +196,7 @@ static const struct mssr_mod_clk r8a7798_mod_clks[] __initconst = {
+ 	DEF_MOD("gpio1",		 911,	R8A7798_CLK_CP),
+ 	DEF_MOD("gpio0",		 912,	R8A7798_CLK_CP),
+ 	DEF_MOD("can-fd",		 914,	R8A7798_CLK_S3D2),
++	DEF_MOD("rpc",			 917,	R8A7798_CLK_RPCSRC),
+ 	/* FIXME missing MSSR for i2c5; should it be 919 as in H3/M3? */
+ 	/* DEF_MOD("i2c4",			 919,	R8A7798_CLK_S3D2), */
+ 	DEF_MOD("i2c4",			 927,	R8A7798_CLK_S0D6),
+diff --git a/include/dt-bindings/clock/r8a7798-cpg-mssr.h b/include/dt-bindings/clock/r8a7798-cpg-mssr.h
+index 3d85730..821383d3 100644
+--- a/include/dt-bindings/clock/r8a7798-cpg-mssr.h
++++ b/include/dt-bindings/clock/r8a7798-cpg-mssr.h
+@@ -52,5 +52,6 @@
+ #define R8A7798_CLK_CPEX		36
+ #define R8A7798_CLK_R			37
+ #define R8A7798_CLK_OSC			38
++#define R8A7798_CLK_RPCSRC		39
+ 
+ #endif /* __DT_BINDINGS_CLOCK_R8A7798_CPG_MSSR_H__ */
+-- 
+2.7.4
+
