@@ -50,9 +50,9 @@ SRC_URI_append = " \
     ${@base_conditional("USE_CAS", "1", " file://capacity_aware_migration_strategy.cfg", "",d)} \
 "
 
-# Add ADSP enable patch
+# Add ADSP patch to enable and add sound hardware abstraction
 SRC_URI_append = " \
-    file://0004-m3ulcb-ADSP-enable.patch \
+    file://0004-ADSP-enable-and-add-sound-hardware-abstraction.patch \
 "
 
 # Install USB3.0 firmware to rootfs
