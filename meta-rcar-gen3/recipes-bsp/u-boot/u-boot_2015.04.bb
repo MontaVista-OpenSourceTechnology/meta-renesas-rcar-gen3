@@ -7,7 +7,9 @@ DEPENDS += "dtc-native"
 UBOOT_URL = "git://github.com/renesas-rcar/u-boot.git"
 BRANCH = "v2015.04/rcar-3.7.0"
 
-SRC_URI = "${UBOOT_URL};branch=${BRANCH}"
+
+SRC_URI = "${UBOOT_URL};branch=${BRANCH} \
+           file://0001-ARM-rmobile-Increase-console-buffer-sizes.patch"
 SRCREV = "6a82c94590cda5d61720798979bdf0144b9569b9"
 
 PV = "v2015.04+git${SRCPV}"
