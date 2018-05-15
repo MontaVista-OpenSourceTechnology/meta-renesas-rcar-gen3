@@ -9,7 +9,8 @@ BRANCH = "v2015.04/rcar-3.6.1"
 LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://Licenses/README;md5=c7383a594871c03da76b3707929d2919"
 
-SRC_URI = "${UBOOT_URL};branch=${BRANCH}"
+SRC_URI = "${UBOOT_URL};branch=${BRANCH} \
+           file://0001-ARM-rmobile-Increase-console-buffer-sizes.patch"
 SRCREV = "9d718378c4e48d043832f2c2067eb08478c19c53"
 
 PV = "v2015.04+git${SRCPV}"
