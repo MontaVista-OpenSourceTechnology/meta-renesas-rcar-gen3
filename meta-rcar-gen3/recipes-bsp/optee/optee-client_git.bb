@@ -6,10 +6,9 @@ PR = "r0"
 PV = "2.6.0+renesas+git${SRCPV}"
 BRANCH = "master"
 SRC_URI = "git://github.com/OP-TEE/optee_client.git;branch=${BRANCH}"
-SRCREV = "73b4e490a8ed0b4a7714818e80998b9d8a7da958"
+SRCREV = "2d542f2074223fde918e68efa4a9ff37f927e604"
 
 SRC_URI += " \
-    file://0001-Add-LDFLAGS-option.patch \
     file://optee.service \
 "
 
@@ -22,7 +21,7 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 S = "${WORKDIR}/git"
 
-EXTRA_OEMAKE = "RPMB_EMU=0"
+EXTRA_OEMAKE = "RPMB_EMU=0  CFLAGS='${CFLAGS}'"
 
 do_install () {
     # Create destination directories
