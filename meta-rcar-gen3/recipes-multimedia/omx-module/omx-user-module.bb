@@ -17,6 +17,7 @@ include ${INCLUDE_FILE}-omx-user-module.inc
 DEPENDS += '${@oe.utils.conditional("USE_VIDEO_OMX", "1", "kernel-module-uvcs-drv", "", d )}'
 
 inherit autotools
+require include/checksum_control.inc
 
 includedir = "${RENESAS_DATADIR}/include"
 CFLAGS += " -I${STAGING_DIR_HOST}${RENESAS_DATADIR}/include"
