@@ -12,8 +12,10 @@ LIC_FILES_CHKSUM = " \
 "
 require include/omx-control.inc
 require include/rcar-gen3-path-common.inc
+require include/checksum_control.inc
 
 inherit module
+
 PR = "r0"
 
 UVCS_SRC = "${@base_conditional('USE_VIDEO_OMX', '1', 'file://RCG3VUDRL4101ZDO.tar.bz2', '', d)}"
