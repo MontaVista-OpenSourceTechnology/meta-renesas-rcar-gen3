@@ -1,5 +1,6 @@
 require include/gles-control.inc
 require include/rcar-gen3-path-common.inc
+require include/checksum_control.inc
 
 DESCRIPTION = "PowerVR GPU user module"
 LICENSE = "CLOSED"
