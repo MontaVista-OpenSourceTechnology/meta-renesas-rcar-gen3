@@ -12,8 +12,10 @@ LIC_FILES_CHKSUM = " \
 "
 require include/omx-control.inc
 require include/rcar-gen3-path-common.inc
+require include/checksum_control.inc
 
 inherit module
+
 PR = "r0"
 
 COMPATIBLE_MACHINE = "(salvator-x|ulcb|ebisu)"
