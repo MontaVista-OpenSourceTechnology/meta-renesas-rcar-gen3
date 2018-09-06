@@ -12,6 +12,9 @@ SRC_URI += " \
     file://optee.service \
 "
 
+# Recipe which fail to compile when enabling FORTIFY_SOURCE=2 option
+SECURITY_CFLAGS_remove = "${lcl_maybe_fortify}"
+
 inherit systemd
 SYSTEMD_SERVICE_${PN} = "optee.service"
 
