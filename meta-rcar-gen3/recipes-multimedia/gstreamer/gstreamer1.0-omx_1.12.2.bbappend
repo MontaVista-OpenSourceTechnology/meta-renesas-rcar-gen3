@@ -35,3 +35,5 @@ do_configure_prepend() {
 }
 
 RDEPENDS_${PN}_append = " libwayland-egl"
+RDEPENDS_${PN}_append = " omx-user-module"
+RDEPENDS_${PN}_remove = "libomxil"
