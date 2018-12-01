@@ -16,6 +16,11 @@ SRCREV = "a5266d298124874c2c06b8b13d073f6ecc2ee355"
 
 SRC_URI = "${RENESAS_BSP_URL};protocol=git;nocheckout=1;branch=${BRANCH}"
 
+# Fix inaccessible SSI for Renesas ADSP firmware
+SRC_URI_append = " \
+    file://0001-Revert-ASoC-rsnd-ssi-wait-maximum-5ms-for-status-che.patch \
+"
+
 LINUX_VERSION ?= "4.14.75"
 PV = "${LINUX_VERSION}+git${SRCPV}"
 PR = "r1"
