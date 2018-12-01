@@ -19,6 +19,11 @@ SRC_URI_append = " \
     file://0001-Revert-mmc-renesas_sdhi_internal_dmac-limit-DMA-RX-f.patch \
 "
 
+# Fix inaccessible SSI for Renesas ADSP firmware
+SRC_URI_append = " \
+    file://0001-Revert-ASoC-rsnd-ssi-wait-maximum-5ms-for-status-che.patch \
+"
+
 LINUX_VERSION ?= "4.14.35"
 PV = "${LINUX_VERSION}+git${SRCPV}"
 PR = "r1"
