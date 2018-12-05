@@ -15,8 +15,10 @@ SRCREV = "118adc53e8e9806d76f40859ba96290f289f8839"
 SRC_URI = "${RENESAS_BSP_URL};protocol=git;nocheckout=1;branch=${BRANCH}"
 
 # Fix micro SD card issue on M3ULCB
+# Fix syscall restarting bug on aarch64(existing in version < 4.14.53)
 SRC_URI_append = " \
     file://0001-Revert-mmc-renesas_sdhi_internal_dmac-limit-DMA-RX-f.patch \
+    file://0001-arm64-Fix-syscall-restarting-around-signal-suppresse.patch \
 "
 
 # Fix inaccessible SSI for Renesas ADSP firmware
