@@ -6,7 +6,7 @@ EXTRA_ATFW_CONF ?= ""
 
 do_ipl_opt_compile () {
     oe_runmake distclean
-    oe_runmake bl2 bl31 dummytool PLAT=${PLATFORM} ${EXTRA_ATFW_OPT} ${ATFW_OPT_LOSSY}
+    oe_runmake bl2 bl31 dummytool PLAT=${PLATFORM} ${EXTRA_ATFW_OPT} ${ATFW_OPT_LOSSY} ${ADDITIONAL_ATFW_OPT}
 }
 
 do_ipl_opt_deploy () {

@@ -25,6 +25,7 @@ ATFW_OPT_r8a7796 = "LSI=M3 RCAR_DRAM_SPLIT=2 ${ATFW_OPT_LOSSY}"
 ATFW_OPT_r8a77965 = "LSI=M3N ${ATFW_OPT_LOSSY}"
 ATFW_OPT_r8a77990 = "LSI=E3 RCAR_SA0_SIZE=0 RCAR_AVS_SETTING_ENABLE=0 RCAR_DRAM_DDR3L_MEMCONF=0 RCAR_DRAM_DDR3L_MEMDUAL=0"
 ATFW_OPT_append_ulcb = " RCAR_GEN3_ULCB=1 PMIC_LEVEL_MODE=0"
+ADDITIONAL_ATFW_OPT ??= ""
 
 # requires CROSS_COMPILE set by hand as there is no configure script
 export CROSS_COMPILE="${TARGET_PREFIX}"
@@ -37,7 +38,7 @@ LD[unexport] = "1"
 
 do_compile() {
     oe_runmake distclean
-    oe_runmake bl2 bl31 dummytool PLAT=${PLATFORM} ${ATFW_OPT}
+    oe_runmake bl2 bl31 dummytool PLAT=${PLATFORM} ${ATFW_OPT} ${ADDITIONAL_ATFW_OPT}
 }
 
 # do_install() nothing
