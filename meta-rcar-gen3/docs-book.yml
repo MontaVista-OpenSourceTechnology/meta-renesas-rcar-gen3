@@ -1,0 +1,18 @@
+type: books
+books:
+-
+    id: hardware-support
+    title: Renesas Gen3 Boards
+    title_fr: Cartes Renesas Gen3
+    description:
+    keywords:
+    author:
+    version: master
+    dst_prefix: renesas-gen3
+    chapters:
+      - name: meta-rcar-gen3 Layer
+        url: "README.md"
+        destination: "gen3.md"
+      - name: Proprietary Drivers
+        url: "README.proprietary.md"
+        destination: "proprietary.md"
