@@ -40,6 +40,8 @@ S = "${WORKDIR}/git"
 EXTRA_OEMAKE = "-e MAKEFLAGS="
 
 do_configure() {
+    git -C ${WORKDIR}/git_official config --local user.name "AGL Git User"
+    git -C ${WORKDIR}/git_official config --local user.email agl@none.null
     git -C ${WORKDIR}/git_official checkout -B official 3.1.0
     git -C ${WORKDIR}/git_official cherry-pick ${SRCREV_officialgit}
     cp -rn ${WORKDIR}/git_official/core/lib/libtomcrypt ${B}/core/lib/.
