@@ -11,8 +11,8 @@ books:
     dst_prefix: renesas-gen3
     chapters:
       - name: meta-rcar-gen3 layer
-        url: "README"
-        destination: "gen3.md"
+        url: "README.md"
+        destination: gen3.md
       - name: Proprietary drivers
-        url: "README.proprietary"
+        url: "README.proprietary.md"
         destination: "proprietary.md"
