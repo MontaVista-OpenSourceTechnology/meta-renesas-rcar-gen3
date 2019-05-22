@@ -16,3 +16,5 @@ RDEPENDS_${PN}-examples_append_rcar-gen3 = " \
 EXTRA_OECONF_append_rcar-gen3 = " \
     ${@oe.utils.conditional('USE_GLES', '1', '', \
         ' WESTON_NATIVE_BACKEND="fbdev-backend.so"', d)}"
+
+PACKAGE_ARCH="${MACHINE_ARCH}"
