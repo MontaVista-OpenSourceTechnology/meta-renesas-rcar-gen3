@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Enable writing to eMMC boot env
+echo 0 > /sys/block/mmcblk0boot1/force_ro

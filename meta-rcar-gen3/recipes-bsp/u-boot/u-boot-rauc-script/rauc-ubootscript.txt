@@ -1,0 +1,50 @@
+test -n "${BOOT_ORDER}" || setenv BOOT_ORDER "A B"
+test -n "${BOOT_A_LEFT}" || setenv BOOT_A_LEFT 3
+test -n "${BOOT_B_LEFT}" || setenv BOOT_B_LEFT 3
+
+# These for selecting rootfs
+setenv argsA 'rw root=/dev/mmcblk0p1'
+setenv argsB 'rw root=/dev/mmcblk0p2'
+# These for selecting kernel
+setenv kernel_A_par 1:1
+setenv kernel_B_par 1:2
+setenv kernel_par
+
+setenv bootargs
+
+for SLOT in ${BOOT_ORDER}; do
+    if test "x${bootargs}" != "x"; then
+      echo "Bootargs is set to: "$bootargs
+    else
+        if test "x${SLOT}" = "xA"; then
+            if test "${BOOT_A_LEFT}" -gt 0; then
+                echo "Slot ${SLOT} found. ${BOOT_A_LEFT} times remaining"
+                setenv bootargs ${argsA}
+                setenv kernel_par ${kernel_A_par}
+                setexpr BOOT_A_LEFT ${BOOT_A_LEFT} - 1
+            else
+                echo "Slot ${SLOT} failed. Rolling back"
+            fi
+        elif test "x${SLOT}" = "xB"; then
+            if test "${BOOT_B_LEFT}" -gt 0; then
+                echo "Slot ${SLOT} found. ${BOOT_B_LEFT} times remaining"
+                setenv bootargs ${argsB}
+                setenv kernel_par ${kernel_B_par}
+                setexpr BOOT_B_LEFT ${BOOT_B_LEFT} - 1
+            else
+                echo "Slot ${SLOT} failed. Rolling back"
+            fi
+        fi
+    fi
+done
+
+if test -n "${bootargs}"; then
+    setenv bootcmd 'ext4load mmc '$kernel_par' 0x48080000 /etc/rauc/rauc-ubootscript; source 0x48080000; ext4load mmc '$kernel_par' 0x48080000 /boot/Image; ext4load mmc '$kernel_par' 0x48000000 /boot/@DEVICE_TREE@; booti 0x48080000 - 0x48000000'
+    saveenv
+else
+    echo "No valid slot found, resetting tries to 3"
+    setenv BOOT_A_LEFT 3
+    setenv BOOT_B_LEFT 3
+    saveenv
+    reset
+fi
