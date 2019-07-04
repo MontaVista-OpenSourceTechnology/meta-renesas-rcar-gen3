@@ -3,6 +3,8 @@ FILESEXTRAPATHS_prepend_rcar-gen3 := "${THISDIR}/${PN}:"
 SRC_URI_append_rcar-gen3 = " \
     file://system.conf \
     file://rauc_enable_fw_set \
+    file://Add-bin-image-for-boot-emmc.patch \
+    file://Disable-toggle-active-eMMC-boot-partition.patch \
 "
 
 RAUC_KEYRING_FILE_rcar-gen3 := "${THISDIR}/${PN}/rauc-sample-ca.cert.pem"

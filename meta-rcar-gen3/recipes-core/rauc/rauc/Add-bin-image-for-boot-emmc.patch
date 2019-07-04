@@ -1,0 +1,12 @@
+Index: rauc-1.1/src/update_handler.c
+===================================================================
+--- rauc-1.1.orig/src/update_handler.c
++++ rauc-1.1/src/update_handler.c
+@@ -1389,6 +1389,7 @@ RaucUpdatePair updatepairs[] = {
+ 	{"*.squashfs", "ubivol", img_to_ubivol_handler},
+ #if ENABLE_EMMC_BOOT_SUPPORT == 1
+ 	{"*.img", "boot-emmc", img_to_boot_emmc_handler},
++        {"*.bin", "boot-emmc", img_to_boot_emmc_handler},
+ #endif
+ 	{"*.img", "*", img_to_raw_handler}, /* fallback */
+ 	{0}
