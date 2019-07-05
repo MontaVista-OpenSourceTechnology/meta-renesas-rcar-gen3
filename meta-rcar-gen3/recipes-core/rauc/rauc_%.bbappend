@@ -5,6 +5,7 @@ SRC_URI_append_rcar-gen3 = " \
     file://rauc_enable_fw_set \
     file://Add-bin-image-for-boot-emmc.patch \
     file://Disable-toggle-active-eMMC-boot-partition.patch \
+    file://0001-update-handler-Avoid-cleaning-all-eMMC-partition.patch \
 "
 
 RAUC_KEYRING_FILE_rcar-gen3 := "${THISDIR}/${PN}/rauc-sample-ca.cert.pem"

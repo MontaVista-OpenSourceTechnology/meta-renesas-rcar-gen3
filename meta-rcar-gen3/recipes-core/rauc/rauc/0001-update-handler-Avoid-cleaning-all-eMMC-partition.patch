@@ -1,0 +1,124 @@
+From ff9208fd29428d3cf2bdc4f671dc9bde61791e22 Mon Sep 17 00:00:00 2001
+From: Duy Dang <duy.dang.yw@renesas.com>
+Date: Thu, 4 Jul 2019 13:48:22 +0700
+Subject: [PATCH] update-handler: Avoid cleaning all eMMC partition
+
+This allows to clean a number of memory block which was defined
+in system.conf, "blocksize" field.
+Only works with boot-emmc slot type.
+---
+ include/config_file.h |  6 ++++++
+ src/config_file.c     |  8 ++++++++
+ src/update_handler.c  | 46 ++++++++++++++++++++++++++++++++++------------
+ 3 files changed, 48 insertions(+), 12 deletions(-)
+
+diff --git a/include/config_file.h b/include/config_file.h
+index 2abc1f1..3ebee85 100644
+--- a/include/config_file.h
++++ b/include/config_file.h
+@@ -95,6 +95,12 @@ typedef struct _RaucSlot {
+ 	gchar *device;
+ 	/** the slots partition type */
+ 	gchar *type;
++	/** The number of block to clear, for eMMC support. 1 block size is defined
++	  * in update_handler.c CLEAR_BLOCK_SIZE
++	  */
++	#if ENABLE_EMMC_BOOT_SUPPORT == 1
++	gsize img_block;
++	#endif
+ 	/** the name this slot is known to the bootloader */
+ 	gchar *bootname;
+ 	/** flag indicating if the slot is updatable */
+diff --git a/src/config_file.c b/src/config_file.c
+index 4a44c55..2cd9ff8 100644
+--- a/src/config_file.c
++++ b/src/config_file.c
+@@ -381,6 +381,14 @@ gboolean load_config(const gchar *filename, RaucConfig **config, GError **error)
+ 				value = g_strdup("raw");
+ 			slot->type = value;
+ 
++			// Enable block size for eMMC support
++			#if ENABLE_EMMC_BOOT_SUPPORT == 1
++			value = key_file_consume_string(key_file, groups[i], "img_block", NULL);
++			if (!value)
++				value = g_strdup("0");
++			slot->img_block = atoi(value);
++			#endif
++
+ 			value = key_file_consume_string(key_file, groups[i], "bootname", NULL);
+ 			slot->bootname = value;
+ 
+diff --git a/src/update_handler.c b/src/update_handler.c
+index b8d044f..78eb9bf 100644
+--- a/src/update_handler.c
++++ b/src/update_handler.c
+@@ -67,6 +67,7 @@ static gboolean clear_slot(RaucSlot *slot, GError **error)
+ 	g_autoptr(GOutputStream) outstream = NULL;
+ 	int out_fd;
+ 	gint write_count = 0;
++	gsize write_block_count = slot->img_block;
+ 
+ 	outstream = (GOutputStream *) open_slot_device(slot, &out_fd, &ierror);
+ 	if (outstream == NULL) {
+@@ -74,18 +75,36 @@ static gboolean clear_slot(RaucSlot *slot, GError **error)
+ 		goto out;
+ 	}
+ 
+-	while (write_count != -1) {
+-		write_count = g_output_stream_write(outstream, zerobuf, CLEAR_BLOCK_SIZE, NULL,
+-				&ierror);
+-		/*
+-		 * G_IO_ERROR_NO_SPACE is expected here, because the block
+-		 * device is cleared completely
+-		 */
+-		if (write_count == -1 &&
+-		    !g_error_matches(ierror, G_IO_ERROR, G_IO_ERROR_NO_SPACE)) {
+-			g_propagate_prefixed_error(error, ierror,
+-					"failed clearing block device: ");
+-			goto out;
++	g_debug("Clearing %d block", (int)write_block_count);
++	if (write_block_count > 0) {
++		while (write_block_count > 0) {
++			write_count = g_output_stream_write(outstream, zerobuf, CLEAR_BLOCK_SIZE, NULL, &ierror);
++
++			// In case the block size is out of slot size, just stop writing
++			if (write_count == -1) {
++				if(g_error_matches(ierror, G_IO_ERROR, G_IO_ERROR_NO_SPACE))
++					break;
++				else
++					g_propagate_prefixed_error(error, ierror, "failed clearing block device: ");
++			}
++
++			write_block_count = write_block_count - 1;
++		}
++	}
++	else {
++		while (write_count != -1) {
++			write_count = g_output_stream_write(outstream, zerobuf, CLEAR_BLOCK_SIZE, NULL,
++					&ierror);
++			/*
++			* G_IO_ERROR_NO_SPACE is expected here, because the block
++			* device is cleared completely
++			*/
++			if (write_count == -1 &&
++				!g_error_matches(ierror, G_IO_ERROR, G_IO_ERROR_NO_SPACE)) {
++				g_propagate_prefixed_error(error, ierror,
++						"failed clearing block device: ");
++				goto out;
++			}
+ 		}
+ 	}
+ 
+@@ -1206,6 +1225,9 @@ static gboolean img_to_boot_emmc_handler(RaucImage *image, RaucSlot *dest_slot,
+ 		goto out;
+ 	}
+ 
++	// Get clear block size of destination slot
++	part_slot->img_block = dest_slot->img_block;
++
+ 	/* clear block device partition */
+ 	g_message("Clearing slot device %s", part_slot->device);
+ 	res = clear_slot(part_slot, &ierror);
+-- 
+2.7.4
+
