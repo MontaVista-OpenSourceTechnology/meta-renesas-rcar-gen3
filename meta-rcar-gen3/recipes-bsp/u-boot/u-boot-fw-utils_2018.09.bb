@@ -10,7 +10,7 @@ SRCREV = "2b858f59e82177c8aba621b26629d797db2b7cc7"
 PV = "2018.09"
 
 COMPATIBLE_MACHINE = "(salvator-x|ebisu|ulcb)"
-DEPENDS = "mtd-utils"
+DEPENDS += "mtd-utils"
 
 INSANE_SKIP_${PN} = "already-stripped"
 EXTRA_OEMAKE_class-target = 'CROSS_COMPILE=${TARGET_PREFIX} CC="${CC} ${CFLAGS} ${LDFLAGS}" HOSTCC="${BUILD_CC} ${BUILD_CFLAGS} ${BUILD_LDFLAGS}" V=1'
