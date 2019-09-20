@@ -54,8 +54,10 @@ do_compile() {
     oe_runmake PLATFORM=${PLATFORM} CFG_ARM64_core=y
 }
 
-# do_install() nothing
-do_install[noexec] = "1"
+do_install() {
+    install -d ${D}/usr/share/optee
+    cp -r ${S}/out/arm-plat-${PLATFORM}/export-ta_arm64 ${D}/usr/share/optee
+}
 
 do_deploy() {
     # Create deploy folder
@@ -67,3 +69,6 @@ do_deploy() {
     install -m 0644 ${S}/out/arm-plat-${PLATFORM}/core/tee.srec ${DEPLOYDIR}/tee-${MACHINE}.srec
 }
 addtask deploy before do_build after do_compile
+
+FILES_${PN}-staticdev += "${datadir}/optee/export-ta_arm64/lib/*.a"
+FILES_${PN}-dev += "${datadir}/optee/export-ta_arm64"
