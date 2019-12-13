@@ -7,12 +7,12 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 inherit pythonnative
 
-PV = "1.0+git${SRCPV}"
+PV = "0.1+git${SRCPV}"
 
-SRCREV = "fda2c22a00379ec7937a0445faf4e6f1578f19ee"
+SRCREV = "0.1"
 
 SRC_URI = " \
-    git://github.com/iotbzh/optee_user_app_template;branch=master;name=master \
+    git://github.com/iotbzh/optee_user_app_template;branch=master \
 "
 
 COMPATIBLE_MACHINE = "(salvator-x|h3ulcb|m3ulcb|m3nulcb|ebisu)"
