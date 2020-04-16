@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://${S}/host/LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a426
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-inherit pythonnative
+inherit python3native
 
 PV = "3.1.0+git${SRCPV}"
 
@@ -19,7 +19,7 @@ SRC_URI = " \
 COMPATIBLE_MACHINE = "(salvator-x|h3ulcb|m3ulcb|m3nulcb|ebisu)"
 PLATFORM = "rcar"
 
-DEPENDS = "optee-os optee-client python-pycrypto-native"
+DEPENDS = "optee-os optee-client python3-pycrypto-native"
 
 export CROSS_COMPILE64="${TARGET_PREFIX}"
 
