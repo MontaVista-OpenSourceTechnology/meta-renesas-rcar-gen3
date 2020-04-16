@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=cd95ab417e23b94f381dafc453d70c30"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-inherit pythonnative
+inherit python3native
 
 PV = "3.6.0+git${SRCPV}"
 
