@@ -1,0 +1,27 @@
+diff --git a/meson.build b/meson.build
+index cdd6d17..78e8f40 100644
+--- a/meson.build
++++ b/meson.build
+@@ -212,6 +212,9 @@ elif omx_target == 'tizonia'
+   cdata.set('TIZONIA_LIBDIR', tizil_dep.get_pkgconfig_variable('libdir'))
+   tizil_includedir = tizil_dep.get_pkgconfig_variable('includedir')
+   gst_omx_args += ['-I' + tizil_includedir + '/tizonia']
++elif omx_target == 'rcar'
++  cdata.set('USE_OMX_TARGET_RCAR', 1)
++  cdata.set('USE_RCAR_DMABUF', 1)
+ else
+   error ('Unsupported omx target specified. Use the -Dtarget option')
+ endif
+diff --git a/meson_options.txt b/meson_options.txt
+index 75985ce..c0d32d9 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -1,7 +1,7 @@
+ option('header_path', type : 'string', value : '',
+     description : 'An extra include directory to find the OpenMax headers')
+ option('target', type : 'combo',
+-    choices : ['none', 'generic', 'rpi', 'bellagio', 'tizonia', 'zynqultrascaleplus'], value : 'none',
++    choices : ['none', 'generic', 'rpi', 'bellagio', 'tizonia', 'zynqultrascaleplus', 'rcar'], value : 'none',
+     description : 'The OMX platform to target')
+ option('struct_packing', type : 'combo',
+     choices : ['0', '1', '2', '4', '8'], value : '0',

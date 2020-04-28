@@ -479,6 +479,8 @@ FILES_${PN}-dev = " \
     ${libdir}/*.la \
 "
 
+PROVIDES += "virtual/libomxil"
+
 RDEPENDS_${PN} += "mmngr-user-module vspmif-user-module"
 RDEPENDS_${PN} += '${@oe.utils.conditional("USE_ALACD_OMX", "1", "libalacdla-l", "", d )}'
 RDEPENDS_${PN} += '${@oe.utils.conditional("USE_FLACD_OMX", "1", "libflacdla-l", "", d )}'
