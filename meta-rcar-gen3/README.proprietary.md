@@ -36,60 +36,60 @@ to use, you will need to get them from Renesas.
 
     * For Salvator-X board
 
-    ```bash
+```bash
        MACHINE = "salvator-x"
-    ```
+```
 
     * For R-Car Starter Kit Premier(H3ULCB) board
 
-    ```bash
+```bash
        MACHINE = "h3ulcb"
-    ```
+```
 
     * For R-Car Starter Kit Pro(M3ULCB) board
 
-    ```bash
+```bash
        MACHINE = "m3ulcb"
-    ```
+```
 
     * For R-Car Starter Kit Pro(M3NULCB) board
 
-    ```bash
+```bash
         MACHINE = "m3nulcb"
-    ```
+```
 
     * For Ebisu board
 
-    ```bash
+```bash
        MACHINE = "ebisu"
-    ```
+```
 
 * Set SOC family name
 
     * For H3: r8a7795
 
-    ```bash
+```bash
        SOC_FAMILY = "r8a7795"
-    ```
+```
 
     * For M3: r8a7796
 
-    ```bash
+```bash
        SOC_FAMILY = "r8a7796"
-    ```
+```
 
     * For M3N: r8a77965
 
-    ```bash
+```bash
        SOC_FAMILY = "r8a77965"
-    ```
+```
 
     * For E3: r8a77990
 
-    ```bash
+```bash
         # Already added in machine config: ebisu.conf
         SOC_FAMILY = "r8a77990"
-    ```
+```
 
 ## II/ Build with GLES
 
@@ -185,6 +185,7 @@ Multimedia portions depend on GLES portions.
 ```
 
 Ex:
+
 ```
     DISTRO_FEATURES_append = " h264dec_lib h265dec_lib mpeg2dec_lib aaclcdec_lib aaclcdec_mdw"
 ```

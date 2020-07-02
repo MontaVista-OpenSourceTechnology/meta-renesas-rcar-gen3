@@ -112,28 +112,27 @@ Starter Kit Premier (H3ULCB)|MACHINE="h3ulcb"
 
     * For H3: r8a7795
 
-    ```bash
+```bash
         SOC_FAMILY = "r8a7795"
-    ```
+```
 
     * For M3: r8a7796
 
-    ```bash
+```bash
         SOC_FAMILY = "r8a7796"
-    ```
+```
 
     * For M3N: r8a77965
 
-    ```bash
+```bash
         SOC_FAMILY = "r8a77965"
-    ```
+```
 
     * For E3: r8a77990
 
-    ```bash
-        # Already added in machine config: ebisu.conf
+```bash
         SOC_FAMILY = "r8a77990"
-    ```
+```
 
 * Configure for systemd init in local.conf:
 
