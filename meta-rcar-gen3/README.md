@@ -160,7 +160,7 @@ Starter Kit Premier (H3ULCB)|MACHINE="h3ulcb"
     MACHINE_FEATURES_append = " cas"
 ```
 
-* For a list of sample local.conf file, please refer to: [docs/sample/conf/](docs/sample/conf/)
+* For a list of sample local.conf file, please refer to: [docs/sample/conf/](https://git.automotivelinux.org/AGL/meta-renesas-rcar-gen3/tree/meta-rcar-gen3/docs/sample/conf)
 
 * Build the target file system image using bitbake:
 

@@ -24,7 +24,7 @@ check section IV.
 **NOTE:**
 
 * However, to have a completed local.conf, please also refer to Build
-Instruction in [meta-renesas/meta-rcar-gen3/README.md](README.md).
+Instruction in [meta-renesas/meta-rcar-gen3/README.md](https://git.automotivelinux.org/AGL/meta-renesas-rcar-gen3/tree/meta-rcar-gen3/README.md).
 
 * In addition, these libraries are not provided with recipes. If you would like
 to use, you will need to get them from Renesas.
